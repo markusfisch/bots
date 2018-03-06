@@ -6,9 +6,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#define SECONDS_TO_WAIT_FOR_PLAYERS 10
 #define MAP_LENGTH 32
 #define MAX_PLAYERS 16
 #define VIEW_RADIUS 2
+#define STDOUT 1
 
 struct Game {
 	char map[MAP_LENGTH * MAP_LENGTH];
@@ -23,9 +25,28 @@ struct Game {
 	} players[MAX_PLAYERS];
 } game;
 
-static void init_map() {
-	char tiles[] = "                 .~#";
-	size_t ntiles = sizeof(tiles);
+static int game_joined() {
+	struct Player *p = game.players;
+	int n = 0;
+	for (int i = 0; i < game.nplayers; ++i, ++p) {
+		if (p->fd > 0) {
+			++n;
+		}
+	}
+	return n;
+}
+
+static void matrix_write(int fd, char *p, size_t len) {
+	for (size_t y = 0; y < len; ++y) {
+		write(fd, p, len);
+		write(fd, "\n", 1);
+		p += len;
+	}
+}
+
+static void map_init() {
+	char tiles[] = "................~#";
+	size_t ntiles = strlen(tiles);
 	size_t size = sizeof(game.map);
 	char *p = game.map;
 	for (size_t i = 0; i < size; ++i) {
@@ -33,34 +54,62 @@ static void init_map() {
 	}
 }
 
-static void init_game() {
-	init_map();
-	game.started = 0;
-	game.nplayers = 0;
-}
-
-static void write_map(int fd) {
-	char *p = game.map;
-	for (int y = 0; y < MAP_LENGTH; ++y) {
-		write(fd, p, MAP_LENGTH);
-		write(fd, "\n", 1);
-		p += MAP_LENGTH;
+static int map_write(int fd) {
+	size_t size = sizeof(game.map);
+	char buf[size];
+	memcpy(buf, game.map, size);
+	struct Player *player = game.players;
+	for (int i = 0; i < game.nplayers; ++i, ++player) {
+		if (player->fd > 0) {
+			int x = player->x;
+			int y = player->y;
+			size_t offset = (y * MAP_LENGTH + x) % size;
+			buf[offset] = 65 + i;
+		}
 	}
+	matrix_write(fd, buf, MAP_LENGTH);
+	int joined = game_joined();
+	printf("joined: %d\n", joined);
+	return joined;
 }
 
-static int wrap(int coord) {
-	return (coord + MAP_LENGTH) % MAP_LENGTH;
+static int map_wrap(int pos) {
+	return (pos + MAP_LENGTH) % MAP_LENGTH;
 }
 
-static char get_tile(int x, int y) {
-	unsigned long offset = wrap(y) * MAP_LENGTH + wrap(x);
+static char map_get(int x, int y) {
+	size_t offset = map_wrap(y) * MAP_LENGTH + map_wrap(x);
 	return game.map[offset % sizeof(game.map)];
 }
 
-static void write_view(struct Player *player) {
+static char player_bearing(int bearing) {
+	switch (bearing % 4) {
+		default:
+		case 0:
+			return '^';
+		case 1:
+			return '>';
+		case 2:
+			return 'V';
+		case 3:
+			return '<';
+	}
+}
+
+static struct Player *player_at(int x, int y) {
+	struct Player *p = game.players;
+	for (int i = 0; i < game.nplayers; ++i, ++p) {
+		if (p->fd > 0 && p->x == x && p->y == y) {
+			return p;
+		}
+	}
+	return NULL;
+}
+
+static void player_view_write(struct Player *player) {
 	int radius = VIEW_RADIUS;
 	int len = radius * 2 + 1;
-	char line[len];
+	char view[len * len];
 	int left;
 	int top;
 	int xx;
@@ -102,54 +151,29 @@ static void write_view(struct Player *player) {
 			yy = 0;
 			break;
 	}
-	left = wrap(player->x + left);
-	top = wrap(player->y + top);
+	left = map_wrap(player->x + left);
+	top = map_wrap(player->y + top);
+	char *p = view;
 	for (int y = 0; y < len; ++y) {
-		char *p = line;
 		int l = left;
 		int t = top;
 		for (int x = 0; x < len; ++x, ++p) {
-			if (x == radius && y == radius) {
-				*p = 'X';
-			} else {
-				*p = get_tile(l, t);
+			*p = map_get(l, t);
+			struct Player *enemy = player_at(map_wrap(l), map_wrap(t));
+			if (enemy) {
+				*p = player_bearing(player->bearing + enemy->bearing);
 			}
 			l += xx;
 			t += xy;
 		}
 		left += yx;
 		top += yy;
-		write(player->fd, line, len);
-		write(player->fd, "\n", 1);
 	}
+	view[radius * len + radius] = 'X';
+	matrix_write(player->fd, view, len);
 }
 
-static int bind_to_port(int fd, int port) {
-	struct sockaddr_in a;
-
-	memset(&a, 0, sizeof(a));
-	a.sin_len = sizeof(a);
-	a.sin_family = AF_INET;
-	a.sin_addr.s_addr = htonl(INADDR_ANY);
-	a.sin_port = htons(port);
-
-	if (bind(fd, (struct sockaddr *) &a, sizeof(a))) {
-		close(fd);
-		return 1;
-	}
-
-	return 0;
-}
-
-static void close_fds(fd_set *ro, int nfds) {
-	for (int s = 0; s < nfds; ++s) {
-		if (FD_ISSET(s, ro)) {
-			close(s);
-		}
-	}
-}
-
-static struct Player *get_player(int fd) {
+static struct Player *player_get(int fd) {
 	struct Player *p = game.players;
 	for (int i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd == fd) {
@@ -159,99 +183,113 @@ static struct Player *get_player(int fd) {
 	return NULL;
 }
 
-static void remove_player(int fd) {
-	struct Player *p = get_player(fd);
+static void player_remove(int fd) {
+	struct Player *p = player_get(fd);
 	if (p != NULL) {
 		p->fd = 0;
 	}
 }
 
-static void set_player(struct Player *p, int x, int y) {
-	p->x = wrap(p->x + x);
-	p->y = wrap(p->y + y);
+static void player_move_by(struct Player *p, int x, int y) {
+	p->x = map_wrap(p->x + x);
+	p->y = map_wrap(p->y + y);
 }
 
-static void move_player(struct Player *p, int step) {
+static void player_move(struct Player *p, int step) {
 	switch (p->bearing) {
 		default:
 		case 0:
-			set_player(p, 0, -step);
+			player_move_by(p, 0, -step);
 			break;
 		case 1:
-			set_player(p, step, 0);
+			player_move_by(p, step, 0);
 			break;
 		case 2:
-			set_player(p, 0, step);
+			player_move_by(p, 0, step);
 			break;
 		case 3:
-			set_player(p, -step, 0);
+			player_move_by(p, -step, 0);
 			break;
 	}
 }
 
-static void turn_player(struct Player *p, int direction) {
+static void player_turn(struct Player *p, int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-static void process(fd_set *r, fd_set *ro, int nfds) {
+static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 	char cmd;
-	for (int s = 0; s < nfds; ++s) {
-		if (FD_ISSET(s, r)) {
+	for (int fd = 0; fd < nfds; ++fd) {
+		if (FD_ISSET(fd, r)) {
 			int b;
-			if ((b = recv(s, &cmd, sizeof(cmd), 0)) < 1) {
+			if ((b = recv(fd, &cmd, sizeof(cmd), 0)) < 1) {
 				perror("recv");
-				close(s);
-				FD_CLR(s, ro);
-				remove_player(s);
+				close(fd);
+				FD_CLR(fd, ro);
+				player_remove(fd);
 			}
-			struct Player *p = get_player(s);
+			struct Player *p = player_get(fd);
 			if (p == NULL) {
 				continue;
 			}
 			switch (cmd) {
 				case '^':
-					move_player(p, 1);
+					player_move(p, 1);
 					break;
 				case '<':
-					turn_player(p, -1);
+					player_turn(p, -1);
 					break;
 				case '>':
-					turn_player(p, 1);
+					player_turn(p, 1);
 					break;
 				case 'V':
-					move_player(p, -1);
+					player_move(p, -1);
 					break;
 			}
-			write_view(p);
+			player_view_write(p);
+			if (map_write(STDOUT) < 1) {
+				return 1;
+			}
 		}
 	}
+	return 0;
 }
 
-static void send_maps() {
+static void player_send_views() {
 	struct Player *p = game.players;
 	for (int i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd != 0) {
-			write_view(p);
+			player_view_write(p);
 		}
 	}
 }
 
-static void add_player(int fd) {
+static void player_add(int fd) {
 	struct Player *p = &game.players[game.nplayers];
 	p->fd = fd;
 	p->bearing = rand() % 4;
-	p->x = rand() % MAP_LENGTH;
-	p->y = rand() % MAP_LENGTH;
+	do {
+		p->x = rand() % MAP_LENGTH;
+		p->y = rand() % MAP_LENGTH;
+	} while (player_at(p->x, p->y));
 	++game.nplayers;
 }
 
-static int serve(int ls) {
-	struct timeval tv = { 10, 0 }, *ptv = &tv;
-	int nfds = ls + 1;
+static void close_fds(fd_set *ro, int nfds) {
+	for (int fd = 0; fd < nfds; ++fd) {
+		if (FD_ISSET(fd, ro)) {
+			close(fd);
+		}
+	}
+}
+
+static int serve(int lfd) {
+	struct timeval tv = { SECONDS_TO_WAIT_FOR_PLAYERS, 0 }, *ptv = &tv;
+	int nfds = lfd + 1;
 	fd_set r, ro;
 
 	FD_ZERO(&ro);
-	FD_SET(ls, &ro);
+	FD_SET(lfd, &ro);
 
 	for (;;) {
 		memcpy(&r, &ro, sizeof(r));
@@ -261,28 +299,31 @@ static int serve(int ls) {
 			perror("select");
 			return 1;
 		} else if (ready == 0) {
+			if (game.nplayers == 0) {
+				continue;
+			}
 			ptv = NULL;
 			game.started = 1;
-			write_map(1);
-			send_maps();
+			map_write(STDOUT);
+			player_send_views();
 			continue;
 		}
 
-		if (FD_ISSET(ls, &r)) {
+		if (FD_ISSET(lfd, &r)) {
 			struct sockaddr a;
 			socklen_t l;
-			int s = accept(ls, &a, &l);
+			int fd = accept(lfd, &a, &l);
 			if (!game.started && game.nplayers < MAX_PLAYERS) {
-				FD_SET(s, &ro);
-				add_player(s);
-				if (++s > nfds) {
-					nfds = s;
+				FD_SET(fd, &ro);
+				player_add(fd);
+				if (++fd > nfds) {
+					nfds = fd;
 				}
 			} else {
-				close(s);
+				close(fd);
 			}
-		} else {
-			process(&r, &ro, nfds);
+		} else if (player_read_commands(&r, &ro, nfds)) {
+			break;
 		}
 	}
 
@@ -291,25 +332,48 @@ static int serve(int ls) {
 	return 0;
 }
 
-int main(void) {
-	init_game();
+static int bind_to_port(int fd, int port) {
+	struct sockaddr_in addr;
 
-	int s;
-	if ((s = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_len = sizeof(addr);
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_port = htons(port);
+
+	if (bind(fd, (struct sockaddr *) &addr, sizeof(addr))) {
+		close(fd);
+		return 1;
+	}
+
+	return 0;
+}
+
+static void game_init() {
+	map_init();
+	game.started = 0;
+	game.nplayers = 0;
+}
+
+int main(void) {
+	game_init();
+
+	int fd;
+	if ((fd = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
 		perror("socket");
 		return 1;
 	}
 
-	if (bind_to_port(s, 8080) != 0) {
+	if (bind_to_port(fd, 51175) != 0) {
 		perror("bind");
 		return 1;
 	}
 
-	if (listen(s, 4)) {
+	if (listen(fd, 4)) {
 		perror("listen");
-		close(s);
+		close(fd);
 		return 1;
 	}
 
-	return serve(s);
+	return serve(fd);
 }
