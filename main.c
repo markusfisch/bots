@@ -1,9 +1,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #define SECONDS_TO_WAIT_FOR_PLAYERS 10
@@ -12,7 +14,8 @@
 #define VIEW_RADIUS 2
 #define STDOUT 1
 
-struct Game {
+static int stop = 0;
+static struct Game {
 	char map[MAP_LENGTH * MAP_LENGTH];
 	int nplayers;
 	int started;
@@ -28,7 +31,8 @@ struct Game {
 static int game_joined() {
 	struct Player *p = game.players;
 	int n = 0;
-	for (int i = 0; i < game.nplayers; ++i, ++p) {
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd > 0) {
 			++n;
 		}
@@ -37,7 +41,8 @@ static int game_joined() {
 }
 
 static void matrix_write(int fd, char *p, size_t len) {
-	for (size_t y = 0; y < len; ++y) {
+	size_t y;
+	for (y = 0; y < len; ++y) {
 		write(fd, p, len);
 		write(fd, "\n", 1);
 		p += len;
@@ -49,17 +54,26 @@ static void map_init() {
 	size_t ntiles = strlen(tiles);
 	size_t size = sizeof(game.map);
 	char *p = game.map;
-	for (size_t i = 0; i < size; ++i) {
+	size_t i;
+	for (i = 0; i < size; ++i) {
 		*p++ = tiles[rand() % ntiles];
 	}
 }
 
-static int map_write(int fd) {
+static void game_init() {
+	srand(time(NULL));
+	map_init();
+	game.started = 0;
+	game.nplayers = 0;
+}
+
+static void map_write(int fd) {
 	size_t size = sizeof(game.map);
 	char buf[size];
 	memcpy(buf, game.map, size);
 	struct Player *player = game.players;
-	for (int i = 0; i < game.nplayers; ++i, ++player) {
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++player) {
 		if (player->fd > 0) {
 			int x = player->x;
 			int y = player->y;
@@ -68,9 +82,7 @@ static int map_write(int fd) {
 		}
 	}
 	matrix_write(fd, buf, MAP_LENGTH);
-	int joined = game_joined();
-	printf("joined: %d\n", joined);
-	return joined;
+	printf("joined: %d\n", game_joined());
 }
 
 static int map_wrap(int pos) {
@@ -84,21 +96,22 @@ static char map_get(int x, int y) {
 
 static char player_bearing(int bearing) {
 	switch (bearing % 4) {
-		default:
-		case 0:
-			return '^';
-		case 1:
-			return '>';
-		case 2:
-			return 'V';
-		case 3:
-			return '<';
+	default:
+	case 0:
+		return '^';
+	case 1:
+		return '>';
+	case 2:
+		return 'V';
+	case 3:
+		return '<';
 	}
 }
 
 static struct Player *player_at(int x, int y) {
 	struct Player *p = game.players;
-	for (int i = 0; i < game.nplayers; ++i, ++p) {
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd > 0 && p->x == x && p->y == y) {
 			return p;
 		}
@@ -117,47 +130,49 @@ static void player_view_write(struct Player *player) {
 	int yx;
 	int yy;
 	switch (player->bearing) {
-		default:
-		case 0:
-			left = -radius;
-			top = -radius;
-			xx = 1;
-			xy = 0;
-			yx = 0;
-			yy = 1;
-			break;
-		case 1:
-			left = radius;
-			top = -radius;
-			xx = 0;
-			xy = 1;
-			yx = -1;
-			yy = 0;
-			break;
-		case 2:
-			left = radius;
-			top = radius;
-			xx = -1;
-			xy = 0;
-			yx = 0;
-			yy = -1;
-			break;
-		case 3:
-			left = -radius;
-			top = radius;
-			xx = 0;
-			xy = -1;
-			yx = 1;
-			yy = 0;
-			break;
+	default:
+	case 0:
+		left = -radius;
+		top = -radius;
+		xx = 1;
+		xy = 0;
+		yx = 0;
+		yy = 1;
+		break;
+	case 1:
+		left = radius;
+		top = -radius;
+		xx = 0;
+		xy = 1;
+		yx = -1;
+		yy = 0;
+		break;
+	case 2:
+		left = radius;
+		top = radius;
+		xx = -1;
+		xy = 0;
+		yx = 0;
+		yy = -1;
+		break;
+	case 3:
+		left = -radius;
+		top = radius;
+		xx = 0;
+		xy = -1;
+		yx = 1;
+		yy = 0;
+		break;
 	}
 	left = map_wrap(player->x + left);
 	top = map_wrap(player->y + top);
 	char *p = view;
-	for (int y = 0; y < len; ++y) {
+	int y;
+	int x;
+	for (y = 0; y < len; ++y) {
 		int l = left;
 		int t = top;
-		for (int x = 0; x < len; ++x, ++p) {
+		for (x = 0; x < len; ++x, ++p) {
 			*p = map_get(l, t);
 			struct Player *enemy = player_at(map_wrap(l), map_wrap(t));
 			if (enemy) {
@@ -175,7 +190,8 @@ static void player_view_write(struct Player *player) {
 
 static struct Player *player_get(int fd) {
 	struct Player *p = game.players;
-	for (int i = 0; i < game.nplayers; ++i, ++p) {
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd == fd) {
 			return p;
 		}
@@ -197,19 +213,19 @@ static void player_move_by(struct Player *p, int x, int y) {
 
 static void player_move(struct Player *p, int step) {
 	switch (p->bearing) {
-		default:
-		case 0:
-			player_move_by(p, 0, -step);
-			break;
-		case 1:
-			player_move_by(p, step, 0);
-			break;
-		case 2:
-			player_move_by(p, 0, step);
-			break;
-		case 3:
-			player_move_by(p, -step, 0);
-			break;
+	default:
+	case 0:
+		player_move_by(p, 0, -step);
+		break;
+	case 1:
+		player_move_by(p, step, 0);
+		break;
+	case 2:
+		player_move_by(p, 0, step);
+		break;
+	case 3:
+		player_move_by(p, -step, 0);
+		break;
 	}
 }
 
@@ -219,7 +235,8 @@ static void player_turn(struct Player *p, int direction) {
 
 static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 	char cmd;
-	for (int fd = 0; fd < nfds; ++fd) {
+	int fd;
+	for (fd = 0; fd < nfds; ++fd) {
 		if (FD_ISSET(fd, r)) {
 			int b;
 			if ((b = recv(fd, &cmd, sizeof(cmd), 0)) < 1) {
@@ -227,29 +244,31 @@ static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 				close(fd);
 				FD_CLR(fd, ro);
 				player_remove(fd);
+				if (game_joined() < 1) {
+					return 1;
+				}
+				continue;
 			}
 			struct Player *p = player_get(fd);
 			if (p == NULL) {
 				continue;
 			}
 			switch (cmd) {
-				case '^':
-					player_move(p, 1);
-					break;
-				case '<':
-					player_turn(p, -1);
-					break;
-				case '>':
-					player_turn(p, 1);
-					break;
-				case 'V':
-					player_move(p, -1);
-					break;
+			case '^':
+				player_move(p, 1);
+				break;
+			case '<':
+				player_turn(p, -1);
+				break;
+			case '>':
+				player_turn(p, 1);
+				break;
+			case 'V':
+				player_move(p, -1);
+				break;
 			}
 			player_view_write(p);
-			if (map_write(STDOUT) < 1) {
-				return 1;
-			}
+			map_write(STDOUT);
 		}
 	}
 	return 0;
@@ -257,7 +276,8 @@ static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 
 static void player_send_views() {
 	struct Player *p = game.players;
-	for (int i = 0; i < game.nplayers; ++i, ++p) {
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd != 0) {
 			player_view_write(p);
 		}
@@ -276,7 +296,8 @@ static void player_add(int fd) {
 }
 
 static void close_fds(fd_set *ro, int nfds) {
-	for (int fd = 0; fd < nfds; ++fd) {
+	int fd;
+	for (fd = 0; fd < nfds; ++fd) {
 		if (FD_ISSET(fd, ro)) {
 			close(fd);
 		}
@@ -284,20 +305,32 @@ static void close_fds(fd_set *ro, int nfds) {
 }
 
 static int serve(int lfd) {
-	struct timeval tv = { SECONDS_TO_WAIT_FOR_PLAYERS, 0 }, *ptv = &tv;
-	int nfds = lfd + 1;
+	struct timeval tv;
+	struct timeval *ptv;
+	int nfds;
 	fd_set r, ro;
 
-	FD_ZERO(&ro);
-	FD_SET(lfd, &ro);
+	#define RESET {\
+		ptv = &tv;\
+		FD_ZERO(&ro);\
+		FD_SET(lfd, &ro);\
+		nfds = lfd + 1;\
+	}
+	RESET
 
-	for (;;) {
+	while (!stop) {
 		memcpy(&r, &ro, sizeof(r));
+
+		if (ptv) {
+			// Linux' select() will modify tv
+			tv.tv_sec = SECONDS_TO_WAIT_FOR_PLAYERS;
+			tv.tv_usec = 0;
+		}
 
 		int ready = select(nfds, &r, NULL, NULL, ptv);
 		if (ready < 0) {
 			perror("select");
-			return 1;
+			break;
 		} else if (ready == 0) {
 			if (game.nplayers == 0) {
 				continue;
@@ -310,9 +343,9 @@ static int serve(int lfd) {
 		}
 
 		if (FD_ISSET(lfd, &r)) {
-			struct sockaddr a;
-			socklen_t l;
-			int fd = accept(lfd, &a, &l);
+			struct sockaddr addr;
+			socklen_t len;
+			int fd = accept(lfd, &addr, &len);
 			if (!game.started && game.nplayers < MAX_PLAYERS) {
 				FD_SET(fd, &ro);
 				player_add(fd);
@@ -322,8 +355,9 @@ static int serve(int lfd) {
 			} else {
 				close(fd);
 			}
-		} else if (player_read_commands(&r, &ro, nfds)) {
-			break;
+		} else if (game.started && player_read_commands(&r, &ro, nfds)) {
+			game_init();
+			RESET
 		}
 	}
 
@@ -336,7 +370,6 @@ static int bind_to_port(int fd, int port) {
 	struct sockaddr_in addr;
 
 	memset(&addr, 0, sizeof(addr));
-	addr.sin_len = sizeof(addr);
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(port);
@@ -349,10 +382,14 @@ static int bind_to_port(int fd, int port) {
 	return 0;
 }
 
-static void game_init() {
-	map_init();
-	game.started = 0;
-	game.nplayers = 0;
+static void signalHandler(int id) {
+	switch (id) {
+	case SIGHUP:
+	case SIGINT:
+	case SIGTERM:
+		stop = 1;
+		break;
+	}
 }
 
 int main(void) {
@@ -374,6 +411,10 @@ int main(void) {
 		close(fd);
 		return 1;
 	}
+
+	signal(SIGHUP, signalHandler);
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
 
 	return serve(fd);
 }
