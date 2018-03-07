@@ -14,11 +14,11 @@
 #define VIEW_RADIUS 2
 #define STDOUT 1
 
-static int stop = 0;
 static struct Game {
 	char map[MAP_LENGTH * MAP_LENGTH];
 	int nplayers;
 	int started;
+	int shutdown;
 	struct Player {
 		int fd;
 		int x;
@@ -318,7 +318,7 @@ static int serve(int lfd) {
 	}
 	RESET
 
-	while (!stop) {
+	while (!game.shutdown) {
 		memcpy(&r, &ro, sizeof(r));
 
 		if (ptv) {
@@ -387,7 +387,7 @@ static void signalHandler(int id) {
 	case SIGHUP:
 	case SIGINT:
 	case SIGTERM:
-		stop = 1;
+		game.shutdown = 1;
 		break;
 	}
 }
@@ -412,6 +412,7 @@ int main(void) {
 		return 1;
 	}
 
+	game.shutdown = 0;
 	signal(SIGHUP, signalHandler);
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
