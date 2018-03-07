@@ -25,6 +25,7 @@ static struct Game {
 		int y;
 		int bearing;
 		int power;
+		time_t tick;
 	} players[MAX_PLAYERS];
 } game;
 
@@ -218,6 +219,7 @@ static void player_turn(struct Player *p, int direction) {
 }
 
 static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
+	time_t now = time(NULL);
 	char cmd;
 	int fd;
 	for (fd = 0; fd < nfds; ++fd) {
@@ -237,9 +239,10 @@ static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 				continue;
 			}
 			struct Player *p = player_get(fd);
-			if (p == NULL) {
+			if (p == NULL || p->tick == now) {
 				continue;
 			}
+			p->tick = now;
 			switch (cmd) {
 			case '^':
 				player_move(p, 1);
