@@ -28,17 +28,8 @@ static struct Game {
 	} players[MAX_PLAYERS];
 } game;
 
-static int game_joined() {
-	struct Player *p = game.players;
-	int n = 0;
-	int i;
-	for (i = 0; i < game.nplayers; ++i, ++p) {
-		if (p->fd > 0) {
-			++n;
-		}
-	}
-	return n;
-}
+static int game_joined();
+static void game_init();
 
 static void matrix_write(int fd, char *p, size_t len) {
 	size_t y;
@@ -58,13 +49,6 @@ static void map_init() {
 	for (i = 0; i < size; ++i) {
 		*p++ = tiles[rand() % ntiles];
 	}
-}
-
-static void game_init() {
-	srand(time(NULL));
-	map_init();
-	game.started = 0;
-	game.nplayers = 0;
 }
 
 static void map_write(int fd) {
@@ -293,6 +277,25 @@ static void player_add(int fd) {
 		p->y = rand() % MAP_LENGTH;
 	} while (player_at(p->x, p->y));
 	++game.nplayers;
+}
+
+static int game_joined() {
+	struct Player *p = game.players;
+	int n = 0;
+	int i;
+	for (i = 0; i < game.nplayers; ++i, ++p) {
+		if (p->fd > 0) {
+			++n;
+		}
+	}
+	return n;
+}
+
+static void game_init() {
+	srand(time(NULL));
+	map_init();
+	game.started = 0;
+	game.nplayers = 0;
 }
 
 static void close_fds(fd_set *ro, int nfds) {
