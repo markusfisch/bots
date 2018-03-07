@@ -233,6 +233,9 @@ static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 				}
 				continue;
 			}
+			if (!game.started) {
+				continue;
+			}
 			struct Player *p = player_get(fd);
 			if (p == NULL) {
 				continue;
@@ -358,7 +361,7 @@ static int serve(int lfd) {
 			} else {
 				close(fd);
 			}
-		} else if (game.started && player_read_commands(&r, &ro, nfds)) {
+		} else if (player_read_commands(&r, &ro, nfds)) {
 			game_init();
 			RESET
 		}
