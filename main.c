@@ -8,31 +8,32 @@
 #include <time.h>
 #include <unistd.h>
 
-#define SECONDS_TO_WAIT_FOR_PLAYERS 10
+#define SECONDS_TO_JOIN 10
+#define SECONDS_PER_TURN 1
 #define MAP_LENGTH 32
 #define MAX_PLAYERS 16
+#define MIN_PLAYERS 1
 #define VIEW_RADIUS 2
 #define STDOUT 1
 
 static struct Game {
 	char map[MAP_LENGTH * MAP_LENGTH];
-	int nplayers;
-	int started;
+	time_t started;
 	int shutdown;
+	int nplayers;
 	struct Player {
 		int fd;
+		int can_move;
 		int x;
 		int y;
 		int bearing;
-		int power;
-		time_t tick;
 	} players[MAX_PLAYERS];
 } game;
 
 static int game_joined();
 static void game_init();
 
-static void matrix_write(int fd, char *p, size_t len) {
+static void write_square(int fd, char *p, size_t len) {
 	size_t y;
 	for (y = 0; y < len; ++y) {
 		write(fd, p, len);
@@ -66,7 +67,7 @@ static void map_write(int fd) {
 			buf[offset] = 65 + i;
 		}
 	}
-	matrix_write(fd, buf, MAP_LENGTH);
+	write_square(fd, buf, MAP_LENGTH);
 	printf("joined: %d\n", game_joined());
 }
 
@@ -170,7 +171,7 @@ static void player_view_write(struct Player *player) {
 		top += yy;
 	}
 	view[radius * len + radius] = 'X';
-	matrix_write(player->fd, view, len);
+	write_square(player->fd, view, len);
 }
 
 static struct Player *player_get(int fd) {
@@ -218,8 +219,29 @@ static void player_turn(struct Player *p, int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
-	time_t now = time(NULL);
+static void player_do(struct Player *p, char cmd) {
+	if (p == NULL || !p->can_move) {
+		return;
+	}
+	p->can_move = 0;
+
+	switch (cmd) {
+	case '^':
+		player_move(p, 1);
+		break;
+	case '<':
+		player_turn(p, -1);
+		break;
+	case '>':
+		player_turn(p, 1);
+		break;
+	case 'V':
+		player_move(p, -1);
+		break;
+	}
+}
+
+static int player_read_command(fd_set *r, fd_set *ro, int nfds) {
 	char cmd;
 	int fd;
 	for (fd = 0; fd < nfds; ++fd) {
@@ -238,27 +260,7 @@ static int player_read_commands(fd_set *r, fd_set *ro, int nfds) {
 			if (!game.started) {
 				continue;
 			}
-			struct Player *p = player_get(fd);
-			if (p == NULL || p->tick == now) {
-				continue;
-			}
-			p->tick = now;
-			switch (cmd) {
-			case '^':
-				player_move(p, 1);
-				break;
-			case '<':
-				player_turn(p, -1);
-				break;
-			case '>':
-				player_turn(p, 1);
-				break;
-			case 'V':
-				player_move(p, -1);
-				break;
-			}
-			player_view_write(p);
-			map_write(STDOUT);
+			player_do(player_get(fd), cmd);
 		}
 	}
 	return 0;
@@ -269,9 +271,13 @@ static void player_send_views() {
 	int i;
 	for (i = 0; i < game.nplayers; ++i, ++p) {
 		if (p->fd != 0) {
-			player_view_write(p);
+			if (!p->can_move) {
+				player_view_write(p);
+			}
+			p->can_move = 1;
 		}
 	}
+	map_write(STDOUT);
 }
 
 static void player_add(int fd) {
@@ -298,10 +304,9 @@ static int game_joined() {
 }
 
 static void game_init() {
+	memset(&game, 0, sizeof(game));
 	srand(time(NULL));
 	map_init();
-	game.started = 0;
-	game.nplayers = 0;
 }
 
 static void close_fds(fd_set *ro, int nfds) {
@@ -314,40 +319,43 @@ static void close_fds(fd_set *ro, int nfds) {
 }
 
 static int serve(int lfd) {
+	time_t last;
 	struct timeval tv;
-	struct timeval *ptv;
 	int nfds;
 	fd_set r, ro;
 
 	#define RESET {\
-		ptv = &tv;\
 		FD_ZERO(&ro);\
 		FD_SET(lfd, &ro);\
 		nfds = lfd + 1;\
+		last = 0;\
 	}
 	RESET
 
 	while (!game.shutdown) {
 		memcpy(&r, &ro, sizeof(r));
 
-		if (ptv) {
-			// Linux' select() will modify tv
-			tv.tv_sec = SECONDS_TO_WAIT_FOR_PLAYERS;
-			tv.tv_usec = 0;
+		if (game.started) {
+			time_t now = time(NULL);
+			if (last + SECONDS_PER_TURN <= now) {
+				player_send_views();
+				last = now;
+			}
+			tv.tv_sec = SECONDS_PER_TURN;
+		} else {
+			tv.tv_sec = SECONDS_TO_JOIN;
 		}
+		tv.tv_usec = 0;
 
-		int ready = select(nfds, &r, NULL, NULL, ptv);
+		int ready = select(nfds, &r, NULL, NULL, &tv);
 		if (ready < 0) {
 			perror("select");
 			break;
-		} else if (ready == 0) {
-			if (game.nplayers == 0) {
+		} else if (ready == 0 && !game.started) {
+			if (game.nplayers < MIN_PLAYERS) {
 				continue;
 			}
-			ptv = NULL;
-			game.started = 1;
-			map_write(STDOUT);
-			player_send_views();
+			game.started = time(NULL);
 			continue;
 		}
 
@@ -364,7 +372,7 @@ static int serve(int lfd) {
 			} else {
 				close(fd);
 			}
-		} else if (player_read_commands(&r, &ro, nfds)) {
+		} else if (player_read_command(&r, &ro, nfds)) {
 			game_init();
 			RESET
 		}
@@ -421,7 +429,6 @@ int main(void) {
 		return 1;
 	}
 
-	game.shutdown = 0;
 	signal(SIGHUP, signalHandler);
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
