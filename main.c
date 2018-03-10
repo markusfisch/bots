@@ -1,5 +1,6 @@
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
@@ -9,7 +10,8 @@
 #include <unistd.h>
 
 #define SECONDS_TO_JOIN 10
-#define SECONDS_PER_TURN 1
+#define USEC_PER_SEC 1000000L
+#define USEC_PER_TURN USEC_PER_SEC
 #define MAP_LENGTH 32
 #define MAX_PLAYERS 16
 #define MIN_PLAYERS 1
@@ -18,7 +20,7 @@
 
 static struct Game {
 	char map[MAP_LENGTH * MAP_LENGTH];
-	time_t started;
+	int started;
 	int shutdown;
 	int nplayers;
 	struct Player {
@@ -319,7 +321,7 @@ static void close_fds(fd_set *ro, int nfds) {
 }
 
 static int serve(int lfd) {
-	time_t last;
+	struct timeval tick;
 	struct timeval tv;
 	int nfds;
 	fd_set r, ro;
@@ -328,7 +330,6 @@ static int serve(int lfd) {
 		FD_ZERO(&ro);\
 		FD_SET(lfd, &ro);\
 		nfds = lfd + 1;\
-		last = 0;\
 	}
 	RESET
 
@@ -336,26 +337,39 @@ static int serve(int lfd) {
 		memcpy(&r, &ro, sizeof(r));
 
 		if (game.started) {
-			time_t now = time(NULL);
-			if (last + SECONDS_PER_TURN <= now) {
-				player_send_views();
-				last = now;
+			if (gettimeofday(&tv, NULL)) {
+				perror("gettimeofday");
+				break;
 			}
-			tv.tv_sec = SECONDS_PER_TURN;
+			time_t delta = (tv.tv_sec - tick.tv_sec) * USEC_PER_SEC -
+				tick.tv_usec + tv.tv_usec;
+			if (delta >= USEC_PER_TURN) {
+				player_send_views();
+				tick.tv_sec = tv.tv_sec;
+				tick.tv_usec = tv.tv_usec;
+				delta = USEC_PER_TURN;
+			} else {
+				delta = USEC_PER_TURN - delta;
+			}
+			tv.tv_sec = delta / USEC_PER_SEC;
+			tv.tv_usec = delta - (tv.tv_sec * USEC_PER_SEC);
 		} else {
 			tv.tv_sec = SECONDS_TO_JOIN;
+			tv.tv_usec = 0;
 		}
-		tv.tv_usec = 0;
 
 		int ready = select(nfds, &r, NULL, NULL, &tv);
 		if (ready < 0) {
 			perror("select");
 			break;
-		} else if (ready == 0 && !game.started) {
-			if (game.nplayers < MIN_PLAYERS) {
-				continue;
+		} else if (ready == 0) {
+			if (!game.started && game.nplayers >= MIN_PLAYERS) {
+				game.started = 1;
+				if (gettimeofday(&tick, NULL)) {
+					perror("gettimeofday");
+					break;
+				}
 			}
-			game.started = time(NULL);
 			continue;
 		}
 
