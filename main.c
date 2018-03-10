@@ -16,6 +16,9 @@
 #define MAX_PLAYERS 16
 #define MIN_PLAYERS 1
 #define VIEW_RADIUS 2
+#define TILE_FLATLAND '.'
+#define TILE_WOOD '#'
+#define TILE_WATER '~'
 #define STDOUT 1
 
 static struct Game {
@@ -45,11 +48,14 @@ static void write_square(int fd, char *p, size_t len) {
 }
 
 static void map_init() {
-	char tiles[] = "................~#";
-	size_t ntiles = strlen(tiles);
+	size_t ntiles = 16;
+	char tiles[ntiles];
 	size_t size = sizeof(game.map);
 	char *p = game.map;
 	size_t i;
+	memset(&tiles, TILE_FLATLAND, ntiles);
+	tiles[0] = TILE_WATER;
+	tiles[1] = TILE_WOOD;
 	for (i = 0; i < size; ++i) {
 		*p++ = tiles[rand() % ntiles];
 	}
@@ -80,6 +86,16 @@ static int map_wrap(int pos) {
 static char map_get(int x, int y) {
 	size_t offset = map_wrap(y) * MAP_LENGTH + map_wrap(x);
 	return game.map[offset % sizeof(game.map)];
+}
+
+static int map_impassable(int x, int y) {
+	switch (map_get(x, y)) {
+	case TILE_WATER:
+	case TILE_WOOD:
+		return 1;
+	default:
+		return 0;
+	}
 }
 
 static char player_bearing(int bearing) {
@@ -193,8 +209,13 @@ static void player_remove(int fd) {
 }
 
 static void player_move_by(struct Player *p, int x, int y) {
-	p->x = map_wrap(p->x + x);
-	p->y = map_wrap(p->y + y);
+	x = map_wrap(p->x + x);
+	y = map_wrap(p->y + y);
+	if (map_impassable(x, y) || player_at(x, y)) {
+		return;
+	}
+	p->x = x;
+	p->y = y;
 }
 
 static void player_move(struct Player *p, int step) {
@@ -289,7 +310,7 @@ static int player_add(int fd) {
 	do {
 		p->x = rand() % MAP_LENGTH;
 		p->y = rand() % MAP_LENGTH;
-	} while (player_at(p->x, p->y));
+	} while (map_impassable(p->x, p->y) || player_at(p->x, p->y));
 	++game.nplayers;
 	return 0;
 }
