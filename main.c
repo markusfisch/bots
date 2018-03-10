@@ -59,12 +59,12 @@ static void map_write(int fd) {
 	size_t size = sizeof(game.map);
 	char buf[size];
 	memcpy(buf, game.map, size);
-	struct Player *player = game.players;
 	int i;
-	for (i = 0; i < game.nplayers; ++i, ++player) {
-		if (player->fd > 0) {
-			int x = player->x;
-			int y = player->y;
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (i = 0; p < e; ++p, ++i) {
+		if (p->fd > 0) {
+			int x = p->x;
+			int y = p->y;
 			size_t offset = (y * MAP_LENGTH + x) % size;
 			buf[offset] = 65 + i;
 		}
@@ -97,9 +97,8 @@ static char player_bearing(int bearing) {
 }
 
 static struct Player *player_at(int x, int y) {
-	struct Player *p = game.players;
-	int i;
-	for (i = 0; i < game.nplayers; ++i, ++p) {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
 		if (p->fd > 0 && p->x == x && p->y == y) {
 			return p;
 		}
@@ -177,9 +176,8 @@ static void player_view_write(struct Player *player) {
 }
 
 static struct Player *player_get(int fd) {
-	struct Player *p = game.players;
-	int i;
-	for (i = 0; i < game.nplayers; ++i, ++p) {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
 		if (p->fd == fd) {
 			return p;
 		}
@@ -269,9 +267,8 @@ static int player_read_command(fd_set *r, fd_set *ro, int nfds) {
 }
 
 static void player_send_views() {
-	struct Player *p = game.players;
-	int i;
-	for (i = 0; i < game.nplayers; ++i, ++p) {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
 		if (p->fd != 0) {
 			if (!p->can_move) {
 				player_view_write(p);
@@ -294,10 +291,9 @@ static void player_add(int fd) {
 }
 
 static int game_joined() {
-	struct Player *p = game.players;
 	int n = 0;
-	int i;
-	for (i = 0; i < game.nplayers; ++i, ++p) {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
 		if (p->fd > 0) {
 			++n;
 		}
