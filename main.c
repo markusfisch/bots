@@ -279,7 +279,10 @@ static void player_send_views() {
 	map_write(STDOUT);
 }
 
-static void player_add(int fd) {
+static int player_add(int fd) {
+	if (game.nplayers >= MAX_PLAYERS) {
+		return 1;
+	}
 	struct Player *p = &game.players[game.nplayers];
 	p->fd = fd;
 	p->bearing = rand() % 4;
@@ -288,6 +291,7 @@ static void player_add(int fd) {
 		p->y = rand() % MAP_LENGTH;
 	} while (player_at(p->x, p->y));
 	++game.nplayers;
+	return 0;
 }
 
 static int game_joined() {
@@ -373,9 +377,8 @@ static int serve(int lfd) {
 			struct sockaddr addr;
 			socklen_t len;
 			int fd = accept(lfd, &addr, &len);
-			if (!game.started && game.nplayers < MAX_PLAYERS) {
+			if (!game.started && !player_add(fd)) {
 				FD_SET(fd, &ro);
-				player_add(fd);
 				if (++fd > nfds) {
 					nfds = fd;
 				}
