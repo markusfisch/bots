@@ -288,16 +288,20 @@ static int player_read_command(fd_set *r, fd_set *ro, int nfds) {
 }
 
 static void player_send_views() {
+	int update = 0;
 	struct Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd != 0) {
 			if (!p->can_move) {
 				player_view_write(p);
+				update = 1;
+				p->can_move = 1;
 			}
-			p->can_move = 1;
 		}
 	}
-	map_write(STDOUT);
+	if (update) {
+		map_write(STDOUT);
+	}
 }
 
 static int player_add(int fd) {
