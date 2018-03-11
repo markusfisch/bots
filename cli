@@ -19,16 +19,16 @@ while read -n 1 -r -p 'Command (q<>^V): '
 do
 	echo
 	case "$REPLY" in
-		q)
-			break
-			;;
-		[\<\>^V])
-			echo -n "$REPLY" >&6
-			read_map
-			;;
-		*)
-			echo "error: unknown command '$REPLY'" >&2
-			;;
+	q)
+		break
+		;;
+	[\<\>^V])
+		echo -n "$REPLY" >&6
+		read_map
+		;;
+	*)
+		echo "error: unknown command '$REPLY'" >&2
+		;;
 	esac
 done
 
