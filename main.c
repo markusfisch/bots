@@ -1,6 +1,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <math.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
@@ -19,6 +20,7 @@
 #define TILE_FLATLAND '.'
 #define TILE_WOOD '#'
 #define TILE_WATER '~'
+#define TILE_EXIT 'O'
 #define STDOUT 1
 
 static struct Game {
@@ -27,6 +29,7 @@ static struct Game {
 	int shutdown;
 	int nplayers;
 	struct Player {
+		char name;
 		int fd;
 		int can_move;
 		int x;
@@ -36,6 +39,7 @@ static struct Game {
 } game;
 
 static int game_joined();
+static void game_end();
 static void game_init();
 
 static void write_square(int fd, char *p, size_t len) {
@@ -72,20 +76,27 @@ static void map_write(int fd) {
 			int x = p->x;
 			int y = p->y;
 			size_t offset = (y * MAP_LENGTH + x) % size;
-			buf[offset] = 65 + i;
+			buf[offset] = p->name;
 		}
 	}
 	write_square(fd, buf, MAP_LENGTH);
-	printf("joined: %d\n", game_joined());
+	printf("players: %d\n", game_joined());
 }
 
 static int map_wrap(int pos) {
 	return (pos + MAP_LENGTH) % MAP_LENGTH;
 }
 
+static size_t map_offset(int x, int y) {
+	return (map_wrap(y) * MAP_LENGTH + map_wrap(x)) % sizeof(game.map);
+}
+
 static char map_get(int x, int y) {
-	size_t offset = map_wrap(y) * MAP_LENGTH + map_wrap(x);
-	return game.map[offset % sizeof(game.map)];
+	return game.map[map_offset(x, y)];
+}
+
+static void map_set(int x, int y, char tile) {
+	game.map[map_offset(x, y)] = tile;
 }
 
 static int map_impassable(int x, int y) {
@@ -187,7 +198,7 @@ static void player_view_write(struct Player *player) {
 		left += yx;
 		top += yy;
 	}
-	view[radius * len + radius] = 'X';
+	view[radius * len + radius] = player->name;
 	write_square(player->fd, view, len);
 }
 
@@ -219,18 +230,17 @@ static void player_move_by(struct Player *p, int x, int y) {
 }
 
 static void player_move(struct Player *p, int step) {
-	switch (p->bearing) {
-	default:
-	case 0:
+	switch (p->bearing % 4) {
+	case 0: // north
 		player_move_by(p, 0, -step);
 		break;
-	case 1:
+	case 1: // east
 		player_move_by(p, step, 0);
 		break;
-	case 2:
+	case 2: // south
 		player_move_by(p, 0, step);
 		break;
-	case 3:
+	case 3: // west
 		player_move_by(p, -step, 0);
 		break;
 	}
@@ -240,9 +250,9 @@ static void player_turn(struct Player *p, int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-static void player_do(struct Player *p, char cmd) {
+static int player_do(struct Player *p, char cmd) {
 	if (p == NULL || !p->can_move) {
-		return;
+		return 0;
 	}
 	p->can_move = 0;
 
@@ -260,6 +270,13 @@ static void player_do(struct Player *p, char cmd) {
 		player_move(p, -1);
 		break;
 	}
+
+	if (map_get(p->x, p->y) == TILE_EXIT) {
+		printf("%c found the exit\n", p->name);
+		game_end();
+		return 1;
+	}
+	return 0;
 }
 
 static int player_read_command(fd_set *r, fd_set *ro, int nfds) {
@@ -281,13 +298,54 @@ static int player_read_command(fd_set *r, fd_set *ro, int nfds) {
 			if (!game.started) {
 				continue;
 			}
-			player_do(player_get(fd), cmd);
+			if (player_do(player_get(fd), cmd)) {
+				return 1;
+			}
 		}
 	}
 	return 0;
 }
 
-static void player_send_views() {
+static int player_add(int fd) {
+	if (game.nplayers >= MAX_PLAYERS) {
+		return 1;
+	}
+	struct Player *p = &game.players[game.nplayers];
+	p->fd = fd;
+	p->name = 65 + game.nplayers;
+	++game.nplayers;
+	return 0;
+}
+
+static void game_offset_circle() {
+	double between = 6.2831 / game.nplayers;
+	double angle = between * rand();
+	int center = MAP_LENGTH / 2;
+	int radius = center / 2;
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0) {
+			p->bearing = rand() % 4;
+			p->x = round(center + cos(angle) * radius);
+			p->y = round(center + sin(angle) * radius);
+			map_set(p->x, p->y, TILE_FLATLAND);
+			angle += between;
+		}
+	}
+}
+
+static int game_joined() {
+	int n = 0;
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0) {
+			++n;
+		}
+	}
+	return n;
+}
+
+static void game_send_views() {
 	int update = 0;
 	struct Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -302,32 +360,6 @@ static void player_send_views() {
 	}
 }
 
-static int player_add(int fd) {
-	if (game.nplayers >= MAX_PLAYERS) {
-		return 1;
-	}
-	struct Player *p = &game.players[game.nplayers];
-	p->fd = fd;
-	p->bearing = rand() % 4;
-	do {
-		p->x = rand() % MAP_LENGTH;
-		p->y = rand() % MAP_LENGTH;
-	} while (map_impassable(p->x, p->y) || player_at(p->x, p->y));
-	++game.nplayers;
-	return 0;
-}
-
-static int game_joined() {
-	int n = 0;
-	struct Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (p->fd > 0) {
-			++n;
-		}
-	}
-	return n;
-}
-
 static int game_turn_complete() {
 	struct Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -338,10 +370,21 @@ static int game_turn_complete() {
 	return 1;
 }
 
+static void game_end() {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0) {
+			close(p->fd);
+			player_remove(p->fd);
+		}
+	}
+}
+
 static void game_init() {
 	memset(&game, 0, sizeof(game));
 	srand(time(NULL));
 	map_init();
+	map_set(MAP_LENGTH / 2, MAP_LENGTH / 2, TILE_EXIT);
 }
 
 static void close_fds(fd_set *ro, int nfds) {
@@ -377,7 +420,7 @@ static int serve(int lfd) {
 			time_t delta = (tv.tv_sec - tick.tv_sec) * USEC_PER_SEC -
 				tick.tv_usec + tv.tv_usec;
 			if (delta >= USEC_PER_TURN || game_turn_complete()) {
-				player_send_views();
+				game_send_views();
 				tick.tv_sec = tv.tv_sec;
 				tick.tv_usec = tv.tv_usec;
 				delta = USEC_PER_TURN;
@@ -397,6 +440,7 @@ static int serve(int lfd) {
 			break;
 		} else if (ready == 0) {
 			if (!game.started && game.nplayers >= MIN_PLAYERS) {
+				game_offset_circle();
 				game.started = 1;
 				if (gettimeofday(&tick, NULL)) {
 					perror("gettimeofday");

@@ -2,7 +2,7 @@
 
 read_map() {
 	LINES=0
-	while read -r <&6
+	while read -r <&6 || return 1
 	do
 		((LINES < 1)) && {
 			LINES=${#REPLY}
@@ -14,8 +14,7 @@ read_map() {
 
 exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-51175}" || exit 1
 
-read_map
-while read -n 1 -r -p 'Command (q<>^V): '
+read_map && while read -n 1 -r -p 'Command (q<>^V): '
 do
 	echo
 	case "$REPLY" in
@@ -24,7 +23,7 @@ do
 		;;
 	[\<\>^V])
 		echo -n "$REPLY" >&6
-		read_map
+		read_map || break
 		;;
 	*)
 		echo "error: unknown command '$REPLY'" >&2
