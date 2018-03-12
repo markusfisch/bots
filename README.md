@@ -8,10 +8,12 @@ Each player can move on that grid.
 The server tries to start a new game every 10 seconds if there is at least
 one client connected.
 
+The game is turn-based. A turn ends as soon as all players have moved or
+after one second. If you don't send a move in time, you let this turn pass.
+
 ## What you get from the server
 
-Every second, you get a top-down map of your environment that may look
-like this:
+You get a 5x5 top-down map of your environment that may look like this:
 
 	.....\n
 	....~\n
@@ -24,8 +26,8 @@ like this:
 There are three terrain types:
 
 	. - flatland
-	~ - water
-	# - wood
+	~ - water (impassable)
+	# - wood (impassable)
 
 You can't walk through water or wood or other players.
 

@@ -291,12 +291,10 @@ static void player_send_views() {
 	int update = 0;
 	struct Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		if (p->fd != 0) {
-			if (!p->can_move) {
-				player_view_write(p);
-				update = 1;
-				p->can_move = 1;
-			}
+		if (p->fd != 0 && !p->can_move) {
+			player_view_write(p);
+			update = 1;
+			p->can_move = 1;
 		}
 	}
 	if (update) {
@@ -328,6 +326,16 @@ static int game_joined() {
 		}
 	}
 	return n;
+}
+
+static int game_turn_complete() {
+	struct Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && p->can_move) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 static void game_init() {
@@ -368,7 +376,7 @@ static int serve(int lfd) {
 			}
 			time_t delta = (tv.tv_sec - tick.tv_sec) * USEC_PER_SEC -
 				tick.tv_usec + tv.tv_usec;
-			if (delta >= USEC_PER_TURN) {
+			if (delta >= USEC_PER_TURN || game_turn_complete()) {
 				player_send_views();
 				tick.tv_sec = tv.tv_sec;
 				tick.tv_usec = tv.tv_usec;
