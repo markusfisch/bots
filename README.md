@@ -11,7 +11,7 @@ after one second has passed.
 
 ## What a bot receives from the server
 
-Any bot receives a top-down map of its environment. This map is always made
+Every bot receives a top-down map of its environment. This map is always made
 from the same amount of columns and lines. E.g. a 5x5 map may look like this:
 
 	.....\n
@@ -43,7 +43,11 @@ right in the front of you, looking at you:
 
 ## What a bot can send to the server
 
-A bot _may_ respond to a map with exactly _one_ command character.
+A bot _should_ respond to a map with exactly _one_ command character.
+
+A bot _needs_ to send a command to get a new map. As long as your bot fails
+to send a command, things go on without your bot knowing.
+
 Available commands are:
 
 	^ - go one step forward
@@ -52,9 +56,10 @@ Available commands are:
 	v - go one step backward
 
 The server will process _one_ command per turn only.
+
 Invalid commands are ignored.
-Sending multiple characters simply fills the network buffer and the server
-will process this queue in following turns.
+Sending multiple command characters simply fills the network buffer and the
+server will process the accumulated commands in following turns.
 
 ## Build and run the server
 
