@@ -64,10 +64,10 @@ static int serve(int lfd) {
 		FD_ZERO(&ro);\
 		FD_SET(lfd, &ro);\
 		nfds = lfd + 1;\
+		printf("waiting %d seconds for players to join ...\n",\
+			SECONDS_TO_JOIN);\
 	}
 	RESET
-
-	printf("waiting %d seconds for players to join ...\n", SECONDS_TO_JOIN);
 
 	while (!stop) {
 		memcpy(&r, &ro, sizeof(r));
@@ -101,6 +101,7 @@ static int serve(int lfd) {
 				if (++fd > nfds) {
 					nfds = fd;
 				}
+				printf("player %d joined\n", game.nplayers);
 			} else {
 				close(fd);
 			}
