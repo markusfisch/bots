@@ -1,6 +1,6 @@
 BIN = srv
-OBJECTS = main.o
-LIBS =
+OBJECTS = map.o player.o game.o games/find_exit.o main.o
+LIBS = -lm
 FLAGS = -O2 -Wall -Wextra
 
 .c.o: $(OBJECTS)
@@ -10,4 +10,4 @@ $(BIN): $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f *.o $(BIN)
+	rm -f *.o games/*.o $(BIN)

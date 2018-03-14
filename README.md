@@ -58,7 +58,7 @@ Invalid commands are ignored.
 
 Clone this repository, enter the directory and run
 
-	$ make
+	$ cd server && make
 
 Then start the server:
 
@@ -76,11 +76,11 @@ For example, on a Raspberry Pi you want to install `gcc` and `make`:
 
 The repository contains a very simple bash client you can start like this:
 
-	$ ./cli
+	$ ./templates/bash/client
 
 If `srv` is running on another machine, you'd do:
 
-	$ ./cli HOSTNAME
+	$ ./templates/bash/client HOSTNAME
 
 ## Automate!
 
