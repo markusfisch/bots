@@ -57,8 +57,7 @@ static int reset(struct Game *game, int lfd, fd_set *ro) {
 	init_find_exit(game);
 	FD_ZERO(ro);
 	FD_SET(lfd, ro);
-	printf("waiting %d seconds for players to join ...\n",
-		SECONDS_TO_JOIN);
+	printf("waiting for players to join ...\n");
 	return lfd + 1;
 }
 
@@ -100,7 +99,8 @@ static int serve(int lfd) {
 				if (++fd > nfds) {
 					nfds = fd;
 				}
-				printf("player %d joined\n", game.nplayers);
+				printf("%d seats left, starting in %d seconds ...\n",
+					MAX_PLAYERS - game.nplayers, SECONDS_TO_JOIN);
 			} else {
 				close(fd);
 			}

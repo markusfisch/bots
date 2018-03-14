@@ -2,18 +2,17 @@
 
 Prototype socket server for a terrain parsing game played by bots.
 
+A bot needs to connect to port 51175 to play the game.
+
 The game world is an infinite two-dimensional orthogonal grid.
-Each player can move on that grid.
 
-The server tries to start a new game every 10 seconds if there is at least
-one client connected.
+The game is turn-based. A turn ends as soon as all players have moved *or*
+after one second has passed.
 
-The game is turn-based. A turn ends as soon as all players have moved or
-after one second. If you don't send a move in time, you let this turn pass.
+## What a bot receives from the server
 
-## What you get from the server
-
-You get a 5x5 top-down map of your environment that may look like this:
+Any bot receives a top-down map of its environment. This map is always made
+from the same amount of columns and lines. E.g. a 5x5 map may look like this:
 
 	.....\n
 	....~\n
@@ -21,7 +20,8 @@ You get a 5x5 top-down map of your environment that may look like this:
 	.....\n
 	.#...\n
 
-`X` is you. First line is in front of you, the last one is behind you.
+`X` is you. You can be any letter from A to Z.
+First line is in front of you, the last one is behind you.
 
 There are three terrain types:
 
@@ -31,28 +31,30 @@ There are three terrain types:
 
 You can't walk through water or wood or other players.
 
-`^`, `<`, `>` and `V` is another player. The character points in the
+`^`, `<`, `>` and `v` is another player. The character points in the
 direction the other player is looking. For example, here, a player is
 right in the front of you, looking at you:
 
-	..V..\n
+	..v..\n
 	....~\n
 	.~X..\n
 	.....\n
 	.#...\n
 
-## What you can send to the server
+## What a bot can send to the server
 
-You may answer a map with _one_ command character.
+A bot _may_ respond to a map with exactly _one_ command character.
 Available commands are:
 
 	^ - go one step forward
 	< - turn left
 	> - turn right
-	V - go one step backward
+	v - go one step backward
 
-The server will process _one_ command per map only.
+The server will process _one_ command per turn only.
 Invalid commands are ignored.
+Sending multiple characters simply fills the network buffer and the server
+will process this queue in following turns.
 
 ## Build and run the server
 

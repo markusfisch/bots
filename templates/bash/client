@@ -14,14 +14,14 @@ read_map() {
 
 exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-51175}" || exit 1
 
-read_map && while read -n 1 -r -p 'Command (q<>^V): '
+read_map && while read -n 1 -r -p 'Command (q<>^v): '
 do
 	echo
 	case "$REPLY" in
 	q)
 		break
 		;;
-	[\<\>^V])
+	[\<\>^v])
 		echo -n "$REPLY" >&6
 		read_map || break
 		;;

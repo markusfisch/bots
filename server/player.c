@@ -40,7 +40,7 @@ static char player_bearing(int bearing) {
 	case 1:
 		return '>';
 	case 2:
-		return 'V';
+		return 'v';
 	case 3:
 		return '<';
 	}
@@ -179,7 +179,7 @@ int player_do(struct Game *game, struct Player *p, char cmd) {
 	case '>':
 		player_turn(p, 1);
 		break;
-	case 'V':
+	case 'v':
 		player_move(game, p, -1);
 		break;
 	}
