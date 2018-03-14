@@ -51,23 +51,22 @@ static int read_commands(struct Game *game, fd_set *r, fd_set *ro, int nfds) {
 	return 0;
 }
 
+static int reset(struct Game *game, int lfd, fd_set *ro) {
+	srand(time(NULL));
+	memset(game, 0, sizeof(struct Game));
+	init_find_exit(game);
+	FD_ZERO(ro);
+	FD_SET(lfd, ro);
+	printf("waiting %d seconds for players to join ...\n",
+		SECONDS_TO_JOIN);
+	return lfd + 1;
+}
+
 static int serve(int lfd) {
 	struct Game game;
 	struct timeval tv;
-	int nfds;
 	fd_set r, ro;
-
-	#define RESET {\
-		srand(time(NULL));\
-		memset(&game, 0, sizeof(game));\
-		init_find_exit(&game);\
-		FD_ZERO(&ro);\
-		FD_SET(lfd, &ro);\
-		nfds = lfd + 1;\
-		printf("waiting %d seconds for players to join ...\n",\
-			SECONDS_TO_JOIN);\
-	}
-	RESET
+	int nfds = reset(&game, lfd, &ro);
 
 	while (!stop) {
 		memcpy(&r, &ro, sizeof(r));
@@ -106,7 +105,7 @@ static int serve(int lfd) {
 				close(fd);
 			}
 		} else if (read_commands(&game, &r, &ro, nfds)) {
-			RESET
+			nfds = reset(&game, lfd, &ro);
 		}
 	}
 
