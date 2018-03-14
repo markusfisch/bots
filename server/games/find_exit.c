@@ -16,13 +16,11 @@ static int impassable(struct Map *map, int x, int y) {
 	return map_impassable(map, x, y);
 }
 
-static int moved(struct Game *game, struct Player *p) {
+static void moved(struct Game *game, struct Player *p) {
 	if (map_get(&game->map, p->x, p->y) == TILE_EXIT) {
 		printf("%c found the exit\n", p->name);
 		game_remove_all(game);
-		return 1;
 	}
-	return 0;
 }
 
 void init_find_exit(struct Game *game) {

@@ -8,6 +8,6 @@ struct Player *player_get(struct Game *, int);
 void player_remove(struct Game *, int);
 int player_add(struct Game *, int);
 void player_view_write(struct Game *, struct Player *);
-int player_do(struct Game *, struct Player *, char);
+void player_do(struct Game *, struct Player *, char);
 
 #endif

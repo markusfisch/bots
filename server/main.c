@@ -22,7 +22,7 @@ static void close_fds(fd_set *ro, int nfds) {
 	}
 }
 
-static int read_command(struct Game *game, int fd, fd_set *ro) {
+static void read_command(struct Game *game, int fd, fd_set *ro) {
 	char cmd;
 	int b;
 	if ((b = recv(fd, &cmd, sizeof(cmd), 0)) < 1) {
@@ -30,25 +30,21 @@ static int read_command(struct Game *game, int fd, fd_set *ro) {
 		close(fd);
 		FD_CLR(fd, ro);
 		player_remove(game, fd);
-		if (game_joined(game) < 1) {
-			return 1;
-		}
-		return 0;
+		return;
 	}
 	if (!game->started) {
-		return 0;
+		return;
 	}
-	return player_do(game, player_get(game, fd), cmd);
+	player_do(game, player_get(game, fd), cmd);
 }
 
-static int read_commands(struct Game *game, fd_set *r, fd_set *ro, int nfds) {
+static void read_commands(struct Game *game, fd_set *r, fd_set *ro, int nfds) {
 	int fd;
 	for (fd = 0; fd < nfds; ++fd) {
-		if (FD_ISSET(fd, r) && read_command(game, fd, ro)) {
-			return 1;
+		if (FD_ISSET(fd, r)) {
+			read_command(game, fd, ro);
 		}
 	}
-	return 0;
 }
 
 static int reset(struct Game *game, int lfd, fd_set *ro) {
@@ -83,29 +79,35 @@ static int serve(int lfd) {
 		if (ready < 0) {
 			perror("select");
 			break;
-		} else if (ready == 0) {
-			if (!game.started && game.nplayers >= game.min_players) {
-				game_start(&game);
+		} else if (ready > 0) {
+			if (FD_ISSET(lfd, &r)) {
+				struct sockaddr addr;
+				socklen_t len;
+				int fd = accept(lfd, &addr, &len);
+				if (!game.started && !player_add(&game, fd)) {
+					FD_SET(fd, &ro);
+					if (++fd > nfds) {
+						nfds = fd;
+					}
+					printf("%d seats left, starting in %d seconds ...\n",
+						MAX_PLAYERS - game.nplayers, SECONDS_TO_JOIN);
+				} else {
+					close(fd);
+				}
+			} else {
+				read_commands(&game, &r, &ro, nfds);
 			}
-			continue;
 		}
 
-		if (FD_ISSET(lfd, &r)) {
-			struct sockaddr addr;
-			socklen_t len;
-			int fd = accept(lfd, &addr, &len);
-			if (!game.started && !player_add(&game, fd)) {
-				FD_SET(fd, &ro);
-				if (++fd > nfds) {
-					nfds = fd;
-				}
-				printf("%d seats left, starting in %d seconds ...\n",
-					MAX_PLAYERS - game.nplayers, SECONDS_TO_JOIN);
-			} else {
-				close(fd);
+		if (game.started) {
+			if (game_joined(&game) < 1) {
+				nfds = reset(&game, lfd, &ro);
 			}
-		} else if (read_commands(&game, &r, &ro, nfds)) {
-			nfds = reset(&game, lfd, &ro);
+		} else {
+			if (game.nplayers == MAX_PLAYERS ||
+					(ready == 0 && game.nplayers >= game.min_players)) {
+				game_start(&game);
+			}
 		}
 	}
 

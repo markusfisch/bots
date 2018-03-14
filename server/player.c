@@ -163,9 +163,9 @@ static void player_turn(struct Player *p, int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-int player_do(struct Game *game, struct Player *p, char cmd) {
+void player_do(struct Game *game, struct Player *p, char cmd) {
 	if (p == NULL || !p->can_move) {
-		return 0;
+		return;
 	}
 	p->can_move = 0;
 
@@ -184,5 +184,5 @@ int player_do(struct Game *game, struct Player *p, char cmd) {
 		break;
 	}
 
-	return game->moved(game, p);
+	game->moved(game, p);
 }
