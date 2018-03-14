@@ -1,4 +1,4 @@
-# Terrain Parsing Prototype Server
+# Bots
 
 Prototype socket server for a terrain parsing game played by bots.
 
