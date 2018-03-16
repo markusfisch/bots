@@ -112,6 +112,7 @@ static int serve(int lfd) {
 	}
 
 	close_fds(&ro, nfds);
+	map_free(&game.map);
 
 	return 0;
 }
