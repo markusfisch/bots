@@ -10,10 +10,7 @@
 
 void game_start(struct Game *game) {
 	game->started = 1;
-	if (gettimeofday(&game->tick, NULL)) {
-		perror("gettimeofday");
-		return;
-	}
+	gettimeofday(&game->tick, NULL);
 	game->start(game);
 }
 
@@ -83,10 +80,7 @@ static int game_turn_complete(struct Game *game) {
 
 time_t game_next_turn(struct Game *game) {
 	struct timeval tv;
-	if (gettimeofday(&tv, NULL)) {
-		perror("gettimeofday");
-		return game->usec_per_turn;
-	}
+	gettimeofday(&tv, NULL);
 	time_t delta = (tv.tv_sec - game->tick.tv_sec) * USEC_PER_SEC -
 		game->tick.tv_usec + tv.tv_usec;
 	if (delta >= game->usec_per_turn || game_turn_complete(game)) {
