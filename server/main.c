@@ -38,11 +38,11 @@ static void read_command(struct Game *game, int fd, fd_set *ro) {
 	player_do(game, player_get(game, fd), cmd);
 }
 
-static void read_commands(struct Game *game, fd_set *r, fd_set *ro, int nfds) {
-	int fd;
-	for (fd = 0; fd < nfds; ++fd) {
-		if (FD_ISSET(fd, r)) {
-			read_command(game, fd, ro);
+static void read_commands(struct Game *game, fd_set *r, fd_set *ro) {
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && FD_ISSET(p->fd, r)) {
+			read_command(game, p->fd, ro);
 		}
 	}
 }
@@ -94,9 +94,8 @@ static int serve(int lfd) {
 				} else {
 					close(fd);
 				}
-			} else {
-				read_commands(&game, &r, &ro, nfds);
 			}
+			read_commands(&game, &r, &ro);
 		}
 
 		if (game.started) {
