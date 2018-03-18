@@ -1,36 +1,7 @@
 #include <unistd.h>
 
-#include "map.h"
 #include "game.h"
 #include "player.h"
-
-struct Player *player_get(struct Game *game, int fd) {
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd == fd) {
-			return p;
-		}
-	}
-	return NULL;
-}
-
-void player_remove(struct Game *game, int fd) {
-	struct Player *p = player_get(game, fd);
-	if (p != NULL) {
-		p->fd = 0;
-	}
-}
-
-int player_add(struct Game *game, int fd) {
-	if (game->nplayers >= MAX_PLAYERS) {
-		return 1;
-	}
-	struct Player *p = &game->players[game->nplayers];
-	p->fd = fd;
-	p->name = 65 + game->nplayers;
-	++game->nplayers;
-	return 0;
-}
 
 static char player_bearing(int bearing) {
 	switch (bearing % 4) {
@@ -67,7 +38,7 @@ static char player_view_at(struct Game *game, struct Player *p, int x, int y) {
 	return tile;
 }
 
-void player_view_write(struct Game *game, struct Player *player) {
+void player_send_view(struct Game *game, struct Player *player) {
 	int radius = game->view_radius;
 	size_t len = radius * 2 + 1;
 	char view[len * len];

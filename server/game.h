@@ -2,19 +2,26 @@
 #define __game_h__
 
 #include <sys/time.h>
+#include <sys/types.h>
+
+#include "map.h"
 
 #define SECONDS_TO_JOIN 10
 #define USEC_PER_SEC 1000000L
 #define MAX_PLAYERS 16
 
-struct Map;
 struct Game {
 	struct timeval tick;
-	int started;
+	fd_set watch;
+	fd_set ready;
+	int nfds;
+	int listening_fd;
+	time_t started;
+	time_t stopped;
 	int min_players;
 	int view_radius;
-	time_t usec_per_turn;
 	int nplayers;
+	time_t usec_per_turn;
 	struct Map map;
 	struct Player {
 		char name;
@@ -29,10 +36,8 @@ struct Game {
 	void (*moved)(struct Game *, struct Player *);
 };
 
-void game_start(struct Game *);
-void game_remove_all(struct Game *);
-int game_joined(struct Game *);
-time_t game_next_turn(struct Game *);
 void game_offset_circle(struct Game *);
+void game_end(struct Game *);
+int game_serve();
 
 #endif
