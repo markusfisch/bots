@@ -1,5 +1,5 @@
 BIN = srv
-OBJECTS = map.o player.o game.o games/find_exit.o main.o
+OBJECTS = map.o placing.o player.o game.o games/find_exit.o main.o
 LIBS = -lm
 FLAGS = -O2 -Wall -Wextra
 

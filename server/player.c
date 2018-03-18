@@ -3,6 +3,16 @@
 #include "game.h"
 #include "player.h"
 
+struct Player *player_at(struct Game *game, int x, int y) {
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && p->x == x && p->y == y) {
+			return p;
+		}
+	}
+	return NULL;
+}
+
 static char player_bearing(int bearing) {
 	switch (bearing % 4) {
 	default:
@@ -15,16 +25,6 @@ static char player_bearing(int bearing) {
 	case 3:
 		return '<';
 	}
-}
-
-static struct Player *player_at(struct Game *game, int x, int y) {
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd > 0 && p->x == x && p->y == y) {
-			return p;
-		}
-	}
-	return NULL;
 }
 
 static char player_view_at(struct Game *game, struct Player *p, int x, int y) {

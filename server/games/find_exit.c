@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../game.h"
+#include "../placing.h"
 #include "find_exit.h"
 
 #define TILE_EXIT 'O'
@@ -8,7 +9,7 @@
 static void start(struct Game *game) {
 	map_init(&game->map, 32, 32);
 	map_set(&game->map, 16, 16, TILE_EXIT);
-	game_offset_circle(game);
+	placing_circle(game);
 }
 
 static int impassable(struct Map *map, int x, int y) {

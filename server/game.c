@@ -1,4 +1,3 @@
-#include <math.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
@@ -12,24 +11,6 @@
 #include "games/find_exit.h"
 
 static int stop = 0;
-
-void game_offset_circle(struct Game *game) {
-	double between = 6.2831 / game->nplayers;
-	double angle = between * rand();
-	int cx = game->map.width;
-	int cy = game->map.height;
-	int radius = (cx < cy ? cx : cy) / 2;
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd > 0) {
-			p->bearing = rand() % 4;
-			p->x = round(cx + cos(angle) * radius);
-			p->y = round(cy + sin(angle) * radius);
-			map_set(&game->map, p->x, p->y, TILE_FLATLAND);
-			angle += between;
-		}
-	}
-}
 
 void game_end(struct Game *game) {
 	game->stopped = time(NULL);
