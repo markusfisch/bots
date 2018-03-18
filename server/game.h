@@ -27,17 +27,19 @@ struct Game {
 		char name;
 		int fd;
 		int can_move;
-		int moves;
 		int x;
 		int y;
 		int bearing;
+		int moves;
+		int score;
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	int (*impassable)(struct Map *, int, int);
 	void (*moved)(struct Game *, struct Player *);
 };
 
-void game_offset_circle(struct Game *);
+void game_remove_player(struct Game *, struct Player *);
+int game_joined(struct Game *);
 void game_end(struct Game *);
 int game_serve();
 

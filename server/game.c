@@ -19,10 +19,35 @@ void game_end(struct Game *game) {
 	game->stopped = time(NULL);
 }
 
-static void game_remove_player(struct Game *game, struct Player *p) {
+int game_joined(struct Game *game) {
+	int n = 0;
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0) {
+			++n;
+		}
+	}
+	return n;
+}
+
+void game_remove_player(struct Game *game, struct Player *p) {
 	FD_CLR(p->fd, &game->watch);
 	close(p->fd);
 	p->fd = 0;
+}
+
+static int game_compare_player(const void *a, const void *b) {
+	return ((struct Player *) b)->score - ((struct Player *) a)->score;
+}
+
+static void game_print_results(struct Game *game) {
+	qsort(game->players, game->nplayers, sizeof(struct Player),
+		game_compare_player);
+	int place = 1;
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p, ++place) {
+		printf("%d. %c %d\n", place, p->name, p->score);
+	}
 }
 
 static void game_remove_players(struct Game *game) {
@@ -32,17 +57,6 @@ static void game_remove_players(struct Game *game) {
 			game_remove_player(game, p);
 		}
 	}
-}
-
-static int game_joined(struct Game *game) {
-	int n = 0;
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd > 0) {
-			++n;
-		}
-	}
-	return n;
 }
 
 static void game_write(struct Game *game) {
@@ -221,6 +235,7 @@ static int game_run(int lfd) {
 
 		if (game.started) {
 			if (game.stopped || game_joined(&game) < 1) {
+				game_print_results(&game);
 				game_remove_players(&game);
 				game_reset(&game, lfd);
 			}

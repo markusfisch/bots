@@ -7,6 +7,8 @@
 
 #define TILE_EXIT 'O'
 
+static int points;
+
 static void start(struct Game *game) {
 	size_t ntiles = 16;
 	char tiles[ntiles];
@@ -20,12 +22,14 @@ static void start(struct Game *game) {
 
 static void moved(struct Game *game, struct Player *p) {
 	if (map_get(&game->map, p->x, p->y) == TILE_EXIT) {
-		printf("%c found the exit\n", p->name);
-		game_end(game);
+		printf("%c escaped\n", p->name);
+		p->score = points--;
+		game_remove_player(game, p);
 	}
 }
 
 void init_find_exit(struct Game *game) {
+	points = 16;
 	game->min_players = 1;
 	game->view_radius = 2;
 	game->max_turns = 1024;
