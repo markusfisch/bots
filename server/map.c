@@ -19,17 +19,13 @@ void map_free(struct Map *map) {
 	memset(map, 0, sizeof(struct Map));
 }
 
-void map_init(struct Map *map, size_t width, size_t height) {
+void map_init(struct Map *map, size_t width, size_t height, char *tiles,
+		size_t ntiles) {
 	map_free(map);
 	map->width = width;
 	map->height = height;
 	map->size = width * height;
 	map->data = calloc(map->size, sizeof(char));
-	size_t ntiles = 16;
-	char tiles[ntiles];
-	memset(&tiles, TILE_FLATLAND, ntiles);
-	tiles[0] = TILE_WATER;
-	tiles[1] = TILE_WOOD;
 	char *offset = map->data;
 	size_t i;
 	for (i = 0; i < map->size; ++i) {

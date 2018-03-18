@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "../game.h"
 #include "../placing.h"
@@ -7,7 +8,13 @@
 #define TILE_EXIT 'O'
 
 static void start(struct Game *game) {
-	map_init(&game->map, 32, 32);
+	size_t ntiles = 16;
+	char tiles[ntiles];
+	memset(&tiles, TILE_FLATLAND, ntiles);
+	tiles[0] = TILE_WATER;
+	tiles[1] = TILE_WOOD;
+
+	map_init(&game->map, 32, 32, tiles, ntiles);
 	map_set(&game->map, 16, 16, TILE_EXIT);
 	placing_circle(game);
 }
