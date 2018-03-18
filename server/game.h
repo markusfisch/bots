@@ -41,6 +41,6 @@ struct Game {
 void game_remove_player(struct Game *, struct Player *);
 int game_joined(struct Game *);
 void game_end(struct Game *);
-int game_serve();
+int game_serve(void (*)(struct Game *));
 
 #endif

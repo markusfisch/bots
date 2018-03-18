@@ -8,7 +8,6 @@
 
 #include "player.h"
 #include "game.h"
-#include "games/find_exit.h"
 
 #define USEC_PER_SEC 1000000L
 #define SECONDS_TO_JOIN 10
@@ -180,7 +179,14 @@ static void game_start(struct Game *game) {
 	game->start(game);
 }
 
-static void game_reset(struct Game *game, int lfd) {
+static void game_shutdown(struct Game *game) {
+	close(game->listening_fd);
+	game_remove_players(game);
+	map_free(&game->map);
+}
+
+static void game_reset(struct Game *game, int lfd,
+		void (*init)(struct Game *)) {
 	srand(time(NULL));
 	memset(game, 0, sizeof(struct Game));
 	game->usec_per_turn = USEC_PER_SEC;
@@ -191,7 +197,7 @@ static void game_reset(struct Game *game, int lfd) {
 	game->nfds = lfd + 1;
 	game->impassable = map_impassable;
 	FD_SET(lfd, &game->watch);
-	init_find_exit(game);
+	init(game);
 	if (!game->start || !game->moved) {
 		fprintf(stderr, "error: missing start and/or moved functions\n");
 		stop = 1;
@@ -200,17 +206,11 @@ static void game_reset(struct Game *game, int lfd) {
 	printf("waiting for players to join ...\n");
 }
 
-static void game_shutdown(struct Game *game) {
-	close(game->listening_fd);
-	game_remove_players(game);
-	map_free(&game->map);
-}
-
-static int game_run(int lfd) {
+static int game_run(int lfd, void (*init)(struct Game *)) {
 	struct Game game;
 	struct timeval tv;
 
-	game_reset(&game, lfd);
+	game_reset(&game, lfd, init);
 
 	while (!stop) {
 		memcpy(&game.ready, &game.watch, sizeof(fd_set));
@@ -237,7 +237,7 @@ static int game_run(int lfd) {
 			if (game.stopped || game_joined(&game) < 1) {
 				game_print_results(&game);
 				game_remove_players(&game);
-				game_reset(&game, lfd);
+				game_reset(&game, lfd, init);
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
 				(ready == 0 && game.nplayers >= game.min_players)) {
@@ -276,7 +276,7 @@ static int game_bind_port(int fd, int port) {
 	return 0;
 }
 
-int game_serve() {
+int game_serve(void (*init)(struct Game *)) {
 	int fd;
 	if ((fd = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
 		perror("socket");
@@ -298,5 +298,5 @@ int game_serve() {
 	signal(SIGINT, game_handle_signal);
 	signal(SIGTERM, game_handle_signal);
 
-	return game_run(fd);
+	return game_run(fd, init);
 }
