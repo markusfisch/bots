@@ -33,7 +33,7 @@ static char player_view_at(struct Game *game, struct Player *p, int x, int y) {
 		map_wrap(x, game->map.width),
 		map_wrap(y, game->map.height));
 	if (enemy) {
-		tile = player_bearing(p->bearing + enemy->bearing);
+		tile = player_bearing(enemy->bearing + 4 - p->bearing);
 	}
 	return tile;
 }
