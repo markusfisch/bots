@@ -169,10 +169,20 @@ static void game_start(struct Game *game) {
 static void game_reset(struct Game *game, int lfd) {
 	srand(time(NULL));
 	memset(game, 0, sizeof(struct Game));
+	game->usec_per_turn = USEC_PER_SEC;
+	game->min_players = 1;
+	game->view_radius = 2;
+	game->max_turns = 1024;
 	game->listening_fd = lfd;
 	game->nfds = lfd + 1;
-	FD_SET(game->listening_fd, &game->watch);
+	game->impassable = map_impassable;
+	FD_SET(lfd, &game->watch);
 	init_find_exit(game);
+	if (!game->start || !game->moved) {
+		fprintf(stderr, "error: missing start and/or moved functions\n");
+		stop = 1;
+		return;
+	}
 	printf("waiting for players to join ...\n");
 }
 
