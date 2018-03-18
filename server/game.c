@@ -10,6 +10,9 @@
 #include "game.h"
 #include "games/find_exit.h"
 
+#define USEC_PER_SEC 1000000L
+#define SECONDS_TO_JOIN 10
+
 static int stop = 0;
 
 void game_end(struct Game *game) {

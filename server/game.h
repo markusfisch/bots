@@ -6,8 +6,6 @@
 
 #include "map.h"
 
-#define SECONDS_TO_JOIN 10
-#define USEC_PER_SEC 1000000L
 #define MAX_PLAYERS 16
 
 struct Game {
