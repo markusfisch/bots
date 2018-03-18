@@ -71,9 +71,13 @@ static void game_send_views(struct Game *game) {
 			player_send_view(game, p);
 			update = 1;
 			p->can_move = 1;
+			++p->moves;
 		}
 	}
 	if (update) {
+		if (++game->turn >= game->max_turns) {
+			game_end(game);
+		}
 		game_write(game);
 	}
 }

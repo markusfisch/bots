@@ -16,15 +16,18 @@ struct Game {
 	int listening_fd;
 	time_t started;
 	time_t stopped;
+	time_t usec_per_turn;
 	int min_players;
 	int view_radius;
+	int max_turns;
+	int turn;
 	int nplayers;
-	time_t usec_per_turn;
 	struct Map map;
 	struct Player {
 		char name;
 		int fd;
 		int can_move;
+		int moves;
 		int x;
 		int y;
 		int bearing;
