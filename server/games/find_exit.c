@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "../game.h"
+#include "../player.h"
 #include "../placing.h"
 #include "find_exit.h"
 
@@ -21,7 +22,8 @@ static void start(struct Game *game) {
 	placing_circle(game);
 }
 
-static void moved(struct Game *game, struct Player *p) {
+static void move(struct Game *game, struct Player *p, char cmd) {
+	player_act(game, p, cmd);
 	if (map_get(&game->map, p->x, p->y) == TILE_EXIT) {
 		printf("%c escaped\n", p->name);
 		p->score = points--;
@@ -35,6 +37,6 @@ void init_find_exit(struct Game *game) {
 	game->view_radius = 2;
 	game->max_turns = 1024;
 	game->start = start;
+	game->move = move;
 	game->impassable = map_impassable;
-	game->moved = moved;
 }

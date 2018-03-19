@@ -113,19 +113,19 @@ static void player_move_by(struct Game *game, struct Player *p, int x, int y) {
 	p->y = y;
 }
 
-static void player_move(struct Game *game, struct Player *p, int step) {
+static void player_move(struct Game *game, struct Player *p, int steps) {
 	switch (p->bearing % 4) {
 	case 0: // north
-		player_move_by(game, p, 0, -step);
+		player_move_by(game, p, 0, -steps);
 		break;
 	case 1: // east
-		player_move_by(game, p, step, 0);
+		player_move_by(game, p, steps, 0);
 		break;
 	case 2: // south
-		player_move_by(game, p, 0, step);
+		player_move_by(game, p, 0, steps);
 		break;
 	case 3: // west
-		player_move_by(game, p, -step, 0);
+		player_move_by(game, p, -steps, 0);
 		break;
 	}
 }
@@ -134,12 +134,7 @@ static void player_turn(struct Player *p, int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-void player_do(struct Game *game, struct Player *p, char cmd) {
-	if (p == NULL || !p->can_move) {
-		return;
-	}
-	p->can_move = 0;
-
+void player_act(struct Game *game, struct Player *p, char cmd) {
 	switch (cmd) {
 	case '^':
 		player_move(game, p, 1);
@@ -154,6 +149,4 @@ void player_do(struct Game *game, struct Player *p, char cmd) {
 		player_move(game, p, -1);
 		break;
 	}
-
-	game->moved(game, p);
 }

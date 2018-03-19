@@ -129,8 +129,9 @@ static void game_read_command(struct Game *game, struct Player *p) {
 		game_remove_player(game, p);
 		return;
 	}
-	if (game->started) {
-		player_do(game, p, cmd);
+	if (game->started && p->can_move) {
+		p->can_move = 0;
+		game->move(game, p, cmd);
 	}
 }
 
@@ -195,11 +196,12 @@ static void game_reset(struct Game *game, int lfd,
 	game->max_turns = 1024;
 	game->listening_fd = lfd;
 	game->nfds = lfd + 1;
+	game->move = player_act;
 	game->impassable = map_impassable;
 	FD_SET(lfd, &game->watch);
 	init(game);
-	if (!game->start || !game->moved) {
-		fprintf(stderr, "error: missing start and/or moved functions\n");
+	if (!game->start) {
+		fprintf(stderr, "error: game didn't give a start function\n");
 		stop = 1;
 		return;
 	}

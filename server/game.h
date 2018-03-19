@@ -35,7 +35,7 @@ struct Game {
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	int (*impassable)(struct Map *, int, int);
-	void (*moved)(struct Game *, struct Player *);
+	void (*move)(struct Game *, struct Player *, char);
 };
 
 void game_remove_player(struct Game *, struct Player *);
