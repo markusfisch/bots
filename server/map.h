@@ -14,7 +14,8 @@ struct Map {
 
 void map_write(int, char *, size_t, size_t);
 void map_free(struct Map *);
-void map_init(struct Map *, size_t, size_t, char *, size_t);
+void map_create(struct Map *, size_t, size_t);
+void map_init_random(struct Map *, char *, size_t);
 int map_wrap(int, size_t);
 char map_get(struct Map *, int, int);
 void map_set(struct Map *, int, int, char);

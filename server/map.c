@@ -19,13 +19,15 @@ void map_free(struct Map *map) {
 	memset(map, 0, sizeof(struct Map));
 }
 
-void map_init(struct Map *map, size_t width, size_t height, char *tiles,
-		size_t ntiles) {
+void map_create(struct Map *map, size_t width, size_t height) {
 	map_free(map);
 	map->width = width;
 	map->height = height;
 	map->size = width * height;
 	map->data = calloc(map->size, sizeof(char));
+}
+
+void map_init_random(struct Map *map, char *tiles, size_t ntiles) {
 	char *offset = map->data;
 	size_t i;
 	for (i = 0; i < map->size; ++i) {

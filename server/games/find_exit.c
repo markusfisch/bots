@@ -15,7 +15,8 @@ static void start(struct Game *game) {
 	memset(&tiles, TILE_FLATLAND, ntiles);
 	tiles[0] = TILE_WATER;
 	tiles[1] = TILE_WOOD;
-	map_init(&game->map, 32, 32, tiles, ntiles);
+	map_create(&game->map, 32, 32);
+	map_init_random(&game->map, tiles, ntiles);
 	map_set(&game->map, 16, 16, TILE_EXIT);
 	placing_circle(game);
 }
