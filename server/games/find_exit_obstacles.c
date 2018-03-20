@@ -4,7 +4,7 @@
 #include "../game.h"
 #include "../player.h"
 #include "../placing.h"
-#include "find_exit.h"
+#include "find_exit_obstacles.h"
 
 #define TILE_EXIT 'O'
 
@@ -31,7 +31,7 @@ static void move(struct Game *game, struct Player *p, char cmd) {
 	}
 }
 
-void init_find_exit(struct Game *game) {
+void find_exit_obstacles(struct Game *game) {
 	points = 16;
 	game->min_players = 1;
 	game->view_radius = 2;
