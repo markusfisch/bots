@@ -3,7 +3,7 @@
 #include "game.h"
 #include "player.h"
 
-struct Player *player_at(struct Game *game, int x, int y) {
+struct Player *player_at(struct Game *game, const int x, const int y) {
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && p->x == x && p->y == y) {
@@ -13,7 +13,7 @@ struct Player *player_at(struct Game *game, int x, int y) {
 	return NULL;
 }
 
-static char player_bearing(int bearing) {
+static char player_bearing(const int bearing) {
 	switch (bearing % 4) {
 	default:
 	case 0:
@@ -27,7 +27,8 @@ static char player_bearing(int bearing) {
 	}
 }
 
-static char player_view_at(struct Game *game, struct Player *p, int x, int y) {
+static char player_view_at(struct Game *game, struct Player *p,
+		const int x, const int y) {
 	char tile = map_get(&game->map, x, y);
 	struct Player *enemy = player_at(game,
 		map_wrap(x, game->map.width),
@@ -113,7 +114,8 @@ static void player_move_by(struct Game *game, struct Player *p, int x, int y) {
 	p->y = y;
 }
 
-static void player_move(struct Game *game, struct Player *p, int steps) {
+static void player_move(struct Game *game, struct Player *p,
+		const int steps) {
 	switch (p->bearing % 4) {
 	case 0: // north
 		player_move_by(game, p, 0, -steps);
@@ -130,11 +132,11 @@ static void player_move(struct Game *game, struct Player *p, int steps) {
 	}
 }
 
-static void player_turn(struct Player *p, int direction) {
+static void player_turn(struct Player *p, const int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
 }
 
-void player_act(struct Game *game, struct Player *p, char cmd) {
+void player_act(struct Game *game, struct Player *p, const char cmd) {
 	switch (cmd) {
 	case '^':
 		player_move(game, p, 1);

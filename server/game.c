@@ -186,7 +186,7 @@ static void game_shutdown(struct Game *game) {
 	map_free(&game->map);
 }
 
-static void game_reset(struct Game *game, int lfd,
+static void game_reset(struct Game *game, const int lfd,
 		void (*init)(struct Game *)) {
 	srand(time(NULL));
 	memset(game, 0, sizeof(struct Game));
@@ -208,7 +208,7 @@ static void game_reset(struct Game *game, int lfd,
 	printf("waiting for players to join ...\n");
 }
 
-static int game_run(int lfd, void (*init)(struct Game *)) {
+static int game_run(const int lfd, void (*init)(struct Game *)) {
 	struct Game game;
 	struct timeval tv;
 
@@ -252,7 +252,7 @@ static int game_run(int lfd, void (*init)(struct Game *)) {
 	return 0;
 }
 
-static void game_handle_signal(int id) {
+static void game_handle_signal(const int id) {
 	switch (id) {
 	case SIGHUP:
 	case SIGINT:
@@ -262,7 +262,7 @@ static void game_handle_signal(int id) {
 	}
 }
 
-static int game_bind_port(int fd, int port) {
+static int game_bind_port(const int fd, const int port) {
 	struct sockaddr_in addr;
 
 	memset(&addr, 0, sizeof(addr));
