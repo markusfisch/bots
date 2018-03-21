@@ -4,6 +4,7 @@
 #define TILE_FLATLAND '.'
 #define TILE_WOOD '#'
 #define TILE_WATER '~'
+#define TILE_GONE 'X'
 
 struct Map {
 	char *data;

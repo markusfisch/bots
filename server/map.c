@@ -56,6 +56,7 @@ int map_impassable(struct Map *map, const int x, const int y) {
 	switch (map_get(map, x, y)) {
 	case TILE_WATER:
 	case TILE_WOOD:
+	case TILE_GONE:
 		return 1;
 	default:
 		return 0;

@@ -58,6 +58,65 @@ static void game_remove_players(struct Game *game) {
 	}
 }
 
+static void game_inset_player(struct Game *game, struct Player *p,
+		const int x, const int y,
+		const int left, const int top,
+		const int right, const int bottom) {
+	int shiftX = 0;
+	int shiftY = 0;
+	if (y == top) {
+		shiftY = 1;
+	} else if (y == bottom) {
+		shiftY = -1;
+	} else if (x == left) {
+		shiftX = 1;
+	} else if (x == right) {
+		shiftX = -1;
+	}
+	int px = p->x;
+	int py = p->y;
+	int tries = 10;
+	do {
+		px += shiftX;
+		py += shiftY;
+	} while (--tries > 0 &&
+		(game->impassable(&game->map, px, py) ||
+			player_at(game, px, py)));
+	if (tries > 0) {
+		p->x = px;
+		p->y = py;
+	}
+}
+
+static void game_shrink(struct Game *game) {
+	size_t level = game->shrink_level;
+	size_t mw = game->map.width;
+	size_t mh = game->map.height;
+	size_t min = mw < mh ? mw : mh;
+	if (level > min / 3) {
+		return;
+	}
+	int left = level;
+	int top = level;
+	int right = mw - left - 1;
+	int bottom = mh - top - 1;
+	int width = right - left;
+	int step;
+	int x;
+	int y;
+	for (y = top; y <= bottom; ++y) {
+		step = (y == top || y == bottom) ? 1 : width;
+		for (x = left; x <= right; x += step) {
+			struct Player *p = player_at(game, x, y);
+			if (p != NULL) {
+				game_inset_player(game, p, x, y, left, top, right, bottom);
+			}
+			map_set(&game->map, x, y, TILE_GONE);
+		}
+	}
+	++game->shrink_level;
+}
+
 static void game_write(struct Game *game) {
 	size_t size = game->map.size;
 	char buf[size];
@@ -73,7 +132,8 @@ static void game_write(struct Game *game) {
 		}
 	}
 	map_write(1, buf, game->map.width, game->map.height);
-	printf("players: %d\n", game_joined(game));
+	printf("turn: %d of %d, players: %d\n", game->turn, game->max_turns,
+		game_joined(game));
 }
 
 static void game_send_views(struct Game *game) {
@@ -90,6 +150,8 @@ static void game_send_views(struct Game *game) {
 	if (update) {
 		if (++game->turn >= game->max_turns) {
 			game_end(game);
+		} else if (game->turn > game->shrink_at_turn) {
+			game_shrink(game);
 		}
 		game_write(game);
 	}
@@ -194,6 +256,7 @@ static void game_reset(struct Game *game, const int lfd,
 	game->min_players = 1;
 	game->view_radius = 2;
 	game->max_turns = 1024;
+	game->shrink_at_turn = game->max_turns;
 	game->listening_fd = lfd;
 	game->nfds = lfd + 1;
 	game->move = player_act;

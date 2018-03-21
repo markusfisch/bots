@@ -21,6 +21,8 @@ struct Game {
 	int view_radius;
 	int max_turns;
 	int turn;
+	int shrink_level;
+	int shrink_at_turn;
 	int nplayers;
 	struct Map map;
 	struct Player {
