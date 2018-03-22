@@ -34,7 +34,7 @@ struct Game {
 		int bearing;
 		int moves;
 		int score;
-		int power;
+		int life;
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	int (*impassable)(struct Map *, int, int);

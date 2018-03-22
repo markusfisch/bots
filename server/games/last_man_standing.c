@@ -6,11 +6,11 @@
 #include "../placing.h"
 #include "last_man_standing.h"
 
-static void set_players_power(struct Game *game, int power) {
+static void set_players_life(struct Game *game, int life) {
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p) {
 		if (p->fd) {
-			p->power = power;
+			p->life = life;
 		}
 	}
 }
@@ -21,7 +21,7 @@ static void start(struct Game *game) {
 	map_create(&game->map, 32, 32);
 	map_init_random(&game->map, tiles, ntiles);
 	placing_random(game);
-	set_players_power(game, 1);
+	set_players_life(game, 1);
 }
 
 static void shoot(struct Game *game, struct Player *p) {
@@ -48,7 +48,7 @@ static void shoot(struct Game *game, struct Player *p) {
 		x += vx;
 		y += vy;
 		struct Player *enemy = player_at(game, x, y);
-		if (enemy != NULL && --enemy->power < 1) {
+		if (enemy != NULL && --enemy->life < 1) {
 			++p->score;
 			game_remove_player(game, enemy);
 		}
