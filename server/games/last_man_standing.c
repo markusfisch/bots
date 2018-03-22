@@ -61,7 +61,7 @@ static void move(struct Game *game, struct Player *p, char cmd) {
 		shoot(game, p);
 		break;
 	default:
-		player_act(game, p, cmd);
+		player_move(game, p, cmd);
 		break;
 	}
 }

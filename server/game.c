@@ -260,7 +260,7 @@ static void game_reset(struct Game *game, const int lfd,
 	game->shrink_at_turn = game->max_turns;
 	game->listening_fd = lfd;
 	game->nfds = lfd + 1;
-	game->move = player_act;
+	game->move = player_move;
 	game->impassable = map_impassable;
 	FD_SET(lfd, &game->watch);
 	init(game);

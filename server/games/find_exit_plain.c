@@ -20,7 +20,7 @@ static void start(struct Game *game) {
 }
 
 static void move(struct Game *game, struct Player *p, char cmd) {
-	player_act(game, p, cmd);
+	player_move(game, p, cmd);
 	if (map_get(&game->map, p->x, p->y) == TILE_EXIT) {
 		printf("%c escaped\n", p->name);
 		p->score = points--;
