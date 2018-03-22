@@ -2,9 +2,9 @@
 #include <string.h>
 
 #include "game.h"
-#include "games/find_exit_plain.h"
-#include "games/find_exit_obstacles.h"
-#include "games/last_man_standing.h"
+#include "setups/find_exit_plain.h"
+#include "setups/find_exit_obstacles.h"
+#include "setups/last_man_standing.h"
 
 static struct Setup {
 	char letter;
