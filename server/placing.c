@@ -22,14 +22,18 @@ void placing_circle(struct Game *game) {
 }
 
 void placing_random(struct Game *game) {
-	struct Player *p = game->players, *e = p + game->nplayers;
 	int width = game->map.width;
 	int height = game->map.height;
+	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p) {
+		int px;
+		int py;
 		do {
-			p->x = rand() % width;
-			p->y = rand() % height;
-		} while (map_impassable(&game->map, p->x, p->y) ||
-			player_at(game, p->x, p->y));
+			px = rand() % width;
+			py = rand() % height;
+		} while (map_impassable(&game->map, px, py) ||
+			player_at(game, px, py));
+		p->x = px;
+		p->y = py;
 	}
 }
