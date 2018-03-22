@@ -69,7 +69,8 @@ static void move(struct Game *game, struct Player *p, char cmd) {
 void last_man_standing(struct Game *game) {
 	game->min_players = 2;
 	game->view_radius = 4;
-	game->max_turns = 1024;
+	game->max_turns = 512;
+	game->shrink_at_turn = game->max_turns / 2;
 	game->start = start;
 	game->move = move;
 	game->impassable = map_impassable;
