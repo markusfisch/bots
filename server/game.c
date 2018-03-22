@@ -150,7 +150,11 @@ static void game_send_views(struct Game *game) {
 		}
 	}
 	if (update) {
-		if (++game->turn >= game->max_turns) {
+		++game->turn;
+		if (game->turn_start) {
+			game->turn_start(game);
+		}
+		if (game->turn >= game->max_turns) {
 			game_end(game);
 		} else if (game->turn > game->shrink_at_turn) {
 			game_shrink(game);

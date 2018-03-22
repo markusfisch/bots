@@ -37,6 +37,7 @@ struct Game {
 		int life;
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
+	void (*turn_start)(struct Game *);
 	int (*impassable)(struct Map *, int, int);
 	void (*move)(struct Game *, struct Player *, char);
 };
