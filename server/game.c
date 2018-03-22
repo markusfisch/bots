@@ -42,11 +42,12 @@ static int game_compare_player(const void *a, const void *b) {
 static void game_print_results(struct Game *game) {
 	qsort(game->players, game->nplayers, sizeof(struct Player),
 		game_compare_player);
-	printf("Plc Name Score Moves\n");
+	printf("Place Name Score Moves\n");
 	int place = 1;
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p, ++place) {
-		printf("% 2d. %c    % 5d % 5d\n", place, p->name, p->score, p->moves);
+		printf("% 4d. %c    % 5d % 5d\n", place, p->name,
+			p->score, p->moves);
 	}
 }
 
