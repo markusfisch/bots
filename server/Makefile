@@ -1,4 +1,4 @@
-BIN = srv
+BIN = bots
 OBJECTS = map.o placing.o player.o game.o \
 	games/find_exit_plain.o \
 	games/find_exit_obstacles.o \

@@ -69,7 +69,7 @@ Clone this repository, enter the directory and run
 
 Then start the server:
 
-	$ ./srv
+	$ ./bots
 
 ### Requirements
 
@@ -85,7 +85,7 @@ The repository contains a very simple bash client you can start like this:
 
 	$ ./templates/bash/client
 
-If `srv` is running on another machine, you'd do:
+If `bots` is running on another machine, you'd do:
 
 	$ ./templates/bash/client HOSTNAME
 
