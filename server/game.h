@@ -1,5 +1,5 @@
-#ifndef __game_h__
-#define __game_h__
+#ifndef _game_h_
+#define _game_h_
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -34,6 +34,7 @@ struct Game {
 		int bearing;
 		int moves;
 		int score;
+		int power;
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	int (*impassable)(struct Map *, int, int);

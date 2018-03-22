@@ -1,5 +1,5 @@
-#ifndef __game_find_exit_plain_h__
-#define __game_find_exit_plain_h__
+#ifndef _find_exit_plain_h_
+#define _find_exit_plain_h_
 
 struct Game;
 

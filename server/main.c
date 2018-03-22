@@ -4,6 +4,7 @@
 #include "game.h"
 #include "games/find_exit_plain.h"
 #include "games/find_exit_obstacles.h"
+#include "games/last_man_standing.h"
 
 static struct Setup {
 	char letter;
@@ -12,6 +13,7 @@ static struct Setup {
 } setups[] = {
 	{ '1', "find exit on a plain grid", find_exit_plain },
 	{ '2', "find exit with obstacles on the grid", find_exit_obstacles },
+	{ '3', "last man standing", last_man_standing },
 	{ 0, NULL, NULL }
 };
 

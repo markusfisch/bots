@@ -21,12 +21,9 @@ do
 	q)
 		break
 		;;
-	[\<\>^v])
+	*)
 		echo -n "$REPLY" >&6
 		read_map || break
-		;;
-	*)
-		echo "error: unknown command '$REPLY'" >&2
 		;;
 	esac
 done

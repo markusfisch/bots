@@ -1,5 +1,5 @@
-#ifndef __player_h__
-#define __player_h__
+#ifndef _player_h_
+#define _player_h_
 
 struct Game;
 struct Player;

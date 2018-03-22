@@ -1,5 +1,5 @@
-#ifndef __game_find_exit_obstacles_h__
-#define __game_find_exit_obstacles_h__
+#ifndef _find_exit_obstacles_h_
+#define _find_exit_obstacles_h_
 
 struct Game;
 

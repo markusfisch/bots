@@ -42,10 +42,11 @@ static int game_compare_player(const void *a, const void *b) {
 static void game_print_results(struct Game *game) {
 	qsort(game->players, game->nplayers, sizeof(struct Player),
 		game_compare_player);
+	printf("Plc Name Score Moves\n");
 	int place = 1;
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p, ++place) {
-		printf("%d. %c %d\n", place, p->name, p->score);
+		printf("% 2d. %c    % 5d % 5d\n", place, p->name, p->score, p->moves);
 	}
 }
 
@@ -299,7 +300,7 @@ static int game_run(const int lfd, void (*init)(struct Game *)) {
 		}
 
 		if (game.started) {
-			if (game.stopped || game_joined(&game) < 1) {
+			if (game.stopped || game_joined(&game) < game.min_players) {
 				game_print_results(&game);
 				game_remove_players(&game);
 				game_reset(&game, lfd, init);

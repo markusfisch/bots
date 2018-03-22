@@ -1,5 +1,5 @@
-#ifndef __map_h__
-#define __map_h__
+#ifndef _map_h_
+#define _map_h_
 
 #define TILE_FLATLAND '.'
 #define TILE_WOOD '#'

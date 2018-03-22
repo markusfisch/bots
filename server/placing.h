@@ -1,5 +1,5 @@
-#ifndef __placing_h__
-#define __placing_h__
+#ifndef _placing_h_
+#define _placing_h_
 
 struct Game;
 
