@@ -2,7 +2,7 @@
 
 Prototype socket server for a terrain parsing game played by bots.
 
-A bot needs to connect to port 51175 to play the game.
+A bot needs to connect to port 63187 to play the game.
 
 The game world is an infinite two-dimensional orthogonal grid.
 

@@ -385,7 +385,7 @@ int game_serve(struct Config *cfg) {
 		return 1;
 	}
 
-	if (game_bind_port(fd, 51175) != 0) {
+	if (game_bind_port(fd, 63187) != 0) {
 		perror("bind");
 		return 1;
 	}
