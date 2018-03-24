@@ -8,6 +8,7 @@
 #include "setups/find_exit_obstacles.h"
 #include "setups/last_man_standing.h"
 
+#define PORT "--port"
 #define MAP_SIZE "--map-size"
 #define VIEW_RADIUS "--view-radius"
 #define MAX_TURNS "--max-turns"
@@ -33,6 +34,7 @@ static void help(char *bin) {
 		printf("%c - %s\n", s->letter, s->description);
 	}
 	printf("\nFLAGS can be any of:\n");
+	printf(PORT" N\n");
 	printf(MAP_SIZE" N[xN]\n");
 	printf(VIEW_RADIUS" N\n");
 	printf(MAX_TURNS" N\n");
@@ -57,10 +59,14 @@ int main(int argc, char **argv) {
 	}
 	struct Config cfg;
 	memset(&cfg, 0, sizeof(cfg));
+	cfg.port = 63187;
 	char *bin = *argv;
 	while (--argc) {
 		++argv;
-		if (!strcmp(*argv, MAP_SIZE)) {
+		if (!strcmp(*argv, PORT)) {
+			HAS_ARG(PORT)
+			cfg.port = atoi(*++argv);
+		} else if (!strcmp(*argv, MAP_SIZE)) {
 			HAS_ARG(MAP_SIZE)
 			int width = atoi(strtok(*++argv, "x"));
 			char *height = strtok(NULL, "x");

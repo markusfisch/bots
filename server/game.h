@@ -44,6 +44,7 @@ struct Game {
 
 struct Config {
 	void (*init)(struct Game *);
+	unsigned int port;
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int view_radius;
