@@ -6,22 +6,12 @@
 #include "../placing.h"
 #include "last_man_standing.h"
 
-static void set_players_life(struct Game *game, int life) {
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd) {
-			p->life = life;
-		}
-	}
-}
-
 static void start(struct Game *game) {
 	size_t ntiles = 1;
 	char tiles[] = { TILE_FLATLAND };
-	map_create(&game->map, 32, 32);
 	map_init_random(&game->map, tiles, ntiles);
 	placing_random(game);
-	set_players_life(game, 1);
+	game_set_players_life(game, 1);
 }
 
 static void shoot(struct Game *game, struct Player *p) {
@@ -70,7 +60,8 @@ void last_man_standing(struct Game *game) {
 	game->min_players = 2;
 	game->view_radius = 4;
 	game->max_turns = 512;
-	game->shrink_at_turn = game->max_turns / 2;
+	game->shrink_after = game->max_turns / 2;
+
 	game->start = start;
 	game->move = move;
 	game->impassable = map_impassable;

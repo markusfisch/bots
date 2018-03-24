@@ -14,4 +14,4 @@ $(BIN): $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f *.o games/*.o $(BIN)
+	rm -f *.o setups/*.o $(BIN)

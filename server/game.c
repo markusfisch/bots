@@ -18,8 +18,8 @@ void game_end(struct Game *game) {
 	game->stopped = time(NULL);
 }
 
-int game_joined(struct Game *game) {
-	int n = 0;
+size_t game_joined(struct Game *game) {
+	size_t n = 0;
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0) {
@@ -27,6 +27,15 @@ int game_joined(struct Game *game) {
 		}
 	}
 	return n;
+}
+
+void game_set_players_life(struct Game *game, int life) {
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p) {
+		if (p->fd) {
+			p->life = life;
+		}
+	}
 }
 
 void game_remove_player(struct Game *game, struct Player *p) {
@@ -134,7 +143,7 @@ static void game_write(struct Game *game) {
 		}
 	}
 	map_write(1, buf, game->map.width, game->map.height);
-	printf("turn: %d of %d, players: %d\n", game->turn, game->max_turns,
+	printf("turn: %d of %d, players: %ld\n", game->turn, game->max_turns,
 		game_joined(game));
 }
 
@@ -156,7 +165,7 @@ static void game_send_views(struct Game *game) {
 		}
 		if (game->turn >= game->max_turns) {
 			game_end(game);
-		} else if (game->turn > game->shrink_at_turn) {
+		} else if (game->turn > game->shrink_after) {
 			game_shrink(game);
 		}
 		game_write(game);
@@ -254,34 +263,56 @@ static void game_shutdown(struct Game *game) {
 	map_free(&game->map);
 }
 
-static void game_reset(struct Game *game, const int lfd,
-		void (*init)(struct Game *)) {
+static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 	srand(time(NULL));
 	memset(game, 0, sizeof(struct Game));
+
+	FD_SET(lfd, &game->watch);
+	game->listening_fd = lfd;
+	game->nfds = lfd + 1;
 	game->usec_per_turn = USEC_PER_SEC;
 	game->min_players = 1;
 	game->view_radius = 2;
 	game->max_turns = 1024;
-	game->shrink_at_turn = game->max_turns;
-	game->listening_fd = lfd;
-	game->nfds = lfd + 1;
+	game->shrink_after = game->max_turns;
 	game->move = player_move;
 	game->impassable = map_impassable;
-	FD_SET(lfd, &game->watch);
-	init(game);
+
+	cfg->init(game);
 	if (!game->start) {
 		fprintf(stderr, "error: game didn't give a start function\n");
 		stop = 1;
 		return;
 	}
-	printf("waiting for players to join ...\n");
+	if (cfg->map_width < 1 || cfg->map_height < 1) {
+		cfg->map_width = cfg->map_height = 32;
+	}
+	if (game->map.width != cfg->map_width ||
+			game->map.height != cfg->map_height) {
+		map_create(&game->map, cfg->map_width, cfg->map_height);
+	}
+	if (cfg->view_radius > 0) {
+		game->view_radius = cfg->view_radius;
+	}
+	if (cfg->max_turns > 0) {
+		game->max_turns = cfg->max_turns;
+	}
+	if (cfg->shrink_after > 0) {
+		game->shrink_after = cfg->shrink_after;
+	}
+	if (cfg->usec_per_turn > 0) {
+		game->usec_per_turn = cfg->usec_per_turn;
+	}
+
+	printf("waiting for players (at least %d) to join ...\n",
+		game->min_players);
 }
 
-static int game_run(const int lfd, void (*init)(struct Game *)) {
+static int game_run(const int lfd, struct Config *cfg) {
 	struct Game game;
 	struct timeval tv;
 
-	game_reset(&game, lfd, init);
+	game_reset(&game, lfd, cfg);
 
 	while (!stop) {
 		memcpy(&game.ready, &game.watch, sizeof(fd_set));
@@ -308,7 +339,7 @@ static int game_run(const int lfd, void (*init)(struct Game *)) {
 			if (game.stopped || game_joined(&game) < game.min_players) {
 				game_print_results(&game);
 				game_remove_players(&game);
-				game_reset(&game, lfd, init);
+				game_reset(&game, lfd, cfg);
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
 				(ready == 0 && game.nplayers >= game.min_players)) {
@@ -347,7 +378,7 @@ static int game_bind_port(const int fd, const int port) {
 	return 0;
 }
 
-int game_serve(void (*init)(struct Game *)) {
+int game_serve(struct Config *cfg) {
 	int fd;
 	if ((fd = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
 		perror("socket");
@@ -369,5 +400,5 @@ int game_serve(void (*init)(struct Game *)) {
 	signal(SIGINT, game_handle_signal);
 	signal(SIGTERM, game_handle_signal);
 
-	return game_run(fd, init);
+	return game_run(fd, cfg);
 }

@@ -4,8 +4,8 @@
 
 #include "map.h"
 
-void map_write(const int fd, char *data, const size_t width,
-		const size_t height) {
+void map_write(const int fd, char *data, const unsigned int width,
+		const unsigned int height) {
 	char *d = data;
 	size_t y;
 	for (y = 0; y < height; ++y) {
@@ -20,7 +20,8 @@ void map_free(struct Map *map) {
 	memset(map, 0, sizeof(struct Map));
 }
 
-void map_create(struct Map *map, const size_t width, const size_t height) {
+void map_create(struct Map *map, const unsigned int width,
+		const unsigned int height) {
 	map_free(map);
 	map->width = width;
 	map->height = height;
@@ -36,7 +37,7 @@ void map_init_random(struct Map *map, char *tiles, const size_t ntiles) {
 	}
 }
 
-int map_wrap(const int pos, const size_t max) {
+int map_wrap(const int pos, const unsigned int max) {
 	return (pos + max) % max;
 }
 

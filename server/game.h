@@ -17,13 +17,13 @@ struct Game {
 	time_t started;
 	time_t stopped;
 	time_t usec_per_turn;
-	int min_players;
-	int view_radius;
-	int max_turns;
-	int turn;
-	int shrink_level;
-	int shrink_at_turn;
-	int nplayers;
+	unsigned int min_players;
+	unsigned int view_radius;
+	unsigned int max_turns;
+	unsigned int turn;
+	unsigned int shrink_level;
+	unsigned int shrink_after;
+	unsigned int nplayers;
 	struct Map map;
 	struct Player {
 		char name;
@@ -32,9 +32,9 @@ struct Game {
 		int x;
 		int y;
 		int bearing;
-		int moves;
+		unsigned int moves;
 		int score;
-		int life;
+		unsigned int life;
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	void (*turn_start)(struct Game *);
@@ -42,9 +42,20 @@ struct Game {
 	void (*move)(struct Game *, struct Player *, char);
 };
 
+struct Config {
+	void (*init)(struct Game *);
+	unsigned int map_width;
+	unsigned int map_height;
+	unsigned int view_radius;
+	unsigned int max_turns;
+	unsigned int shrink_after;
+	time_t usec_per_turn;
+};
+
 void game_remove_player(struct Game *, struct Player *);
-int game_joined(struct Game *);
+size_t game_joined(struct Game *);
+void game_set_players_life(struct Game *, int);
 void game_end(struct Game *);
-int game_serve(void (*)(struct Game *));
+int game_serve(struct Config *);
 
 #endif
