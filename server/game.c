@@ -254,7 +254,9 @@ static void game_handle_joins(struct Game *game) {
 static void game_start(struct Game *game) {
 	game->started = time(NULL);
 	gettimeofday(&game->tick, NULL);
-	game->start(game);
+	if (game->start) {
+		game->start(game);
+	}
 }
 
 static void game_shutdown(struct Game *game) {
@@ -267,6 +269,7 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 	srand(time(NULL));
 	memset(game, 0, sizeof(struct Game));
 
+	// set generic defaults
 	FD_SET(lfd, &game->watch);
 	game->listening_fd = lfd;
 	game->nfds = lfd + 1;
@@ -278,12 +281,8 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 	game->move = player_move;
 	game->impassable = map_impassable;
 
-	cfg->init(game);
-	if (!game->start) {
-		fprintf(stderr, "error: game didn't give a start function\n");
-		stop = 1;
-		return;
-	}
+	// create map before init() so things can be initialized relative
+	// to the map size
 	if (cfg->map_width < 1 || cfg->map_height < 1) {
 		cfg->map_width = cfg->map_height = 32;
 	}
@@ -291,6 +290,11 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 			game->map.height != cfg->map_height) {
 		map_create(&game->map, cfg->map_width, cfg->map_height);
 	}
+
+	// set game specific defaults
+	cfg->init(game);
+
+	// overwrite defaults with optional arguments
 	if (cfg->view_radius > 0) {
 		game->view_radius = cfg->view_radius;
 	}

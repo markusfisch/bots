@@ -45,7 +45,7 @@ static void shoot(struct Game *game, struct Player *p) {
 	}
 }
 
-static void move(struct Game *game, struct Player *p, char cmd) {
+static void move(struct Game *game, struct Player *p, const char cmd) {
 	switch (cmd) {
 	case 'f':
 		shoot(game, p);
@@ -59,8 +59,8 @@ static void move(struct Game *game, struct Player *p, char cmd) {
 void last_man_standing(struct Game *game) {
 	game->min_players = 2;
 	game->view_radius = 4;
-	game->max_turns = 512;
-	game->shrink_after = game->max_turns / 2;
+	game->max_turns = game->map.size;
+	game->shrink_after = game->map.width + game->map.height;
 
 	game->start = start;
 	game->move = move;
