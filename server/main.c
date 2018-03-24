@@ -4,10 +4,10 @@
 #include <libgen.h>
 
 #include "game.h"
-#include "setups/find_exit_plain.h"
-#include "setups/find_exit_obstacles.h"
-#include "setups/last_man_standing.h"
-#include "setups/asteroid_shower.h"
+#include "modes/find_exit_plain.h"
+#include "modes/find_exit_obstacles.h"
+#include "modes/last_man_standing.h"
+#include "modes/asteroid_shower.h"
 
 #define PORT "--port"
 #define MAP_SIZE "--map-size"
@@ -16,11 +16,11 @@
 #define SHRINK_AFTER "--shrink-after"
 #define USECS_PER_TURN "--usecs-per-turn"
 
-static struct Setup {
+static struct Mode {
 	char letter;
 	char *description;
 	void *init;
-} setups[] = {
+} modes[] = {
 	{ '1', "find exit on a plain grid", find_exit_plain },
 	{ '2', "find exit with obstacles on the grid", find_exit_obstacles },
 	{ '3', "last man standing", last_man_standing },
@@ -29,11 +29,11 @@ static struct Setup {
 };
 
 static void help(char *bin) {
-	printf("usage: %s NUMBER [FLAGS...]\n", basename(bin));
-	printf("\nNUMBER must be one of:\n");
-	struct Setup *s;
-	for (s = setups; s->letter; ++s) {
-		printf("%c - %s\n", s->letter, s->description);
+	printf("usage: %s MODE [FLAGS...]\n", basename(bin));
+	printf("\nMODE must be one of:\n");
+	struct Mode *m;
+	for (m = modes; m->letter; ++m) {
+		printf("%c - %s\n", m->letter, m->description);
 	}
 	printf("\nFLAGS can be any of:\n");
 	printf(PORT" N\n");
@@ -45,10 +45,10 @@ static void help(char *bin) {
 }
 
 static void *pick_setup(const char letter) {
-	struct Setup *s;
-	for (s = setups; s->letter; ++s) {
-		if (s->letter == letter) {
-			return s->init;
+	struct Mode *m;
+	for (m = modes; m->letter; ++m) {
+		if (m->letter == letter) {
+			return m->init;
 		}
 	}
 	return NULL;
