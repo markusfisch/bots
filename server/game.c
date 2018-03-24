@@ -6,6 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "maze.h"
 #include "player.h"
 #include "game.h"
 
@@ -267,7 +268,11 @@ static void game_shutdown(struct Game *game) {
 
 static void game_init_map(struct Game *game, struct Config *cfg) {
 	if (cfg->map_width < 1 || cfg->map_height < 1) {
-		cfg->map_width = cfg->map_height = 32;
+		cfg->map_width = 32;
+		if (cfg->map_type == MAP_TYPE_MAZE) {
+			--cfg->map_width;
+		}
+		cfg->map_height = cfg->map_width;
 	}
 	if (game->map.width != cfg->map_width ||
 			game->map.height != cfg->map_height) {
@@ -287,10 +292,13 @@ static void game_init_map(struct Game *game, struct Config *cfg) {
 			map_init_random(&game->map, tiles, ntiles);
 		}
 		break;
+	case MAP_TYPE_MAZE:
+		maze_generate(&game->map);
+		break;
 	}
 }
 
-static void game_set_configuration(struct Game *game, struct Config *cfg) {
+static void game_configure(struct Game *game, struct Config *cfg) {
 	if (cfg->view_radius > 0) {
 		game->view_radius = cfg->view_radius;
 	}
@@ -324,7 +332,7 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 	game_set_defaults(game, lfd);
 	game_init_map(game, cfg);
 	cfg->init(game);
-	game_set_configuration(game, cfg);
+	game_configure(game, cfg);
 	printf("waiting for players (at least %d) to join ...\n",
 		game->min_players);
 }

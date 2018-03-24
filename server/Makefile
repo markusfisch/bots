@@ -1,5 +1,5 @@
 BIN = bots
-OBJECTS = map.o placing.o player.o game.o \
+OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/find_exit.o \
 	modes/last_man_standing.o \
 	modes/asteroid_shower.o \

@@ -13,6 +13,7 @@
 #define MAP_TYPE "--map-type"
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
+#define MAP_TYPE_ARG_MAZE "maze"
 #define VIEW_RADIUS "--view-radius"
 #define MAX_TURNS "--max-turns"
 #define SHRINK_AFTER "--shrink-after"
@@ -39,7 +40,7 @@ static void help(char *bin) {
 	printf("\nFLAGS can be any of:\n");
 	printf(PORT" N\n");
 	printf(MAP_SIZE" N[xN]\n");
-	printf(MAP_TYPE" "MAP_TYPE_ARG_PLAIN"|"MAP_TYPE_ARG_RANDOM"\n");
+	printf(MAP_TYPE" "MAP_TYPE_ARG_PLAIN"|"MAP_TYPE_ARG_RANDOM"|"MAP_TYPE_ARG_MAZE"\n");
 	printf(VIEW_RADIUS" N\n");
 	printf(MAX_TURNS" N\n");
 	printf(SHRINK_AFTER" N\n");
@@ -83,6 +84,8 @@ int main(int argc, char **argv) {
 				cfg.map_type = MAP_TYPE_PLAIN;
 			} else if (!strcmp(*argv, MAP_TYPE_ARG_RANDOM)) {
 				cfg.map_type = MAP_TYPE_RANDOM;
+			} else if (!strcmp(*argv, MAP_TYPE_ARG_MAZE)) {
+				cfg.map_type = MAP_TYPE_MAZE;
 			} else {
 				fprintf(stderr, "error: unknown map type\n");
 				return 1;
