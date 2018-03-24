@@ -4,13 +4,15 @@
 #include <libgen.h>
 
 #include "game.h"
-#include "modes/find_exit_plain.h"
-#include "modes/find_exit_obstacles.h"
+#include "modes/find_exit.h"
 #include "modes/last_man_standing.h"
 #include "modes/asteroid_shower.h"
 
 #define PORT "--port"
 #define MAP_SIZE "--map-size"
+#define MAP_TYPE "--map-type"
+#define MAP_TYPE_ARG_PLAIN "plain"
+#define MAP_TYPE_ARG_RANDOM "random"
 #define VIEW_RADIUS "--view-radius"
 #define MAX_TURNS "--max-turns"
 #define SHRINK_AFTER "--shrink-after"
@@ -21,10 +23,9 @@ static struct Mode {
 	char *description;
 	void *init;
 } modes[] = {
-	{ '1', "find exit on a plain grid", find_exit_plain },
-	{ '2', "find exit with obstacles on the grid", find_exit_obstacles },
-	{ '3', "last man standing", last_man_standing },
-	{ '4', "avoid getting hit by floating astroids", asteroid_shower },
+	{ '1', "find exit", find_exit },
+	{ '2', "last man standing", last_man_standing },
+	{ '3', "avoid getting hit by floating astroids", asteroid_shower },
 	{ 0, NULL, NULL }
 };
 
@@ -38,6 +39,7 @@ static void help(char *bin) {
 	printf("\nFLAGS can be any of:\n");
 	printf(PORT" N\n");
 	printf(MAP_SIZE" N[xN]\n");
+	printf(MAP_TYPE" "MAP_TYPE_ARG_PLAIN"|"MAP_TYPE_ARG_RANDOM"\n");
 	printf(VIEW_RADIUS" N\n");
 	printf(MAX_TURNS" N\n");
 	printf(SHRINK_AFTER" N\n");
@@ -74,6 +76,17 @@ int main(int argc, char **argv) {
 			char *height = strtok(NULL, "x");
 			cfg.map_width = width;
 			cfg.map_height = height != NULL ? atoi(height) : width;
+		} else if (!strcmp(*argv, MAP_TYPE)) {
+			HAS_ARG(MAP_TYPE)
+			++argv;
+			if (!strcmp(*argv, MAP_TYPE_ARG_PLAIN)) {
+				cfg.map_type = MAP_TYPE_PLAIN;
+			} else if (!strcmp(*argv, MAP_TYPE_ARG_RANDOM)) {
+				cfg.map_type = MAP_TYPE_RANDOM;
+			} else {
+				fprintf(stderr, "error: unknown map type\n");
+				return 1;
+			}
 		} else if (!strcmp(*argv, VIEW_RADIUS)) {
 			HAS_ARG(VIEW_RADIUS)
 			cfg.view_radius = atoi(*++argv);

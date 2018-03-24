@@ -1,7 +1,6 @@
 BIN = bots
 OBJECTS = map.o placing.o player.o game.o \
-	modes/find_exit_plain.o \
-	modes/find_exit_obstacles.o \
+	modes/find_exit.o \
 	modes/last_man_standing.o \
 	modes/asteroid_shower.o \
 	main.o

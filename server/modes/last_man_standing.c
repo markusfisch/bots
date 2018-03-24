@@ -7,9 +7,6 @@
 #include "last_man_standing.h"
 
 static void start(struct Game *game) {
-	size_t ntiles = 1;
-	char tiles[] = { TILE_FLATLAND };
-	map_init_random(&game->map, tiles, ntiles);
 	placing_random(game);
 	game_set_players_life(game, 1);
 }

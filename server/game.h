@@ -7,6 +7,8 @@
 #include "map.h"
 
 #define MAX_PLAYERS 16
+#define MAP_TYPE_PLAIN 0
+#define MAP_TYPE_RANDOM 1
 
 struct Game {
 	struct timeval tick;
@@ -47,6 +49,7 @@ struct Config {
 	unsigned int port;
 	unsigned int map_width;
 	unsigned int map_height;
+	unsigned int map_type;
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;

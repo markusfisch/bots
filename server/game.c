@@ -265,24 +265,7 @@ static void game_shutdown(struct Game *game) {
 	map_free(&game->map);
 }
 
-static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
-	srand(time(NULL));
-	memset(game, 0, sizeof(struct Game));
-
-	// set generic defaults
-	FD_SET(lfd, &game->watch);
-	game->listening_fd = lfd;
-	game->nfds = lfd + 1;
-	game->usec_per_turn = USEC_PER_SEC;
-	game->min_players = 1;
-	game->view_radius = 2;
-	game->max_turns = 1024;
-	game->shrink_after = game->max_turns;
-	game->move = player_move;
-	game->impassable = map_impassable;
-
-	// create map before init() so things can be initialized relative
-	// to the map size
+static void game_init_map(struct Game *game, struct Config *cfg) {
 	if (cfg->map_width < 1 || cfg->map_height < 1) {
 		cfg->map_width = cfg->map_height = 32;
 	}
@@ -290,11 +273,24 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 			game->map.height != cfg->map_height) {
 		map_create(&game->map, cfg->map_width, cfg->map_height);
 	}
+	switch (cfg->map_type) {
+	default:
+	case MAP_TYPE_PLAIN:
+		memset(&game->map.data, TILE_FLATLAND, game->map.size);
+		break;
+	case MAP_TYPE_RANDOM: {
+			size_t ntiles = 16;
+			char tiles[ntiles];
+			memset(&tiles, TILE_FLATLAND, ntiles);
+			tiles[0] = TILE_WATER;
+			tiles[1] = TILE_WOOD;
+			map_init_random(&game->map, tiles, ntiles);
+		}
+		break;
+	}
+}
 
-	// set game specific defaults
-	cfg->init(game);
-
-	// overwrite defaults with optional arguments
+static void game_set_configuration(struct Game *game, struct Config *cfg) {
 	if (cfg->view_radius > 0) {
 		game->view_radius = cfg->view_radius;
 	}
@@ -307,7 +303,28 @@ static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
 	if (cfg->usec_per_turn > 0) {
 		game->usec_per_turn = cfg->usec_per_turn;
 	}
+}
 
+static void game_set_defaults(struct Game *game, const int lfd) {
+	memset(game, 0, sizeof(struct Game));
+	FD_SET(lfd, &game->watch);
+	game->listening_fd = lfd;
+	game->nfds = lfd + 1;
+	game->usec_per_turn = USEC_PER_SEC;
+	game->min_players = 1;
+	game->view_radius = 2;
+	game->max_turns = 1024;
+	game->shrink_after = game->max_turns;
+	game->move = player_move;
+	game->impassable = map_impassable;
+}
+
+static void game_reset(struct Game *game, const int lfd, struct Config *cfg) {
+	srand(time(NULL));
+	game_set_defaults(game, lfd);
+	game_init_map(game, cfg);
+	cfg->init(game);
+	game_set_configuration(game, cfg);
 	printf("waiting for players (at least %d) to join ...\n",
 		game->min_players);
 }

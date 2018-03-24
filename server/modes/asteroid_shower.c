@@ -54,9 +54,6 @@ static size_t asteroids_create(int amount) {
 }
 
 static void start(struct Game *game) {
-	size_t ntiles = 1;
-	char tiles[] = { TILE_FLATLAND };
-	map_init_random(&game->map, tiles, ntiles);
 	placing_random(game);
 	nasteroids = asteroids_create(round(game->map.size * .1));
 	asteroids_place(game);
