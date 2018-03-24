@@ -152,6 +152,9 @@ static void game_send_views(struct Game *game) {
 	struct Player *p = game->players, *e = p + game->nplayers;
 	for (; p < e; ++p) {
 		if (p->fd != 0 && !p->can_move) {
+			if (!update && game->turn_start) {
+				game->turn_start(game);
+			}
 			player_send_view(game, p);
 			update = 1;
 			p->can_move = 1;
@@ -160,9 +163,6 @@ static void game_send_views(struct Game *game) {
 	}
 	if (update) {
 		++game->turn;
-		if (game->turn_start) {
-			game->turn_start(game);
-		}
 		if (game->turn >= game->max_turns) {
 			game_end(game);
 		} else if (game->turn > game->shrink_after) {
@@ -315,8 +315,6 @@ static int game_run(const int lfd, struct Config *cfg) {
 	game_reset(&game, lfd, cfg);
 
 	while (!stop) {
-		memcpy(&game.ready, &game.watch, sizeof(fd_set));
-
 		if (game.started) {
 			time_t usec = game_next_turn(&game);
 			tv.tv_sec = usec / USEC_PER_SEC;
@@ -326,6 +324,7 @@ static int game_run(const int lfd, struct Config *cfg) {
 			tv.tv_usec = 0;
 		}
 
+		memcpy(&game.ready, &game.watch, sizeof(fd_set));
 		int ready = select(game.nfds, &game.ready, NULL, NULL, &tv);
 		if (ready < 0) {
 			perror("select");

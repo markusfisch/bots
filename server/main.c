@@ -7,6 +7,7 @@
 #include "setups/find_exit_plain.h"
 #include "setups/find_exit_obstacles.h"
 #include "setups/last_man_standing.h"
+#include "setups/asteroid_shower.h"
 
 #define PORT "--port"
 #define MAP_SIZE "--map-size"
@@ -23,6 +24,7 @@ static struct Setup {
 	{ '1', "find exit on a plain grid", find_exit_plain },
 	{ '2', "find exit with obstacles on the grid", find_exit_obstacles },
 	{ '3', "last man standing", last_man_standing },
+	{ '4', "avoid getting hit by floating astroids", asteroid_shower },
 	{ 0, NULL, NULL }
 };
 
