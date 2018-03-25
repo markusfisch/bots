@@ -120,7 +120,7 @@ static void game_shrink(struct Game *game) {
 		step = (y == top || y == bottom) ? 1 : width;
 		for (x = left; x <= right; x += step) {
 			struct Player *p = player_at(game, x, y);
-			if (p != NULL) {
+			if (p) {
 				game_inset_player(game, p, x, y, left, top, right, bottom);
 			}
 			map_set(&game->map, x, y, TILE_GONE);
@@ -229,6 +229,7 @@ static int game_add_player(struct Game *game, int fd) {
 	struct Player *p = &game->players[game->nplayers];
 	p->fd = fd;
 	p->name = 65 + game->nplayers;
+	p->life = 1;
 	++game->nplayers;
 	FD_SET(fd, &game->watch);
 	if (++fd > game->nfds) {
@@ -252,7 +253,10 @@ static void game_handle_joins(struct Game *game) {
 	}
 }
 
-static void game_start(struct Game *game) {
+static void game_start(struct Game *game, struct Config *cfg) {
+	if (cfg->player_life > 0) {
+		game_set_players_life(game, cfg->player_life);
+	}
 	game->started = time(NULL);
 	gettimeofday(&game->tick, NULL);
 	if (game->start) {
@@ -371,7 +375,7 @@ static int game_run(const int lfd, struct Config *cfg) {
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
 				(ready == 0 && game.nplayers >= game.min_players)) {
-			game_start(&game);
+			game_start(&game, cfg);
 		}
 	}
 

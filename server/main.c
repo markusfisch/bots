@@ -17,6 +17,7 @@
 #define VIEW_RADIUS "--view-radius"
 #define MAX_TURNS "--max-turns"
 #define SHRINK_AFTER "--shrink-after"
+#define PLAYER_LIFE "--player-life"
 #define USECS_PER_TURN "--usecs-per-turn"
 
 static struct Mode {
@@ -44,6 +45,7 @@ static void help(char *bin) {
 	printf(VIEW_RADIUS" N\n");
 	printf(MAX_TURNS" N\n");
 	printf(SHRINK_AFTER" N\n");
+	printf(PLAYER_LIFE" N\n");
 	printf(USECS_PER_TURN" N\n");
 }
 
@@ -77,7 +79,7 @@ int main(int argc, char **argv) {
 			int width = atoi(strtok(*++argv, "x"));
 			char *height = strtok(NULL, "x");
 			cfg.map_width = width;
-			cfg.map_height = height != NULL ? atoi(height) : width;
+			cfg.map_height = height ? atoi(height) : width;
 		} else if (!strcmp(*argv, MAP_TYPE)) {
 			HAS_ARG(MAP_TYPE)
 			++argv;
@@ -100,6 +102,9 @@ int main(int argc, char **argv) {
 		} else if (!strcmp(*argv, SHRINK_AFTER)) {
 			HAS_ARG(SHRINK_AFTER)
 			cfg.shrink_after = atoi(*++argv);
+		} else if (!strcmp(*argv, PLAYER_LIFE)) {
+			HAS_ARG(PLAYER_LIFE)
+			cfg.player_life = atoi(*++argv);
 		} else if (!strcmp(*argv, USECS_PER_TURN)) {
 			HAS_ARG(USECS_PER_TURN)
 			cfg.usec_per_turn = atoi(*++argv);

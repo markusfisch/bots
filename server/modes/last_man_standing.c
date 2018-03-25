@@ -7,8 +7,7 @@
 #include "last_man_standing.h"
 
 static void start(struct Game *game) {
-	placing_random(game);
-	game_set_players_life(game, 1);
+	placing_circle(game);
 }
 
 static void shoot(struct Game *game, struct Player *p) {
@@ -35,7 +34,7 @@ static void shoot(struct Game *game, struct Player *p) {
 		x += vx;
 		y += vy;
 		struct Player *enemy = player_at(game, x, y);
-		if (enemy != NULL && --enemy->life < 1) {
+		if (enemy && --enemy->life < 1) {
 			++p->score;
 			game_remove_player(game, enemy);
 		}

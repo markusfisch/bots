@@ -99,7 +99,7 @@ void maze_generate(struct Map *map) {
 	int height = map->height;
 
 	nodes = calloc(width * height, sizeof(struct Node));
-	if (nodes == NULL) {
+	if (!nodes) {
 		return;
 	}
 

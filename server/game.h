@@ -54,6 +54,7 @@ struct Config {
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;
+	unsigned int player_life;
 	time_t usec_per_turn;
 };
 
