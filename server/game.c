@@ -36,8 +36,9 @@ void game_remove_player(struct Game *game, struct Player *p) {
 	p->fd = 0;
 }
 
-char game_marker_show_life(struct Game *game, struct Player *p) {
-	return game->started && p->moves > 0 ? 48 + p->life : p->name;
+unsigned char game_marker_show_life(struct Game *game, struct Player *p) {
+	return game->started && p->moves > 0 ? (unsigned char) 48 + p->life :
+		p->name;
 }
 
 static int game_compare_player(const void *a, const void *b) {
