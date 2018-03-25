@@ -281,7 +281,7 @@ static void game_init_map(struct Game *game, struct Config *cfg) {
 	switch (cfg->map_type) {
 	default:
 	case MAP_TYPE_PLAIN:
-		memset(&game->map.data, TILE_FLATLAND, game->map.size);
+		memset(game->map.data, TILE_FLATLAND, game->map.size);
 		break;
 	case MAP_TYPE_RANDOM: {
 			size_t ntiles = 16;

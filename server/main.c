@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
 	struct Config cfg;
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.port = 63187;
+	cfg.map_type = MAP_TYPE_PLAIN;
 	char *bin = *argv;
 	while (--argc) {
 		++argv;
