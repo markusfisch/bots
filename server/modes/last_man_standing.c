@@ -60,5 +60,6 @@ void last_man_standing(struct Game *game) {
 
 	game->start = start;
 	game->move = move;
+	game->marker = game_marker_show_life;
 	game->impassable = map_impassable;
 }

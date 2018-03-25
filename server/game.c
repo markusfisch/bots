@@ -30,19 +30,14 @@ size_t game_joined(struct Game *game) {
 	return n;
 }
 
-void game_set_players_life(struct Game *game, int life) {
-	struct Player *p = game->players, *e = p + game->nplayers;
-	for (; p < e; ++p) {
-		if (p->fd) {
-			p->life = life;
-		}
-	}
-}
-
 void game_remove_player(struct Game *game, struct Player *p) {
 	FD_CLR(p->fd, &game->watch);
 	close(p->fd);
 	p->fd = 0;
+}
+
+char game_marker_show_life(struct Game *game, struct Player *p) {
+	return game->started && p->moves > 0 ? 48 + p->life : p->name;
 }
 
 static int game_compare_player(const void *a, const void *b) {
@@ -253,9 +248,19 @@ static void game_handle_joins(struct Game *game) {
 	}
 }
 
+static void game_set_players_life(struct Game *game, int life) {
+	struct Player *p = game->players, *e = p + game->nplayers;
+	for (; p < e; ++p) {
+		if (p->fd) {
+			p->life = life;
+		}
+	}
+}
+
 static void game_start(struct Game *game, struct Config *cfg) {
 	if (cfg->player_life > 0) {
-		game_set_players_life(game, cfg->player_life);
+		game_set_players_life(game, cfg->player_life < 10 ?
+			cfg->player_life : 9);
 	}
 	game->started = time(NULL);
 	gettimeofday(&game->tick, NULL);

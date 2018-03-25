@@ -100,7 +100,8 @@ void player_send_view(struct Game *game, struct Player *player) {
 		left += yx;
 		top += yy;
 	}
-	view[radius * len + radius] = player->name;
+	view[radius * len + radius] = game->marker ?
+		game->marker(game, player) : player->name;
 	map_write(player->fd, view, len, len);
 }
 

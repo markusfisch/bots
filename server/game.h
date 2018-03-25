@@ -42,6 +42,7 @@ struct Game {
 	} players[MAX_PLAYERS];
 	void (*start)(struct Game *);
 	void (*turn_start)(struct Game *);
+	char (*marker)(struct Game *, struct Player *);
 	int (*impassable)(struct Map *, int, int);
 	void (*move)(struct Game *, struct Player *, char);
 };
@@ -61,7 +62,7 @@ struct Config {
 
 void game_remove_player(struct Game *, struct Player *);
 size_t game_joined(struct Game *);
-void game_set_players_life(struct Game *, int);
+char game_marker_show_life(struct Game *, struct Player *);
 void game_end(struct Game *);
 int game_serve(struct Config *);
 
