@@ -284,6 +284,9 @@ static void game_init_map(struct Game *game, struct Config *cfg) {
 	}
 	switch (cfg->map_type) {
 	default:
+	case MAP_TYPE_CHESS:
+		map_init_chess(&game->map);
+		break;
 	case MAP_TYPE_PLAIN:
 		memset(game->map.data, TILE_FLATLAND, game->map.size);
 		break;
@@ -291,8 +294,9 @@ static void game_init_map(struct Game *game, struct Config *cfg) {
 			size_t ntiles = 16;
 			char tiles[ntiles];
 			memset(&tiles, TILE_FLATLAND, ntiles);
-			tiles[0] = TILE_WATER;
-			tiles[1] = TILE_WOOD;
+			tiles[0] = TILE_DIRT;
+			tiles[1] = TILE_WATER;
+			tiles[2] = TILE_WOOD;
 			map_init_random(&game->map, tiles, ntiles);
 		}
 		break;

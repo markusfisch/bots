@@ -4,13 +4,15 @@
 #include <libgen.h>
 
 #include "game.h"
+#include "modes/asteroid_shower.h"
 #include "modes/find_exit.h"
 #include "modes/last_man_standing.h"
-#include "modes/asteroid_shower.h"
+#include "modes/training.h"
 
 #define PORT "--port"
 #define MAP_SIZE "--map-size"
 #define MAP_TYPE "--map-type"
+#define MAP_TYPE_ARG_CHESS "chess"
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
 #define MAP_TYPE_ARG_MAZE "maze"
@@ -25,6 +27,7 @@ static struct Mode {
 	char *description;
 	void *init;
 } modes[] = {
+	{ '0', "training ground", training },
 	{ '1', "find exit", find_exit },
 	{ '2', "last man standing", last_man_standing },
 	{ '3', "avoid getting hit by floating astroids", asteroid_shower },
@@ -41,7 +44,8 @@ static void help(char *bin) {
 	printf("\nFLAGS can be any of:\n");
 	printf(PORT" N\n");
 	printf(MAP_SIZE" N[xN]\n");
-	printf(MAP_TYPE" "MAP_TYPE_ARG_PLAIN"|"MAP_TYPE_ARG_RANDOM"|"MAP_TYPE_ARG_MAZE"\n");
+	printf(MAP_TYPE" "MAP_TYPE_ARG_CHESS"|"MAP_TYPE_ARG_PLAIN"|"\
+		MAP_TYPE_ARG_RANDOM"|"MAP_TYPE_ARG_MAZE"\n");
 	printf(VIEW_RADIUS" N\n");
 	printf(MAX_TURNS" N\n");
 	printf(SHRINK_AFTER" N\n");
@@ -67,7 +71,7 @@ int main(int argc, char **argv) {
 	struct Config cfg;
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.port = 63187;
-	cfg.map_type = MAP_TYPE_PLAIN;
+	cfg.map_type = MAP_TYPE_CHESS;
 	char *bin = *argv;
 	while (--argc) {
 		++argv;
@@ -83,7 +87,9 @@ int main(int argc, char **argv) {
 		} else if (!strcmp(*argv, MAP_TYPE)) {
 			HAS_ARG(MAP_TYPE)
 			++argv;
-			if (!strcmp(*argv, MAP_TYPE_ARG_PLAIN)) {
+			if (!strcmp(*argv, MAP_TYPE_ARG_CHESS)) {
+				cfg.map_type = MAP_TYPE_CHESS;
+			} else if (!strcmp(*argv, MAP_TYPE_ARG_PLAIN)) {
 				cfg.map_type = MAP_TYPE_PLAIN;
 			} else if (!strcmp(*argv, MAP_TYPE_ARG_RANDOM)) {
 				cfg.map_type = MAP_TYPE_RANDOM;

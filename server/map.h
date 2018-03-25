@@ -2,6 +2,7 @@
 #define _map_h_
 
 #define TILE_FLATLAND '.'
+#define TILE_DIRT ':'
 #define TILE_WOOD '#'
 #define TILE_WATER '~'
 #define TILE_GONE 'X'
@@ -16,6 +17,7 @@ struct Map {
 void map_write(int, char *, unsigned int, unsigned int);
 void map_free(struct Map *);
 void map_create(struct Map *, unsigned int, unsigned int);
+void map_init_chess(struct Map *);
 void map_init_random(struct Map *, char *, size_t);
 int map_wrap(int, unsigned int);
 char map_get(struct Map *, int, int);

@@ -1,8 +1,9 @@
 BIN = bots
 OBJECTS = map.o maze.o placing.o player.o game.o \
+	modes/asteroid_shower.o \
 	modes/find_exit.o \
 	modes/last_man_standing.o \
-	modes/asteroid_shower.o \
+	modes/training.o \
 	main.o
 LIBS = -lm
 FLAGS = -O2 -Wall -Wextra

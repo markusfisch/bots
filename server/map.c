@@ -29,6 +29,17 @@ void map_create(struct Map *map, const unsigned int width,
 	map->data = calloc(map->size, sizeof(char));
 }
 
+void map_init_chess(struct Map *map) {
+	char *offset = map->data;
+	unsigned int x;
+	unsigned int y;
+	for (y = 0; y < map->height; ++y) {
+		for (x = 0; x < map->height; ++x) {
+			*offset++ = (x + y) % 2 ? TILE_FLATLAND : TILE_DIRT;
+		}
+	}
+}
+
 void map_init_random(struct Map *map, char *tiles, const size_t ntiles) {
 	char *offset = map->data;
 	size_t i;

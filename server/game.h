@@ -7,9 +7,10 @@
 #include "map.h"
 
 #define MAX_PLAYERS 16
-#define MAP_TYPE_PLAIN 0
-#define MAP_TYPE_RANDOM 1
-#define MAP_TYPE_MAZE 2
+#define MAP_TYPE_CHESS 0
+#define MAP_TYPE_PLAIN 1
+#define MAP_TYPE_RANDOM 2
+#define MAP_TYPE_MAZE 3
 
 struct Game {
 	struct timeval tick;
