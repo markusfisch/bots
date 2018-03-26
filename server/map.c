@@ -40,7 +40,18 @@ void map_init_chess(Map *map) {
 	}
 }
 
-void map_init_random(Map *map, char *tiles, const size_t ntiles) {
+void map_init_random(Map *map, const unsigned int multiplier, char *flat,
+		char *obstacles) {
+	size_t nflat = flat ? strlen(flat) : 0;
+	size_t mflat = nflat * multiplier;
+	size_t nobstacles = obstacles ? strlen(obstacles) : 0;
+	size_t ntiles = mflat + nobstacles;
+	char tiles[ntiles];
+	char *p = tiles, *e = tiles + mflat;
+	for (; p < e; p += nflat) {
+		memcpy(p, flat, nflat);
+	}
+	memcpy(p, obstacles, nobstacles);
 	char *offset = map->data;
 	size_t i;
 	for (i = 0; i < map->size; ++i) {
@@ -65,12 +76,7 @@ void map_set(Map *map, const int x, const int y, const char tile) {
 }
 
 int map_impassable(Map *map, const int x, const int y) {
-	switch (map_get(map, x, y)) {
-	case TILE_WATER:
-	case TILE_WOOD:
-	case TILE_GONE:
-		return 1;
-	default:
-		return 0;
-	}
+	char tile = map_get(map, x, y);
+	return tile == TILE_GONE ||
+		(map->obstacles && strchr(map->obstacles, tile)) ? 1 : 0;
 }

@@ -9,6 +9,7 @@
 
 typedef struct {
 	char *data;
+	char *obstacles;
 	unsigned int width;
 	unsigned int height;
 	size_t size;
@@ -18,7 +19,7 @@ void map_write(int, char *, unsigned int, unsigned int);
 void map_free(Map *);
 void map_create(Map *, unsigned int, unsigned int);
 void map_init_chess(Map *);
-void map_init_random(Map *, char *, size_t);
+void map_init_random(Map *, unsigned int, char *, char *);
 int map_wrap(int, unsigned int);
 char map_get(Map *, int, int);
 void map_set(Map *, int, int, char);

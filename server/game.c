@@ -13,8 +13,8 @@
 #define USEC_PER_SEC 1000000L
 #define SECONDS_TO_JOIN 10
 
-struct Game game;
 struct Config config;
+struct Game game;
 
 static int stop = 0;
 
@@ -299,15 +299,9 @@ static void game_init_map() {
 	case MAP_TYPE_PLAIN:
 		memset(game.map.data, TILE_FLATLAND, game.map.size);
 		break;
-	case MAP_TYPE_RANDOM: {
-			size_t ntiles = 16;
-			char tiles[ntiles];
-			memset(&tiles, TILE_FLATLAND, ntiles);
-			tiles[0] = TILE_DIRT;
-			tiles[1] = TILE_WATER;
-			tiles[2] = TILE_WOOD;
-			map_init_random(&game.map, tiles, ntiles);
-		}
+	case MAP_TYPE_RANDOM:
+		map_init_random(&game.map, 14, (char[]) {TILE_FLATLAND, 0},
+			(char[]) {TILE_WATER, TILE_WOOD, 0});
 		break;
 	case MAP_TYPE_MAZE:
 		maze_generate(&game.map);
