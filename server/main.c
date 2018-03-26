@@ -22,6 +22,8 @@
 #define PLAYER_LIFE "--player-life"
 #define USECS_PER_TURN "--usecs-per-turn"
 
+extern struct Config config;
+
 static struct Mode {
 	char letter;
 	char *description;
@@ -68,61 +70,60 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "error: missing argument for %s\n", flag);\
 		return 1;\
 	}
-	struct Config cfg;
-	memset(&cfg, 0, sizeof(cfg));
-	cfg.port = 63187;
-	cfg.map_type = MAP_TYPE_CHESS;
+	memset(&config, 0, sizeof(config));
+	config.port = 63187;
+	config.map_type = MAP_TYPE_CHESS;
 	char *bin = *argv;
 	while (--argc) {
 		++argv;
 		if (!strcmp(*argv, PORT)) {
 			HAS_ARG(PORT)
-			cfg.port = atoi(*++argv);
+			config.port = atoi(*++argv);
 		} else if (!strcmp(*argv, MAP_SIZE)) {
 			HAS_ARG(MAP_SIZE)
 			int width = atoi(strtok(*++argv, "x"));
 			char *height = strtok(NULL, "x");
-			cfg.map_width = width;
-			cfg.map_height = height ? atoi(height) : width;
+			config.map_width = width;
+			config.map_height = height ? atoi(height) : width;
 		} else if (!strcmp(*argv, MAP_TYPE)) {
 			HAS_ARG(MAP_TYPE)
 			++argv;
 			if (!strcmp(*argv, MAP_TYPE_ARG_CHESS)) {
-				cfg.map_type = MAP_TYPE_CHESS;
+				config.map_type = MAP_TYPE_CHESS;
 			} else if (!strcmp(*argv, MAP_TYPE_ARG_PLAIN)) {
-				cfg.map_type = MAP_TYPE_PLAIN;
+				config.map_type = MAP_TYPE_PLAIN;
 			} else if (!strcmp(*argv, MAP_TYPE_ARG_RANDOM)) {
-				cfg.map_type = MAP_TYPE_RANDOM;
+				config.map_type = MAP_TYPE_RANDOM;
 			} else if (!strcmp(*argv, MAP_TYPE_ARG_MAZE)) {
-				cfg.map_type = MAP_TYPE_MAZE;
+				config.map_type = MAP_TYPE_MAZE;
 			} else {
 				fprintf(stderr, "error: unknown map type\n");
 				return 1;
 			}
 		} else if (!strcmp(*argv, VIEW_RADIUS)) {
 			HAS_ARG(VIEW_RADIUS)
-			cfg.view_radius = atoi(*++argv);
+			config.view_radius = atoi(*++argv);
 		} else if (!strcmp(*argv, MAX_TURNS)) {
 			HAS_ARG(MAX_TURNS)
-			cfg.max_turns = atoi(*++argv);
+			config.max_turns = atoi(*++argv);
 		} else if (!strcmp(*argv, SHRINK_AFTER)) {
 			HAS_ARG(SHRINK_AFTER)
-			cfg.shrink_after = atoi(*++argv);
+			config.shrink_after = atoi(*++argv);
 		} else if (!strcmp(*argv, PLAYER_LIFE)) {
 			HAS_ARG(PLAYER_LIFE)
-			cfg.player_life = atoi(*++argv);
+			config.player_life = atoi(*++argv);
 		} else if (!strcmp(*argv, USECS_PER_TURN)) {
 			HAS_ARG(USECS_PER_TURN)
-			cfg.usec_per_turn = atoi(*++argv);
-		} else if (!(cfg.init = pick_setup(**argv))) {
+			config.usec_per_turn = atoi(*++argv);
+		} else if (!(config.init = pick_setup(**argv))) {
 			fprintf(stderr, "error: invalid argument \"%s\"\n", *argv);
 			help(bin);
 			return 1;
 		}
 	}
-	if (!cfg.init) {
+	if (!config.init) {
 		help(bin);
 		return 0;
 	}
-	return game_serve(&cfg);
+	return game_serve();
 }

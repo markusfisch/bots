@@ -94,7 +94,7 @@ static void maze_init(const int width, const int height) {
 	}
 }
 
-void maze_generate(struct Map *map) {
+void maze_generate(Map *map) {
 	int width = map->width;
 	int height = map->height;
 

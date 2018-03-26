@@ -6,12 +6,14 @@
 #include "../placing.h"
 #include "find_exit.h"
 
-static void start(struct Game *game) {
-	placing_random(game);
+extern struct Game game;
+
+static void start() {
+	placing_random();
 }
 
-void training(struct Game *game) {
-	game->start = start;
-	game->move = player_move;
-	game->impassable = map_impassable;
+void training() {
+	game.start = start;
+	game.move = player_move;
+	game.impassable = map_impassable;
 }

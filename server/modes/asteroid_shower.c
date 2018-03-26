@@ -8,6 +8,7 @@
 #include "../placing.h"
 #include "asteroid_shower.h"
 
+extern struct Game game;
 static struct Asteroid {
 	int x;
 	int y;
@@ -17,28 +18,28 @@ int vx;
 int vy;
 int score;
 
-static void asteroids_move(struct Game *game) {
-	struct Player *hit;
+static void asteroids_move() {
+	Player *hit;
 	struct Asteroid *p = asteroids, *e = asteroids + nasteroids;
 	for (; p < e; ++p) {
-		map_set(&game->map, p->x, p->y, TILE_FLATLAND);
-		p->x = map_wrap(p->x + vx, game->map.width);
-		p->y = map_wrap(p->y + vy, game->map.height);
-		map_set(&game->map, p->x, p->y, TILE_WOOD);
-		if ((hit = player_at(game, p->x, p->y))) {
+		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
+		p->x = map_wrap(p->x + vx, game.map.width);
+		p->y = map_wrap(p->y + vy, game.map.height);
+		map_set(&game.map, p->x, p->y, TILE_WOOD);
+		if ((hit = player_at(p->x, p->y))) {
 			hit->score = score++;
-			game_remove_player(game, hit);
+			game_remove_player(hit);
 		}
 	}
 }
 
-static void asteroids_place(struct Game *game) {
+static void asteroids_place() {
 	struct Asteroid *p = asteroids, *e = asteroids + nasteroids;
 	for (; p < e; ++p) {
 		do {
-			p->x = rand() % game->map.width;
-			p->y = rand() % game->map.height;
-		} while (player_at(game, p->x, p->y));
+			p->x = rand() % game.map.width;
+			p->y = rand() % game.map.height;
+		} while (player_at(p->x, p->y));
 	}
 }
 
@@ -53,10 +54,10 @@ static size_t asteroids_create(int amount) {
 	return amount;
 }
 
-static void start(struct Game *game) {
-	placing_random(game);
-	nasteroids = asteroids_create(round(game->map.size * .1));
-	asteroids_place(game);
+static void start() {
+	placing_random();
+	nasteroids = asteroids_create(round(game.map.size * .1));
+	asteroids_place();
 	do {
 		vx = (rand() % 3) - 1;
 		vy = (rand() % 3) - 1;
@@ -64,15 +65,15 @@ static void start(struct Game *game) {
 	score = 0;
 }
 
-static void turn_start(struct Game *game) {
-	asteroids_move(game);
+static void turn_start() {
+	asteroids_move();
 }
 
-void asteroid_shower(struct Game *game) {
-	game->view_radius = 4;
+void asteroid_shower() {
+	game.view_radius = 4;
 
-	game->start = start;
-	game->turn_start = turn_start;
-	game->move = player_move;
-	game->impassable = map_impassable;
+	game.start = start;
+	game.turn_start = turn_start;
+	game.move = player_move;
+	game.impassable = map_impassable;
 }

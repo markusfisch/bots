@@ -15,12 +15,12 @@ void map_write(const int fd, char *data, const unsigned int width,
 	}
 }
 
-void map_free(struct Map *map) {
+void map_free(Map *map) {
 	free(map->data);
-	memset(map, 0, sizeof(struct Map));
+	memset(map, 0, sizeof(Map));
 }
 
-void map_create(struct Map *map, const unsigned int width,
+void map_create(Map *map, const unsigned int width,
 		const unsigned int height) {
 	map_free(map);
 	map->width = width;
@@ -29,7 +29,7 @@ void map_create(struct Map *map, const unsigned int width,
 	map->data = calloc(map->size, sizeof(char));
 }
 
-void map_init_chess(struct Map *map) {
+void map_init_chess(Map *map) {
 	char *offset = map->data;
 	unsigned int x;
 	unsigned int y;
@@ -40,7 +40,7 @@ void map_init_chess(struct Map *map) {
 	}
 }
 
-void map_init_random(struct Map *map, char *tiles, const size_t ntiles) {
+void map_init_random(Map *map, char *tiles, const size_t ntiles) {
 	char *offset = map->data;
 	size_t i;
 	for (i = 0; i < map->size; ++i) {
@@ -52,19 +52,19 @@ int map_wrap(const int pos, const unsigned int max) {
 	return (pos + max) % max;
 }
 
-static size_t map_offset(struct Map *map, const int x, const int y) {
+static size_t map_offset(Map *map, const int x, const int y) {
 	return map_wrap(y, map->height) * map->width + map_wrap(x, map->width);
 }
 
-char map_get(struct Map *map, const int x, const int y) {
+char map_get(Map *map, const int x, const int y) {
 	return map->data[map_offset(map, x, y)];
 }
 
-void map_set(struct Map *map, const int x, const int y, const char tile) {
+void map_set(Map *map, const int x, const int y, const char tile) {
 	map->data[map_offset(map, x, y)] = tile;
 }
 
-int map_impassable(struct Map *map, const int x, const int y) {
+int map_impassable(Map *map, const int x, const int y) {
 	switch (map_get(map, x, y)) {
 	case TILE_WATER:
 	case TILE_WOOD:

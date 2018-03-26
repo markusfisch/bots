@@ -2,7 +2,6 @@
 #define _training_h_
 
 struct Game;
-
-void training(struct Game *);
+void training();
 
 #endif

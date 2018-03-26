@@ -2,7 +2,6 @@
 #define _maze_h_
 
 struct Map;
-
-void maze_generate(struct Map *);
+void maze_generate(Map *);
 
 #endif

@@ -3,7 +3,7 @@
 
 struct Game;
 
-void placing_circle(struct Game *);
-void placing_random(struct Game *);
+void placing_circle();
+void placing_random();
 
 #endif

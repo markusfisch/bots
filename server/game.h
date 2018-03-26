@@ -12,6 +12,10 @@
 #define MAP_TYPE_RANDOM 2
 #define MAP_TYPE_MAZE 3
 
+typedef struct Game Game;
+typedef struct Player Player;
+typedef struct Config Config;
+
 struct Game {
 	struct timeval tick;
 	fd_set watch;
@@ -28,7 +32,7 @@ struct Game {
 	unsigned int shrink_level;
 	unsigned int shrink_after;
 	unsigned int nplayers;
-	struct Map map;
+	Map map;
 	struct Player {
 		char name;
 		int fd;
@@ -40,15 +44,15 @@ struct Game {
 		int score;
 		unsigned int life;
 	} players[MAX_PLAYERS];
-	void (*start)(struct Game *);
-	void (*turn_start)(struct Game *);
-	unsigned char (*marker)(struct Game *, struct Player *);
-	int (*impassable)(struct Map *, int, int);
-	void (*move)(struct Game *, struct Player *, char);
+	void (*start)();
+	void (*turn_start)();
+	unsigned char (*marker)(Player *);
+	int (*impassable)(Map *, int, int);
+	void (*move)(Player *, char);
 };
 
 struct Config {
-	void (*init)(struct Game *);
+	void (*init)();
 	unsigned int port;
 	unsigned int map_width;
 	unsigned int map_height;
@@ -60,10 +64,10 @@ struct Config {
 	time_t usec_per_turn;
 };
 
-void game_remove_player(struct Game *, struct Player *);
-size_t game_joined(struct Game *);
-unsigned char game_marker_show_life(struct Game *, struct Player *);
-void game_end(struct Game *);
-int game_serve(struct Config *);
+void game_remove_player(Player *);
+size_t game_joined();
+unsigned char game_marker_show_life(Player *);
+void game_end();
+int game_serve();
 
 #endif

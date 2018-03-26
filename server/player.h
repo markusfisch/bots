@@ -4,8 +4,8 @@
 struct Game;
 struct Player;
 
-struct Player *player_at(struct Game *, int, int);
-void player_send_view(struct Game *, struct Player *);
-void player_move(struct Game *, struct Player *, char);
+Player *player_at(int, int);
+void player_send_view(Player *);
+void player_move(Player *, char);
 
 #endif
