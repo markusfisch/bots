@@ -12,6 +12,7 @@ extern struct Game game;
 static int points;
 
 static void start() {
+	points = 16;
 	map_set(&game.map, game.map.width / 2, game.map.height / 2, TILE_EXIT);
 	placing_circle();
 }
@@ -26,7 +27,6 @@ static void move(Player *p, char cmd) {
 }
 
 void find_exit() {
-	points = 16;
 	game.start = start;
 	game.move = move;
 	game.impassable = map_impassable;

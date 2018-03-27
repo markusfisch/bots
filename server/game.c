@@ -40,7 +40,7 @@ void game_remove_player(Player *p) {
 }
 
 unsigned char game_marker_show_life(struct Player *p) {
-	return game.started && p->moves > 0 ? (unsigned char) 48 + p->life :
+	return p->life < config.player_life ? (unsigned char) 48 + p->life :
 		p->name;
 }
 

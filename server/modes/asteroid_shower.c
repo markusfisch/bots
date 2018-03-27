@@ -9,6 +9,7 @@
 #include "asteroid_shower.h"
 
 extern struct Game game;
+
 static struct Asteroid {
 	int x;
 	int y;
