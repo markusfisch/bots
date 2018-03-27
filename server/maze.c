@@ -88,13 +88,13 @@ static void maze_init(const int width, const int height) {
 				n->dirs = 15;
 				n->ch = TILE_FLATLAND;
 			} else {
-				n->ch = TILE_WOOD;
+				n->ch = TILE_GONE;
 			}
 		}
 	}
 }
 
-void maze_generate(Map *map) {
+void maze_generate(Map *map, const unsigned int sx, const unsigned int sy) {
 	int width = map->width;
 	int height = map->height;
 
@@ -105,7 +105,7 @@ void maze_generate(Map *map) {
 
 	maze_init(width, height);
 
-	struct Node *first = nodes + 1 + width;
+	struct Node *first = nodes + sy * width + sx;
 	struct Node *last = first;
 	first->parent = first;
 	while ((last = maze_link(last, width, height)) != first);

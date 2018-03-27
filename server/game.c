@@ -304,7 +304,7 @@ static void game_init_map() {
 			(char[]) {TILE_WATER, TILE_WOOD, 0});
 		break;
 	case MAP_TYPE_MAZE:
-		maze_generate(&game.map);
+		maze_generate(&game.map, game.map.width / 2, game.map.height / 2);
 		break;
 	}
 }
