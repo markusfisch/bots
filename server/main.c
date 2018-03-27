@@ -70,9 +70,12 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "error: missing argument for %s\n", flag);\
 		return 1;\
 	}
+
 	memset(&config, 0, sizeof(config));
 	config.port = 63187;
+	config.map_width = config.map_height = 32;
 	config.map_type = MAP_TYPE_CHESS;
+
 	char *bin = *argv;
 	while (--argc) {
 		++argv;
@@ -121,9 +124,11 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 	}
+
 	if (!config.init) {
 		help(bin);
 		return 0;
 	}
+
 	return game_serve();
 }

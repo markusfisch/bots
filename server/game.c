@@ -280,13 +280,6 @@ static void game_shutdown() {
 }
 
 static void game_init_map() {
-	if (config.map_width < 1 || config.map_height < 1) {
-		config.map_width = 32;
-		if (config.map_type == MAP_TYPE_MAZE) {
-			--config.map_width;
-		}
-		config.map_height = config.map_width;
-	}
 	if (game.map.width != config.map_width ||
 			game.map.height != config.map_height) {
 		map_create(&game.map, config.map_width, config.map_height);
@@ -304,7 +297,8 @@ static void game_init_map() {
 			(char[]) {TILE_WATER, TILE_WOOD, 0});
 		break;
 	case MAP_TYPE_MAZE:
-		maze_generate(&game.map, game.map.width / 2, game.map.height / 2);
+		maze_generate(&game.map, (game.map.width / 2) | 1,
+			(game.map.height / 2) | 1);
 		break;
 	}
 }
