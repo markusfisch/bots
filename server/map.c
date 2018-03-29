@@ -40,8 +40,8 @@ void map_init_chess(Map *map) {
 	}
 }
 
-void map_init_random(Map *map, const unsigned int multiplier, char *flat,
-		char *obstacles) {
+void map_init_random(Map *map, const unsigned int multiplier,
+		const char *flat, const char *obstacles) {
 	size_t nflat = flat ? strlen(flat) : 0;
 	size_t mflat = nflat * multiplier;
 	size_t nobstacles = obstacles ? strlen(obstacles) : 0;
@@ -57,6 +57,7 @@ void map_init_random(Map *map, const unsigned int multiplier, char *flat,
 	for (i = 0; i < map->size; ++i) {
 		*offset++ = tiles[rand() % ntiles];
 	}
+	map->obstacles = obstacles;
 }
 
 int map_wrap(const int pos, const unsigned int max) {

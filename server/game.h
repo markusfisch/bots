@@ -6,6 +6,7 @@
 
 #include "map.h"
 
+#define USEC_PER_SEC 1000000L
 #define MAX_PLAYERS 16
 #define MAP_TYPE_CHESS 0
 #define MAP_TYPE_PLAIN 1
@@ -24,13 +25,8 @@ struct Game {
 	int listening_fd;
 	time_t started;
 	time_t stopped;
-	time_t usec_per_turn;
-	unsigned int min_players;
-	unsigned int view_radius;
-	unsigned int max_turns;
 	unsigned int turn;
 	unsigned int shrink_level;
-	unsigned int shrink_after;
 	unsigned int nplayers;
 	Map map;
 	struct Player {
@@ -44,24 +40,24 @@ struct Game {
 		int score;
 		unsigned int life;
 	} players[MAX_PLAYERS];
-	void (*start)();
-	void (*turn_start)();
-	unsigned char (*marker)(Player *);
-	int (*impassable)(Map *, int, int);
-	void (*move)(Player *, char);
 };
 
 struct Config {
-	void (*init)();
 	unsigned int port;
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int map_type;
+	unsigned int min_players;
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;
 	unsigned int player_life;
 	time_t usec_per_turn;
+	void (*start)();
+	void (*turn_start)();
+	unsigned char (*marker)(Player *);
+	int (*impassable)(Map *, int, int);
+	void (*move)(Player *, char);
 };
 
 void game_remove_player(Player *);

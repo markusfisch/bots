@@ -6,6 +6,7 @@
 #include "../placing.h"
 #include "last_man_standing.h"
 
+extern struct Config config;
 extern struct Game game;
 
 static void start() {
@@ -29,7 +30,7 @@ static void shoot(Player *p) {
 		vx = -1;
 		break;
 	}
-	int range = game.view_radius;
+	int range = config.view_radius;
 	int x = p->x;
 	int y = p->y;
 	while (range-- > 0) {
@@ -55,13 +56,13 @@ static void move(Player *p, const char cmd) {
 }
 
 void last_man_standing() {
-	game.min_players = 2;
-	game.view_radius = 4;
-	game.max_turns = game.map.size;
-	game.shrink_after = game.map.width + game.map.height;
+	config.min_players = config.min_players ?: 2;
+	config.view_radius = config.view_radius ?: 4;
+	config.max_turns = config.max_turns ?: game.map.size;
+	config.shrink_after = config.shrink_after ?:
+		game.map.width + game.map.height;
 
-	game.start = start;
-	game.move = move;
-	game.marker = game_marker_show_life;
-	game.impassable = map_impassable;
+	config.start = start;
+	config.move = move;
+	config.marker = game_marker_show_life;
 }

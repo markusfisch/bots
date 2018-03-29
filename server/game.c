@@ -10,11 +10,13 @@
 #include "maze.h"
 #include "player.h"
 
-#define USEC_PER_SEC 1000000L
 #define SECONDS_TO_JOIN 10
 
 struct Config config;
 struct Game game;
+
+static const char flatland[] = { TILE_FLATLAND, 0 };
+static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
 
 static int stop = 0;
 
@@ -90,8 +92,7 @@ static void game_inset_player(Player *p,
 	do {
 		px += shiftX;
 		py += shiftY;
-	} while (--tries > 0 &&
-		(game.impassable(&game.map, px, py) ||
+	} while (--tries > 0 && (config.impassable(&game.map, px, py) ||
 			player_at(px, py)));
 	if (tries > 0) {
 		p->x = px;
@@ -143,7 +144,7 @@ static void game_write() {
 		}
 	}
 	map_write(1, buf, game.map.width, game.map.height);
-	printf("turn: %d of %d, players: %ld\n", game.turn, game.max_turns,
+	printf("turn: %d of %d, players: %ld\n", game.turn, config.max_turns,
 		game_joined());
 }
 
@@ -152,8 +153,8 @@ static void game_send_views() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd != 0 && !p->can_move) {
-			if (!update && game.turn_start) {
-				game.turn_start();
+			if (!update && config.turn_start) {
+				config.turn_start();
 			}
 			player_send_view(p);
 			update = 1;
@@ -163,9 +164,9 @@ static void game_send_views() {
 	}
 	if (update) {
 		++game.turn;
-		if (game.turn >= game.max_turns) {
+		if (game.turn >= config.max_turns) {
 			game_end();
-		} else if (game.turn > game.shrink_after) {
+		} else if (game.turn > config.shrink_after) {
 			game_shrink();
 		}
 		game_write();
@@ -187,13 +188,13 @@ static time_t game_next_turn() {
 	gettimeofday(&tv, NULL);
 	time_t delta = (tv.tv_sec - game.tick.tv_sec) * USEC_PER_SEC -
 		game.tick.tv_usec + tv.tv_usec;
-	if (delta >= game.usec_per_turn || game_turn_complete()) {
+	if (delta >= config.usec_per_turn || game_turn_complete()) {
 		game_send_views();
 		game.tick.tv_sec = tv.tv_sec;
 		game.tick.tv_usec = tv.tv_usec;
-		delta = game.usec_per_turn;
+		delta = config.usec_per_turn;
 	} else {
-		delta = game.usec_per_turn - delta;
+		delta = config.usec_per_turn - delta;
 	}
 	return delta;
 }
@@ -208,7 +209,7 @@ static void game_read_command(Player *p) {
 	}
 	if (game.started && p->can_move) {
 		p->can_move = 0;
-		game.move(p, cmd);
+		config.move(p, cmd);
 	}
 }
 
@@ -261,24 +262,6 @@ static void game_set_players_life(int life) {
 	}
 }
 
-static void game_start() {
-	if (config.player_life > 0) {
-		game_set_players_life(config.player_life < 10 ?
-			config.player_life : 9);
-	}
-	game.started = time(NULL);
-	gettimeofday(&game.tick, NULL);
-	if (game.start) {
-		game.start();
-	}
-}
-
-static void game_shutdown() {
-	close(game.listening_fd);
-	game_remove_players();
-	map_free(&game.map);
-}
-
 static void game_init_map() {
 	if (game.map.width != config.map_width ||
 			game.map.height != config.map_height) {
@@ -293,8 +276,7 @@ static void game_init_map() {
 		memset(game.map.data, TILE_FLATLAND, game.map.size);
 		break;
 	case MAP_TYPE_RANDOM:
-		map_init_random(&game.map, 14, (char[]) {TILE_FLATLAND, 0},
-			(char[]) {TILE_WATER, TILE_WOOD, 0});
+		map_init_random(&game.map, 14, flatland, obstacles);
 		break;
 	case MAP_TYPE_MAZE:
 		maze_generate(&game.map, (game.map.width / 2) | 1,
@@ -303,43 +285,33 @@ static void game_init_map() {
 	}
 }
 
-static void game_configure() {
-	if (config.view_radius > 0) {
-		game.view_radius = config.view_radius;
+static void game_start() {
+	game_init_map();
+	if (config.player_life > 0) {
+		game_set_players_life(config.player_life < 10 ?
+			config.player_life : 9);
 	}
-	if (config.max_turns > 0) {
-		game.max_turns = config.max_turns;
-	}
-	if (config.shrink_after > 0) {
-		game.shrink_after = config.shrink_after;
-	}
-	if (config.usec_per_turn > 0) {
-		game.usec_per_turn = config.usec_per_turn;
+	game.started = time(NULL);
+	gettimeofday(&game.tick, NULL);
+	if (config.start) {
+		config.start();
 	}
 }
 
-static void game_set_defaults(const int lfd) {
-	memset(&game, 0, sizeof(Game));
-	FD_SET(lfd, &game.watch);
-	game.listening_fd = lfd;
-	game.nfds = lfd + 1;
-	game.usec_per_turn = USEC_PER_SEC;
-	game.min_players = 1;
-	game.view_radius = 2;
-	game.max_turns = 1024;
-	game.shrink_after = game.max_turns;
-	game.move = player_move;
-	game.impassable = map_impassable;
+static void game_shutdown() {
+	close(game.listening_fd);
+	game_remove_players();
+	map_free(&game.map);
 }
 
 static void game_reset(const int lfd) {
 	srand(time(NULL));
-	game_set_defaults(lfd);
-	game_init_map();
-	config.init();
-	game_configure();
+	memset(&game, 0, sizeof(Game));
+	FD_SET(lfd, &game.watch);
+	game.listening_fd = lfd;
+	game.nfds = lfd + 1;
 	printf("waiting for players (at least %d) to join ...\n",
-		game.min_players);
+		config.min_players);
 }
 
 static int game_run(const int lfd) {
@@ -368,13 +340,13 @@ static int game_run(const int lfd) {
 		}
 
 		if (game.started) {
-			if (game.stopped || game_joined() < game.min_players) {
+			if (game.stopped || game_joined() < config.min_players) {
 				game_print_results();
 				game_remove_players();
 				game_reset(lfd);
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
-				(ready == 0 && game.nplayers >= game.min_players)) {
+				(ready == 0 && game.nplayers >= config.min_players)) {
 			game_start();
 		}
 	}

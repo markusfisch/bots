@@ -6,6 +6,7 @@
 #include "../placing.h"
 #include "find_exit.h"
 
+extern struct Config config;
 extern struct Game game;
 
 static void start() {
@@ -13,7 +14,5 @@ static void start() {
 }
 
 void training() {
-	game.start = start;
-	game.move = player_move;
-	game.impassable = map_impassable;
+	config.start = start;
 }

@@ -8,6 +8,7 @@
 #include "../placing.h"
 #include "asteroid_shower.h"
 
+extern struct Config config;
 extern struct Game game;
 
 static struct Asteroid {
@@ -71,10 +72,8 @@ static void turn_start() {
 }
 
 void asteroid_shower() {
-	game.view_radius = 4;
+	config.view_radius = config.view_radius ?: 4;
 
-	game.start = start;
-	game.turn_start = turn_start;
-	game.move = player_move;
-	game.impassable = map_impassable;
+	config.start = start;
+	config.turn_start = turn_start;
 }

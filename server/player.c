@@ -3,6 +3,7 @@
 #include "game.h"
 #include "player.h"
 
+extern struct Config config;
 extern struct Game game;
 
 Player *player_at(const int x, const int y) {
@@ -42,7 +43,7 @@ static char player_view_at(Player *p,
 }
 
 void player_send_view(Player *player) {
-	int radius = game.view_radius;
+	int radius = config.view_radius;
 	size_t len = radius * 2 + 1;
 	char view[len * len];
 	int left;
@@ -102,15 +103,15 @@ void player_send_view(Player *player) {
 		left += yx;
 		top += yy;
 	}
-	view[radius * len + radius] = game.marker ?
-		game.marker(player) : player->name;
+	view[radius * len + radius] = config.marker ?
+		config.marker(player) : player->name;
 	map_write(player->fd, view, len, len);
 }
 
 static void player_move_by(Player *p, int x, int y) {
 	x = map_wrap(p->x + x, game.map.width);
 	y = map_wrap(p->y + y, game.map.height);
-	if (game.impassable(&game.map, x, y) || player_at(x, y)) {
+	if (config.impassable(&game.map, x, y) || player_at(x, y)) {
 		return;
 	}
 	p->x = x;
