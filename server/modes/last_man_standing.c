@@ -3,15 +3,10 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "../placing.h"
 #include "last_man_standing.h"
 
 extern struct Config config;
 extern struct Game game;
-
-static void start() {
-	placing_circle();
-}
 
 static void shoot(Player *p) {
 	int vx = 0;
@@ -62,7 +57,6 @@ void last_man_standing() {
 	config.shrink_after = config.shrink_after ?:
 		game.map.width + game.map.height;
 
-	config.start = start;
 	config.move = move;
 	config.marker = game_marker_show_life;
 }

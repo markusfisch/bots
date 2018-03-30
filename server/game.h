@@ -12,6 +12,8 @@
 #define MAP_TYPE_PLAIN 2
 #define MAP_TYPE_RANDOM 3
 #define MAP_TYPE_MAZE 4
+#define PLACING_CIRCLE 1
+#define PLACING_RANDOM 2
 
 typedef struct Game Game;
 typedef struct Player Player;
@@ -45,13 +47,14 @@ struct Game {
 
 struct Config {
 	unsigned int port;
+	unsigned int min_players;
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int map_type;
 	const char *obstacles;
 	const char *flatland;
 	unsigned int multiplier;
-	unsigned int min_players;
+	unsigned int placing;
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;
@@ -66,7 +69,7 @@ struct Config {
 };
 
 void game_remove_player(Player *);
-size_t game_joined();
+unsigned int game_joined();
 unsigned char game_marker_show_life(Player *);
 void game_end();
 int game_serve();

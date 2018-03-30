@@ -3,7 +3,6 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "../placing.h"
 #include "find_exit.h"
 
 #define TILE_EXIT 'O'
@@ -16,7 +15,6 @@ static int points;
 static void start() {
 	points = 16;
 	map_set(&game.map, game.map.width / 2, game.map.height / 2, TILE_EXIT);
-	placing_circle();
 }
 
 static void move(Player *p, char cmd) {

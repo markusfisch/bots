@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "game.h"
 #include "player.h"
@@ -14,6 +15,8 @@
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
 #define MAP_TYPE_ARG_MAZE "maze"
+#define PLACING_ARG_CIRCLE "circle"
+#define PLACING_ARG_RANDOM "random"
 
 extern struct Config config;
 
@@ -39,7 +42,8 @@ static void usage() {
 		printf("  %s - %s\n", m->name, m->description);
 	}
 	printf("\nOPTION can be any of:\n"\
-		"  -p, --port N            port number to listen for players\n"\
+		"  -P, --port N            port number to listen for players\n"\
+		"  -M, --min-players N     minimum number of players for a game\n"\
 		"  -s, --map-size N[xN]    map size\n"\
 		"  -t, --map-type TYPE     map type, either "\
 			MAP_TYPE_ARG_CHESS", "\
@@ -48,7 +52,10 @@ static void usage() {
 			MAP_TYPE_ARG_MAZE"\n"\
 		"  -o, --obstacles STRING  characters a player cannot move over\n"\
 		"  -f, --flatland STRING   characters a player can move over\n"\
-		"  -M, --multiplier N      multiplier of flatland string\n"\
+		"  -x, --multiplier N      multiplier of flatland string\n"\
+		"  -p, --placing TYPE      player placing, either "\
+			PLACING_ARG_CIRCLE" or "\
+			PLACING_ARG_RANDOM"\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
 		"  -m, --max-turns N       maximum number of turns\n"\
@@ -70,6 +77,16 @@ static void *pick_mode(const char *name) {
 	return NULL;
 }
 
+static int parse_placing(const char *arg) {
+	if (!strcmp(arg, PLACING_ARG_CIRCLE)) {
+		return PLACING_CIRCLE;
+	} else if (!strcmp(arg, PLACING_ARG_RANDOM)) {
+		return PLACING_RANDOM;
+	}
+	fprintf(stderr, "error: unknown placing \"%s\"\n", arg);
+	exit(1);
+}
+
 static int parse_map_type(const char *arg) {
 	if (!strcmp(arg, MAP_TYPE_ARG_CHESS)) {
 		return MAP_TYPE_CHESS;
@@ -80,7 +97,7 @@ static int parse_map_type(const char *arg) {
 	} else if (!strcmp(arg, MAP_TYPE_ARG_MAZE)) {
 		return MAP_TYPE_MAZE;
 	}
-	fprintf(stderr, "error: unknown map type\n");
+	fprintf(stderr, "error: unknown map type \"%s\"\n", arg);
 	exit(1);
 }
 
@@ -88,12 +105,14 @@ static void parse_arguments(int argc, char **argv) {
 	int deterministic = 0;
 
 	struct option longopts[] = {
-		{ "port", required_argument, NULL, 'p' },
+		{ "port", required_argument, NULL, 'P' },
+		{ "min-players", required_argument, NULL, 'M' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
 		{ "obstacles", required_argument, NULL, 'o' },
 		{ "flatland", required_argument, NULL, 'f' },
-		{ "multiplier", required_argument, NULL, 'M' },
+		{ "multiplier", required_argument, NULL, 'x' },
+		{ "placing", required_argument, NULL, 'p' },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-turns", required_argument, NULL, 'm' },
 		{ "shrink-after", required_argument, NULL, 'S' },
@@ -104,12 +123,15 @@ static void parse_arguments(int argc, char **argv) {
 		{ NULL, 0, NULL, 0 }
 	};
 
-	char ch;
-	while ((ch = getopt_long(argc, argv, "p:s:t:o:f:M:v:m:S:T:l:u:d",
+	int ch;
+	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
-		case 'p':
+		case 'P':
 			config.port = atoi(optarg);
+			break;
+		case 'M':
+			config.min_players = atoi(optarg);
 			break;
 		case 's': {
 			int width = atoi(strtok(optarg, "x"));
@@ -127,8 +149,11 @@ static void parse_arguments(int argc, char **argv) {
 		case 'f':
 			config.flatland = optarg && *optarg ? optarg : NULL;
 			break;
-		case 'M':
+		case 'x':
 			config.multiplier = atoi(optarg);
+			break;
+		case 'p':
+			config.placing = parse_placing(optarg);
 			break;
 		case 'v':
 			config.view_radius = atoi(optarg);
@@ -180,17 +205,19 @@ int main(int argc, char **argv) {
 	parse_arguments(argc, argv);
 
 	config.port = config.port ?: 63187;
+	config.min_players = config.min_players ?: 1;
 	config.map_width = config.map_width ?: 32;
 	config.map_height = config.map_height ?: config.map_width;
 	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;
 	config.obstacles = config.obstacles ?: obstacles;
 	config.flatland = config.flatland ?: flatland;
 	config.multiplier = config.multiplier ?: 14;
+	config.placing = config.placing ?: PLACING_CIRCLE;
 	config.view_radius = config.view_radius ?: 2;
-	config.min_players = config.min_players ?: 1;
 	config.max_turns = config.max_turns ?: 1024;
 	config.shrink_after = config.shrink_after ?: config.max_turns;
 	config.shrink_step = config.shrink_step ?: 1;
+	config.player_life = config.player_life ?: 1;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;

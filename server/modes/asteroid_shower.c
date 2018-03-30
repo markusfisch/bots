@@ -5,7 +5,6 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "../placing.h"
 #include "asteroid_shower.h"
 
 extern struct Config config;
@@ -57,7 +56,6 @@ static size_t asteroids_create(int amount) {
 }
 
 static void start() {
-	placing_random();
 	nasteroids = asteroids_create(round(game.map.size * .1));
 	asteroids_place();
 	do {
@@ -72,6 +70,7 @@ static void turn_start() {
 }
 
 void asteroid_shower() {
+	config.placing = config.placing ?: PLACING_RANDOM;
 	config.view_radius = config.view_radius ?: 4;
 
 	config.start = start;

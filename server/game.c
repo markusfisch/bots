@@ -8,6 +8,7 @@
 
 #include "game.h"
 #include "maze.h"
+#include "placing.h"
 #include "player.h"
 
 #define SECONDS_TO_JOIN 10
@@ -21,7 +22,7 @@ void game_end() {
 	game.stopped = time(NULL);
 }
 
-size_t game_joined() {
+unsigned int game_joined() {
 	size_t n = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -141,7 +142,7 @@ static void game_write() {
 		}
 	}
 	map_write(1, buf, game.map.width, game.map.height);
-	printf("turn: %d of %d, players: %ld\n", game.turn, config.max_turns,
+	printf("turn: %d of %d, players: %d\n", game.turn, config.max_turns,
 		game_joined());
 }
 
@@ -265,6 +266,18 @@ static void game_set_players_life(int life) {
 	}
 }
 
+static void game_place_players() {
+	switch (config.map_type) {
+	default:
+	case PLACING_CIRCLE:
+		placing_circle();
+		break;
+	case PLACING_RANDOM:
+		placing_random();
+		break;
+	}
+}
+
 static void game_init_map() {
 	if (game.map.width != config.map_width ||
 			game.map.height != config.map_height) {
@@ -292,6 +305,7 @@ static void game_init_map() {
 
 static void game_start() {
 	game_init_map();
+	game_place_players();
 	if (config.player_life > 0) {
 		game_set_players_life(config.player_life < 10 ?
 			config.player_life : 9);
