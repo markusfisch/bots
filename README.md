@@ -1,13 +1,15 @@
 # Bots
 
-Prototype server for a terrain parsing game played by bots.
+Terrain parsing game for bots.
 
 The game world is an infinite two-dimensional orthogonal grid.
 The game is turn-based. A turn ends as soon as all players have moved *or*
-after one second has passed.
+after one second has passed and at least one player made a move.
 
-All bots need to connect a streaming socket to port 63187 where the server
-is responding. Find templates in the `templates` directory.
+To play the game, a bot needs to connect a streaming socket to port 63187
+after the `bots` server has been started.
+
+Please find templates for such bots in the `templates` directory.
 
 ## What a bot receives from the server
 
@@ -90,10 +92,10 @@ A bot can only shoot straight up.
 The bots are placed in a circle around a common center with a random
 orientation.
 
-By default, a bot can stand only one hit but you can use `--player-life`
+By default, a bot is killed on the first hit but you can use `--player-life`
 to change this (see below). If a bot is hit that has more than one hit point,
-your name, e.g. `A`, will change to a number showing your remaining hit
-points.
+your name in the middle of the map, e.g. `A`, will change to a number showing
+your remaining hit points.
 
 After some time, a wall `X` will appear that shrinks the world to move
 the remaining bots closer together (use `--shrink-after` and `--shrink-step`
@@ -136,7 +138,7 @@ A bot can enter all fields:
 
 ### random
 
-A bot can not enter `~` or `#`:
+A bot can _not_ enter `~` or `#`:
 
 	#....
 	....~
@@ -146,7 +148,7 @@ A bot can not enter `~` or `#`:
 
 ### maze
 
-A bot can not enter `X`:
+A bot can _not_ enter `X`:
 
 	.X.XX
 	.X.X.
@@ -201,7 +203,7 @@ OPTION can be any of:
   -d, --deterministic     don't seed the random number generator
 ```
 
-To start the escape game run:
+For example, to start the `escape` game, run:
 
 	$ ./bots escape
 
@@ -213,10 +215,10 @@ For example, on a Raspberry Pi you want to install `gcc` and `make`:
 
 	$ sudo apt-get install gcc make
 
-## Joining as a human
+## Playing manually
 
-The repository contains a very simple bash client you can start like this
-when you are in the repository's root directory:
+The repository contains a very simple bash client. Start it like this
+when in the repository's root directory:
 
 	$ templates/bash/client
 
@@ -225,8 +227,8 @@ If `bots` is running on another machine, you'd do:
 	$ templates/bash/client HOSTNAME
 
 Where HOSTNAME is either the IP address or hostname of the machine the
-bots server is running on.
+server is running on.
 
-## Automate!
+## Playing automatically
 
 Of course, the challenge is to write a program that plays the game.
