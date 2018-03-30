@@ -15,9 +15,6 @@
 struct Config config;
 struct Game game;
 
-static const char flatland[] = { TILE_FLATLAND, 0 };
-static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
-
 static int stop = 0;
 
 void game_end() {
@@ -276,17 +273,19 @@ static void game_init_map() {
 	switch (config.map_type) {
 	default:
 	case MAP_TYPE_CHESS:
-		map_init_chess(&game.map);
+		map_init_chess(&game.map, *config.flatland,
+			strlen(config.flatland) > 1 ? config.flatland[1] : TILE_BLACK);
 		break;
 	case MAP_TYPE_PLAIN:
-		memset(game.map.data, TILE_FLATLAND, game.map.size);
+		memset(game.map.data, *config.flatland, game.map.size);
 		break;
 	case MAP_TYPE_RANDOM:
-		map_init_random(&game.map, 14, flatland, obstacles);
+		map_init_random(&game.map, config.multiplier, config.flatland,
+			config.obstacles);
 		break;
 	case MAP_TYPE_MAZE:
-		maze_generate(&game.map, (game.map.width / 2) | 1,
-			(game.map.height / 2) | 1);
+		maze_generate(&game.map, game.map.width / 2, game.map.height / 2,
+			*config.flatland, TILE_GONE);
 		break;
 	}
 }

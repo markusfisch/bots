@@ -17,7 +17,9 @@
 
 extern struct Config config;
 
-static struct Mode {
+static const char flatland[] = { TILE_FLATLAND, 0 };
+static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
+static const struct Mode {
 	char *name;
 	char *description;
 	void *init;
@@ -32,7 +34,7 @@ static struct Mode {
 static void usage() {
 	printf("usage: bots [OPTION...] MODE\n");
 	printf("\nMODE must be one of:\n");
-	struct Mode *m;
+	const struct Mode *m;
 	for (m = modes; m->name; ++m) {
 		printf("  %s - %s\n", m->name, m->description);
 	}
@@ -44,7 +46,10 @@ static void usage() {
 			MAP_TYPE_ARG_PLAIN", "\
 			MAP_TYPE_ARG_RANDOM" or "\
 			MAP_TYPE_ARG_MAZE"\n"\
-		"  -r, --view-radius N     how many fields a player can see in "\
+		"  -o, --obstacles STRING  characters a player cannot move over\n"\
+		"  -f, --flatland STRING   characters a player can move over\n"\
+		"  -M, --multiplier N      multiplier of flatland string\n"\
+		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
 		"  -m, --max-turns N       maximum number of turns\n"\
 		"  -S, --shrink-after N    shrink map after that many turns\n"\
@@ -56,7 +61,7 @@ static void usage() {
 }
 
 static void *pick_mode(const char *name) {
-	struct Mode *m;
+	const struct Mode *m;
 	for (m = modes; m->name; ++m) {
 		if (!strcmp(m->name, name)) {
 			return m->init;
@@ -86,7 +91,10 @@ static void parse_arguments(int argc, char **argv) {
 		{ "port", required_argument, NULL, 'p' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
-		{ "view-radius", required_argument, NULL, 'r' },
+		{ "obstacles", required_argument, NULL, 'o' },
+		{ "flatland", required_argument, NULL, 'f' },
+		{ "multiplier", required_argument, NULL, 'M' },
+		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-turns", required_argument, NULL, 'm' },
 		{ "shrink-after", required_argument, NULL, 'S' },
 		{ "shrink-step", required_argument, NULL, 'T' },
@@ -97,8 +105,8 @@ static void parse_arguments(int argc, char **argv) {
 	};
 
 	char ch;
-	while ((ch = getopt_long(argc, argv, "p:s:t:r:m:S:T:l:u:d", longopts,
-			NULL)) != -1) {
+	while ((ch = getopt_long(argc, argv, "p:s:t:o:f:M:v:m:S:T:l:u:d",
+			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'p':
 			config.port = atoi(optarg);
@@ -113,7 +121,16 @@ static void parse_arguments(int argc, char **argv) {
 		case 't':
 			config.map_type = parse_map_type(optarg);
 			break;
-		case 'r':
+		case 'o':
+			config.obstacles = optarg && *optarg ? optarg : NULL;
+			break;
+		case 'f':
+			config.flatland = optarg && *optarg ? optarg : NULL;
+			break;
+		case 'M':
+			config.multiplier = atoi(optarg);
+			break;
+		case 'v':
 			config.view_radius = atoi(optarg);
 			break;
 		case 'm':
@@ -166,12 +183,15 @@ int main(int argc, char **argv) {
 	config.map_width = config.map_width ?: 32;
 	config.map_height = config.map_height ?: config.map_width;
 	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;
-	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
-	config.min_players = config.min_players ?: 1;
+	config.obstacles = config.obstacles ?: obstacles;
+	config.flatland = config.flatland ?: flatland;
+	config.multiplier = config.multiplier ?: 14;
 	config.view_radius = config.view_radius ?: 2;
+	config.min_players = config.min_players ?: 1;
 	config.max_turns = config.max_turns ?: 1024;
 	config.shrink_after = config.shrink_after ?: config.max_turns;
 	config.shrink_step = config.shrink_step ?: 1;
+	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
 

@@ -2,6 +2,7 @@
 #define _maze_h_
 
 struct Map;
-void maze_generate(Map *, unsigned int, unsigned int);
+void maze_generate(Map *, const unsigned int, const unsigned int,
+	const char, const char);
 
 #endif

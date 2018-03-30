@@ -12,7 +12,7 @@ static struct Node {
 	int x;
 	int y;
 	void *parent;
-	char ch;
+	char wall;
 	char dirs;
 } *nodes = NULL;
 
@@ -60,14 +60,14 @@ static struct Node *maze_link(struct Node *n, const int width,
 		}
 
 		struct Node *dest = nodes + y * width + x;
-		if (dest->ch == TILE_FLATLAND) {
+		if (!dest->wall) {
 			if (dest->parent != NULL) {
 				continue;
 			}
 			dest->parent = n;
 
 			nodes[n->x + (x - n->x) / 2 +
-				(n->y + (y - n->y) / 2) * width].ch = TILE_FLATLAND;
+				(n->y + (y - n->y) / 2) * width].wall = 0;
 
 			return dest;
 		}
@@ -86,15 +86,16 @@ static void maze_init(const int width, const int height) {
 				n->x = x;
 				n->y = y;
 				n->dirs = 15;
-				n->ch = TILE_FLATLAND;
+				n->wall = 0;
 			} else {
-				n->ch = TILE_GONE;
+				n->wall = 1;
 			}
 		}
 	}
 }
 
-void maze_generate(Map *map, const unsigned int sx, const unsigned int sy) {
+void maze_generate(Map *map, const unsigned int sx, const unsigned int sy,
+		const char empty, const char wall) {
 	int width = map->width;
 	int height = map->height;
 
@@ -105,14 +106,14 @@ void maze_generate(Map *map, const unsigned int sx, const unsigned int sy) {
 
 	maze_init(width, height);
 
-	struct Node *first = nodes + sy * width + sx;
+	struct Node *first = nodes + (sy | 1) * width + (sx | 1);
 	struct Node *last = first;
 	first->parent = first;
 	while ((last = maze_link(last, width, height)) != first);
 
 	size_t i;
 	for (i = 0; i < map->size; ++i) {
-		map->data[i] = nodes[i].ch;
+		map->data[i] = nodes[i].wall ? wall : empty;
 	}
 
 	free(nodes);

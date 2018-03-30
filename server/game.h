@@ -48,6 +48,9 @@ struct Config {
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int map_type;
+	const char *obstacles;
+	const char *flatland;
+	unsigned int multiplier;
 	unsigned int min_players;
 	unsigned int view_radius;
 	unsigned int max_turns;
