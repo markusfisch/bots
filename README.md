@@ -15,11 +15,11 @@ At the beginning of the game and after each command, a bot receives a
 top-down map of its environment. This map is always made from the same
 amount of columns and lines. For example, a 5x5 map would look like this:
 
-	.....\n
-	....~\n
-	.~A..\n
-	.....\n
-	.#...\n
+	.....
+	....~
+	.~A..
+	.....
+	.#...
 
 `A` is you. You can be any letter from A to P.
 First line is in front of you, the last one is behind you.
@@ -31,11 +31,11 @@ You can't walk through water or wood or other players.
 direction the other player is looking. For example, here, a player is
 right in the front of you, looking at you:
 
-	..v..\n
-	....~\n
-	.~A..\n
-	.....\n
-	.#...\n
+	..v..
+	....~
+	.~A..
+	.....
+	.#...
 
 ## What a bot can send to the server
 
@@ -70,20 +70,20 @@ Find and enter the exit field `O`.
 The bots are placed in a circle around this field with a random orientation.
 The game ends when all players found the exit.
 
-## collect
+### collect
 
 Collect as many gems `@` as possible.
 The bots are placed at random with a random orientation.
 The bot that collected the most gems wins the game.
 The game ends when there are no more gems to collect.
 
-## snakes
+### snakes
 
 Same as `collect` but every bot grows a tail for every gem it finds.
 Just the like the famous game Snakes. If a bot hits a tail `*` including
 its own, its destroyed. The bot with the most gems wins the game.
 
-## rumble
+### rumble
 
 Hunt down all other bots and be the last to survive. Send `f` to shoot.
 A bot can only shoot straight up.
@@ -95,7 +95,7 @@ After some time, a wall `X` will appear that shrinks the world to move
 the remaining bots closer together (use `--shrink-after` and `--shrink-step`
 to control that).
 
-## avoid
+### avoid
 
 Survive inside a moving asteroid shower.
 The asteroids `X` move in the same random direction.
@@ -112,41 +112,41 @@ how many fields a bot can see of it.
 
 A bot can enter all fields:
 
-	_._._\n
-	._._.\n
-	_.A._\n
-	._._.\n
-	_._._\n
+	_._._
+	._._.
+	_.A._
+	._._.
+	_._._
 
 ### plain
 
 A bot can enter all fields:
 
-	.....\n
-	.....\n
-	..A..\n
-	.....\n
-	.....\n
+	.....
+	.....
+	..A..
+	.....
+	.....
 
 ### random
 
 A bot can not enter `~` or `#`:
 
-	#....\n
-	....~\n
-	.~A..\n
-	.....\n
-	.#...\n
+	#....
+	....~
+	.~A..
+	.....
+	.#...
 
 ### maze
 
 A bot can not enter `X`:
 
-	.X.XX\n
-	.X.X.\n
-	.XAX.\n
-	.X...\n
-	XX.XX\n
+	.X.XX
+	.X.X.
+	.XAX.
+	.X...
+	XX.XX
 
 ## Build and run the server
 
@@ -194,6 +194,10 @@ OPTION can be any of:
   -u, --usec-per-turn N   maximum number of milliseconds per turn
   -d, --deterministic     don't seed the random number generator
 ```
+
+To start the escape game run:
+
+	$ ./bots escape
 
 ### Requirements
 
