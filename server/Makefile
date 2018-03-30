@@ -4,6 +4,7 @@ OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/collect_gems.o \
 	modes/find_exit.o \
 	modes/last_man_standing.o \
+	modes/snakes.o \
 	modes/training.o \
 	main.o
 LIBS = -lm

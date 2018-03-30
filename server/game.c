@@ -358,6 +358,9 @@ static int game_run(const int lfd) {
 
 		if (game.started) {
 			if (game.stopped || game_joined() < config.min_players) {
+				if (config.end) {
+					config.end();
+				}
 				game_print_results();
 				game_remove_players();
 				game_reset(lfd);

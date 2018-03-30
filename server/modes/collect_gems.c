@@ -11,8 +11,7 @@ extern struct Game game;
 
 static unsigned int collected;
 
-static void start() {
-	collected = 0;
+void scatter_gems() {
 	unsigned int i;
 	for (i = 0; i < config.gems; ++i) {
 		int x, y;
@@ -22,6 +21,11 @@ static void start() {
 		} while (map_impassable(&game.map, x, y));
 		map_set(&game.map, x, y, TILE_GEM);
 	}
+}
+
+static void start() {
+	collected = 0;
+	scatter_gems();
 }
 
 static void move(Player *p, char cmd) {
@@ -36,6 +40,8 @@ static void move(Player *p, char cmd) {
 }
 
 void collect_gems() {
+	config.placing = config.placing ?: PLACING_RANDOM;
+
 	config.start = start;
 	config.move = move;
 }

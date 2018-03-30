@@ -42,6 +42,7 @@ struct Game {
 		unsigned int moves;
 		int score;
 		unsigned int life;
+		void *trunk;
 	} players[MAX_PLAYERS];
 };
 
@@ -68,6 +69,7 @@ struct Config {
 	unsigned char (*marker)(Player *);
 	int (*impassable)(Map *, int, int);
 	void (*move)(Player *, char);
+	void (*end)();
 };
 
 void game_remove_player(Player *);

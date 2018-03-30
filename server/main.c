@@ -10,6 +10,7 @@
 #include "modes/collect_gems.h"
 #include "modes/find_exit.h"
 #include "modes/last_man_standing.h"
+#include "modes/snakes.h"
 #include "modes/training.h"
 
 #define MAP_TYPE_ARG_CHESS "chess"
@@ -31,6 +32,7 @@ static const struct Mode {
 	{ "training", "just learn to move and see", training },
 	{ "escape", "find the exit field 'O'", find_exit },
 	{ "collect", "collect as many gems '@' as possible", collect_gems },
+	{ "snakes", "eat gems '@' to get longer", snakes },
 	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
 	{ "avoid", "survive inside an asteroid shower", asteroid_shower },
 	{ NULL, NULL, NULL }
