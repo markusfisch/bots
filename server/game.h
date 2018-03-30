@@ -8,10 +8,10 @@
 
 #define USEC_PER_SEC 1000000L
 #define MAX_PLAYERS 16
-#define MAP_TYPE_CHESS 0
-#define MAP_TYPE_PLAIN 1
-#define MAP_TYPE_RANDOM 2
-#define MAP_TYPE_MAZE 3
+#define MAP_TYPE_CHESS 1
+#define MAP_TYPE_PLAIN 2
+#define MAP_TYPE_RANDOM 3
+#define MAP_TYPE_MAZE 4
 
 typedef struct Game Game;
 typedef struct Player Player;

@@ -1,8 +1,7 @@
-#include <libgen.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "game.h"
 #include "player.h"
@@ -11,19 +10,10 @@
 #include "modes/last_man_standing.h"
 #include "modes/training.h"
 
-#define PORT "--port"
-#define MAP_SIZE "--map-size"
-#define MAP_TYPE "--map-type"
 #define MAP_TYPE_ARG_CHESS "chess"
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
 #define MAP_TYPE_ARG_MAZE "maze"
-#define VIEW_RADIUS "--view-radius"
-#define MAX_TURNS "--max-turns"
-#define SHRINK_AFTER "--shrink-after"
-#define PLAYER_LIFE "--player-life"
-#define USECS_PER_TURN "--usecs-per-turn"
-#define DETERMINISTIC "--deterministic"
 
 extern struct Config config;
 
@@ -39,27 +29,31 @@ static struct Mode {
 	{ NULL, NULL, NULL }
 };
 
-static void usage(char *bin) {
-	printf("usage: %s [OPTION...] MODE\n", basename(bin));
+static void usage() {
+	printf("usage: bots [OPTION...] MODE\n");
 	printf("\nMODE must be one of:\n");
 	struct Mode *m;
 	for (m = modes; m->name; ++m) {
-		printf("%s - %s\n", m->name, m->description);
+		printf("  %s - %s\n", m->name, m->description);
 	}
-	printf("\nOPTION can be any of:\n");
-	printf(PORT" N\n");
-	printf(MAP_SIZE" N[xN]\n");
-	printf(MAP_TYPE" "MAP_TYPE_ARG_CHESS"|"MAP_TYPE_ARG_PLAIN"|"\
-		MAP_TYPE_ARG_RANDOM"|"MAP_TYPE_ARG_MAZE"\n");
-	printf(VIEW_RADIUS" N\n");
-	printf(MAX_TURNS" N\n");
-	printf(SHRINK_AFTER" N\n");
-	printf(PLAYER_LIFE" N\n");
-	printf(USECS_PER_TURN" N\n");
-	printf(DETERMINISTIC"\n");
+	printf("\nOPTION can be any of:\n"\
+		"  -p, --port N            port number to listen for players\n"\
+		"  -s, --map-size N[xN]    map size\n"\
+		"  -t, --map-type TYPE     map type, either "\
+			MAP_TYPE_ARG_CHESS", "\
+			MAP_TYPE_ARG_PLAIN", "\
+			MAP_TYPE_ARG_RANDOM" or "\
+			MAP_TYPE_ARG_MAZE"\n"\
+		"  -r, --view-radius N     how many fields a player can see in "\
+			"every direction\n"\
+		"  -m, --max-turns N       maximum number of turns\n"\
+		"  -S, --shrink-after N    shrink map after that many turns\n"\
+		"  -l, --player-life N     life value of players, default is 1\n"\
+		"  -u, --usec_per_turn N   maximum number of milliseconds per turn\n"\
+		"  -d, --deterministic     don't seed the random number generator\n");
 }
 
-static void *pick_setup(const char *name) {
+static void *pick_mode(const char *name) {
 	struct Mode *m;
 	for (m = modes; m->name; ++m) {
 		if (!strcmp(m->name, name)) {
@@ -83,61 +77,70 @@ static int parse_map_type(const char *arg) {
 	exit(1);
 }
 
-static void has_args(int *argc, const char *flag, const int min) {
-	if (--*argc < min) {
-		fprintf(stderr, "error: missing argument for %s\n", flag);
-		exit(1);
-	}
-}
-
-static void has_arg(int *argc, const char *flag) {
-	has_args(argc, flag, 1);
-}
-
 static void parse_arguments(int argc, char **argv) {
-	char *bin = *argv;
-	void (*init_mode)() = NULL;
 	int deterministic = 0;
 
-	while (--argc) {
-		++argv;
-		if (!strcmp(*argv, PORT)) {
-			has_arg(&argc, PORT);
-			config.port = atoi(*++argv);
-		} else if (!strcmp(*argv, MAP_SIZE)) {
-			has_arg(&argc, MAP_SIZE);
-			int width = atoi(strtok(*++argv, "x"));
+	struct option longopts[] = {
+		{ "port", required_argument, NULL, 'p' },
+		{ "map-size", required_argument, NULL, 's' },
+		{ "map-type", required_argument, NULL, 't' },
+		{ "view-radius", required_argument, NULL, 'r' },
+		{ "max-turns", required_argument, NULL, 'm' },
+		{ "shrink-after", required_argument, NULL, 'S' },
+		{ "player-life", required_argument, NULL, 'l' },
+		{ "usec_per_turn", required_argument, NULL, 'u' },
+		{ "deterministic", no_argument, &deterministic, 1 },
+		{ NULL, 0, NULL, 0 }
+	};
+
+	char ch;
+	while ((ch = getopt_long(argc, argv, "p:s:t:r:m:S:l:u:d", longopts,
+			NULL)) != -1) {
+		switch (ch) {
+		case 'p':
+			config.port = atoi(optarg);
+			break;
+		case 's': {
+			int width = atoi(strtok(optarg, "x"));
 			char *height = strtok(NULL, "x");
 			config.map_width = width;
 			config.map_height = height ? atoi(height) : width;
-		} else if (!strcmp(*argv, MAP_TYPE)) {
-			has_arg(&argc, MAP_TYPE);
-			config.map_type = parse_map_type(*++argv);
-		} else if (!strcmp(*argv, VIEW_RADIUS)) {
-			has_arg(&argc, VIEW_RADIUS);
-			config.view_radius = atoi(*++argv);
-		} else if (!strcmp(*argv, MAX_TURNS)) {
-			has_arg(&argc, MAX_TURNS);
-			config.max_turns = atoi(*++argv);
-		} else if (!strcmp(*argv, SHRINK_AFTER)) {
-			has_arg(&argc, SHRINK_AFTER);
-			config.shrink_after = atoi(*++argv);
-		} else if (!strcmp(*argv, PLAYER_LIFE)) {
-			has_arg(&argc, PLAYER_LIFE);
-			config.player_life = atoi(*++argv);
-		} else if (!strcmp(*argv, USECS_PER_TURN)) {
-			has_arg(&argc, USECS_PER_TURN);
-			config.usec_per_turn = atoi(*++argv);
-		} else if (!strcmp(*argv, DETERMINISTIC)) {
+			break;
+		}
+		case 't':
+			config.map_type = parse_map_type(optarg);
+			break;
+		case 'r':
+			config.view_radius = atoi(optarg);
+			break;
+		case 'm':
+			config.max_turns = atoi(optarg);
+			break;
+		case 'S':
+			config.shrink_after = atoi(optarg);
+			break;
+		case 'l':
+			config.player_life = atoi(optarg);
+			break;
+		case 'u':
+			config.usec_per_turn = atoi(optarg);
+			break;
+		case 'd':
 			deterministic = 1;
-		} else if (!(init_mode = pick_setup(*argv))) {
-			fprintf(stderr, "error: invalid argument \"%s\"\n", *argv);
-			exit(1);
+			break;
+		case 'h':
+		case '?':
+		default:
+			usage();
+			break;
 		}
 	}
+	argc -= optind;
+	argv += optind;
 
-	if (!init_mode) {
-		usage(bin);
+	void (*init_mode)() = NULL;
+	if (argc < 1 || !(init_mode = pick_mode(*argv))) {
+		usage();
 		exit(0);
 	}
 
