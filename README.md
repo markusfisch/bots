@@ -7,12 +7,12 @@ The game is turn-based. A turn ends as soon as all players have moved *or*
 after one second has passed.
 
 All bots need to connect a streaming socket to port 63187 where the server
-is responding. Find client templates that do so in the `templates` directory.
+is responding. Find templates in the `templates` directory.
 
 ## What a bot receives from the server
 
-At the beginning of the game and after each command, a bot receives a
-top-down map of its environment. This map is always made from the same
+At the beginning of the game and in response to each command, a bot receives
+a top-down map of its environment. This map is always made from the same
 amount of columns and lines. For example, a 5x5 map would look like this:
 
 	.....
@@ -62,7 +62,7 @@ server will process the accumulated commands in the following turns.
 ### training
 
 Just learn to move around and to parse the map. You move on a simple
-chess-like pattern of `.` and `_` characters. There is no other goal.
+chess-like pattern of `.` and `_` characters.
 
 ### escape
 
@@ -73,23 +73,27 @@ The game ends when all players found the exit.
 ### collect
 
 Collect as many gems `@` as possible.
-The bots are placed at random with a random orientation.
+The bots are randomly placed with a random orientation.
 The bot that collected the most gems wins the game.
 The game ends when there are no more gems to collect.
 
 ### snakes
 
 Same as `collect` but every bot grows a tail for every gem it finds.
-Just the like the famous game Snakes. If a bot hits a tail `*` including
-its own, its destroyed. The bot with the most gems wins the game.
+Just the like the famous game Snake. If a bot hits a tail `*`, including
+its own, it's destroyed. The bot with the most gems wins the game.
 
 ### rumble
 
 Hunt down all other bots and be the last to survive. Send `f` to shoot.
 A bot can only shoot straight up.
-A bot can stand only one hit (use `--player-life` to change this, see below).
 The bots are placed in a circle around a common center with a random
 orientation.
+
+By default, a bot can stand only one hit but you can use `--player-life`
+to change this (see below). If a bot is hit that has more than one hit point,
+your name, e.g. `A`, will change to a number showing your remaining hit
+points.
 
 After some time, a wall `X` will appear that shrinks the world to move
 the remaining bots closer together (use `--shrink-after` and `--shrink-step`
@@ -98,15 +102,17 @@ to control that).
 ### avoid
 
 Survive inside a moving asteroid shower.
-The asteroids `X` move in the same random direction.
-If a bot gets hit, its destroyed.
-The bots are placed at random with a random orientation.
+The asteroids `X` move in the same random direction, one field every turn.
+If a bot gets hit, it's destroyed.
+The bots are randomly placed with a random orientation.
 The bot that survives the longest wins.
 
 ## Available maps
 
 Use `--map-size` to set a custom map size and `--view-radius` to control
 how many fields a bot can see of it.
+
+Use `--map-type` to choose a map for a given game mode.
 
 ### chess
 
