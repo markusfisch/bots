@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "game.h"
 #include "player.h"
@@ -22,6 +23,7 @@
 #define SHRINK_AFTER "--shrink-after"
 #define PLAYER_LIFE "--player-life"
 #define USECS_PER_TURN "--usecs-per-turn"
+#define DETERMINISTIC "--deterministic"
 
 extern struct Config config;
 
@@ -54,6 +56,7 @@ static void usage(char *bin) {
 	printf(SHRINK_AFTER" N\n");
 	printf(PLAYER_LIFE" N\n");
 	printf(USECS_PER_TURN" N\n");
+	printf(DETERMINISTIC"\n");
 }
 
 static void *pick_setup(const char *name) {
@@ -92,8 +95,10 @@ static void has_arg(int *argc, const char *flag) {
 }
 
 static void parse_arguments(int argc, char **argv) {
-	void (*init_mode)() = NULL;
 	char *bin = *argv;
+	void (*init_mode)() = NULL;
+	int deterministic = 0;
+
 	while (--argc) {
 		++argv;
 		if (!strcmp(*argv, PORT)) {
@@ -123,6 +128,8 @@ static void parse_arguments(int argc, char **argv) {
 		} else if (!strcmp(*argv, USECS_PER_TURN)) {
 			has_arg(&argc, USECS_PER_TURN);
 			config.usec_per_turn = atoi(*++argv);
+		} else if (!strcmp(*argv, DETERMINISTIC)) {
+			deterministic = 1;
 		} else if (!(init_mode = pick_setup(*argv))) {
 			fprintf(stderr, "error: invalid argument \"%s\"\n", *argv);
 			exit(1);
@@ -132,6 +139,10 @@ static void parse_arguments(int argc, char **argv) {
 	if (!init_mode) {
 		usage(bin);
 		exit(0);
+	}
+
+	if (!deterministic) {
+		srand(time(NULL));
 	}
 
 	init_mode();

@@ -305,7 +305,6 @@ static void game_shutdown() {
 }
 
 static void game_reset(const int lfd) {
-	srand(time(NULL));
 	memset(&game, 0, sizeof(Game));
 	FD_SET(lfd, &game.watch);
 	game.listening_fd = lfd;
