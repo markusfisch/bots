@@ -27,6 +27,7 @@ struct Game {
 	time_t stopped;
 	unsigned int turn;
 	unsigned int shrink_level;
+	unsigned int shrink_step;
 	unsigned int nplayers;
 	Map map;
 	struct Player {
@@ -51,6 +52,7 @@ struct Config {
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;
+	unsigned int shrink_step;
 	unsigned int player_life;
 	time_t usec_per_turn;
 	void (*start)();

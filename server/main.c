@@ -48,6 +48,8 @@ static void usage() {
 			"every direction\n"\
 		"  -m, --max-turns N       maximum number of turns\n"\
 		"  -S, --shrink-after N    shrink map after that many turns\n"\
+		"  -T, --shrink-step N     amount of turns until next shrink, "\
+			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
 		"  -u, --usec_per_turn N   maximum number of milliseconds per turn\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
@@ -87,6 +89,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "view-radius", required_argument, NULL, 'r' },
 		{ "max-turns", required_argument, NULL, 'm' },
 		{ "shrink-after", required_argument, NULL, 'S' },
+		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "usec_per_turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
@@ -94,7 +97,7 @@ static void parse_arguments(int argc, char **argv) {
 	};
 
 	char ch;
-	while ((ch = getopt_long(argc, argv, "p:s:t:r:m:S:l:u:d", longopts,
+	while ((ch = getopt_long(argc, argv, "p:s:t:r:m:S:T:l:u:d", longopts,
 			NULL)) != -1) {
 		switch (ch) {
 		case 'p':
@@ -118,6 +121,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'S':
 			config.shrink_after = atoi(optarg);
+			break;
+		case 'T':
+			config.shrink_step = atoi(optarg);
 			break;
 		case 'l':
 			config.player_life = atoi(optarg);
@@ -165,6 +171,7 @@ int main(int argc, char **argv) {
 	config.view_radius = config.view_radius ?: 2;
 	config.max_turns = config.max_turns ?: 1024;
 	config.shrink_after = config.shrink_after ?: config.max_turns;
+	config.shrink_step = config.shrink_step ?: 1;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
 

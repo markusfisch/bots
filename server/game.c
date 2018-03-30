@@ -167,7 +167,13 @@ static void game_send_views() {
 		if (game.turn >= config.max_turns) {
 			game_end();
 		} else if (game.turn > config.shrink_after) {
-			game_shrink();
+			if (game.shrink_step > 0) {
+				--game.shrink_step;
+			}
+			if (game.shrink_step < 1) {
+				game_shrink();
+				game.shrink_step = config.shrink_step;
+			}
 		}
 		game_write();
 	}
