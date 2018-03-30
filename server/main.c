@@ -7,6 +7,7 @@
 #include "game.h"
 #include "player.h"
 #include "modes/asteroid_shower.h"
+#include "modes/collect_gems.h"
 #include "modes/find_exit.h"
 #include "modes/last_man_standing.h"
 #include "modes/training.h"
@@ -29,6 +30,7 @@ static const struct Mode {
 } modes[] = {
 	{ "training", "just learn to move and see", training },
 	{ "escape", "find the exit field 'O'", find_exit },
+	{ "collect", "collect as many gems '@' as possible", collect_gems },
 	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
 	{ "avoid", "survive inside an asteroid shower", asteroid_shower },
 	{ NULL, NULL, NULL }
@@ -63,6 +65,7 @@ static void usage() {
 		"  -T, --shrink-step N     amount of turns until next shrink, "\
 			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
+		"  -g, --gems N            number of gems if there are gems\n"\
 		"  -u, --usec_per_turn N   maximum number of milliseconds per turn\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
 }
@@ -118,13 +121,14 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-after", required_argument, NULL, 'S' },
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
+		{ "gems", required_argument, NULL, 'g' },
 		{ "usec_per_turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
 		{ NULL, 0, NULL, 0 }
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:u:d",
+	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:g:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -169,6 +173,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'l':
 			config.player_life = atoi(optarg);
+			break;
+		case 'g':
+			config.gems = atoi(optarg);
 			break;
 		case 'u':
 			config.usec_per_turn = atoi(optarg);
@@ -218,6 +225,7 @@ int main(int argc, char **argv) {
 	config.shrink_after = config.shrink_after ?: config.max_turns;
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;
+	config.gems = config.gems ?: config.map_width;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
