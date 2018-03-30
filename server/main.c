@@ -54,8 +54,8 @@ static void usage() {
 			MAP_TYPE_ARG_PLAIN", "\
 			MAP_TYPE_ARG_RANDOM" or "\
 			MAP_TYPE_ARG_MAZE"\n"\
-		"  -o, --obstacles STRING  characters a player cannot move over\n"\
-		"  -f, --flatland STRING   characters a player can move over\n"\
+		"  -o, --obstacles STRING  characters a player cannot enter\n"\
+		"  -f, --flatland STRING   characters a player can enter\n"\
 		"  -x, --multiplier N      multiplier of flatland string\n"\
 		"  -p, --placing TYPE      player placing, either "\
 			PLACING_ARG_CIRCLE" or "\
