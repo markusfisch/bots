@@ -61,6 +61,7 @@ struct Config {
 	unsigned int shrink_step;
 	unsigned int player_life;
 	unsigned int gems;
+	time_t wait_for_joins;
 	time_t usec_per_turn;
 	void (*start)();
 	void (*turn_start)();

@@ -11,8 +11,6 @@
 #include "placing.h"
 #include "player.h"
 
-#define SECONDS_TO_JOIN 10
-
 struct Config config;
 struct Game game;
 
@@ -250,8 +248,8 @@ static void game_handle_joins() {
 	socklen_t len;
 	int fd = accept(game.listening_fd, &addr, &len);
 	if (!game.started && !game_add_player(fd)) {
-		printf("%d seats left, starting in %d seconds ...\n",
-			MAX_PLAYERS - game.nplayers, SECONDS_TO_JOIN);
+		printf("%d seats left, starting in %ld seconds ...\n",
+			MAX_PLAYERS - game.nplayers, config.wait_for_joins);
 	} else {
 		close(fd);
 	}
@@ -343,7 +341,8 @@ static int game_run(const int lfd) {
 			tv.tv_sec = usec / USEC_PER_SEC;
 			tv.tv_usec = usec - (tv.tv_sec * USEC_PER_SEC);
 		} else {
-			tv.tv_sec = game.nplayers < MAX_PLAYERS ? SECONDS_TO_JOIN : 0;
+			tv.tv_sec = game.nplayers < MAX_PLAYERS ?
+				config.wait_for_joins : 0;
 			tv.tv_usec = 0;
 		}
 

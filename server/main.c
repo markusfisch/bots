@@ -66,7 +66,8 @@ static void usage() {
 			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
 		"  -g, --gems N            number of gems if there are gems\n"\
-		"  -u, --usec_per_turn N   maximum number of milliseconds per turn\n"\
+		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
+		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
 }
 
@@ -122,13 +123,14 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "gems", required_argument, NULL, 'g' },
-		{ "usec_per_turn", required_argument, NULL, 'u' },
+		{ "wait-for-joins", required_argument, NULL, 'W' },
+		{ "usec-per-turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
 		{ NULL, 0, NULL, 0 }
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:g:u:d",
+	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:g:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -176,6 +178,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'W':
+			config.wait_for_joins = atoi(optarg);
 			break;
 		case 'u':
 			config.usec_per_turn = atoi(optarg);
@@ -226,6 +231,7 @@ int main(int argc, char **argv) {
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;
 	config.gems = config.gems ?: config.map_width;
+	config.wait_for_joins = config.wait_for_joins ?: 10;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
