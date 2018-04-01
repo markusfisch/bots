@@ -6,7 +6,6 @@
 #include "collect_gems.h"
 #include "snakes.h"
 
-#define TILE_GEM '@'
 #define TILE_TAIL '*'
 #define MAX_TAIL 64
 

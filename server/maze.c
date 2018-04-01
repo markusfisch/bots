@@ -8,16 +8,16 @@
 // depth-first search maze generator from
 // https://en.wikipedia.org/wiki/Maze_generation_algorithm
 
-static struct Node {
+typedef struct {
 	int x;
 	int y;
 	void *parent;
 	char wall;
 	char dirs;
-} *nodes = NULL;
+} Node;
+Node *nodes = NULL;
 
-static struct Node *maze_link(struct Node *n, const int width,
-		const int height) {
+static Node *maze_link(Node *n, const int width, const int height) {
 	while (n->dirs) {
 		char dir = 1 << (rand() % 4);
 
@@ -59,7 +59,7 @@ static struct Node *maze_link(struct Node *n, const int width,
 			break;
 		}
 
-		struct Node *dest = nodes + y * width + x;
+		Node *dest = nodes + y * width + x;
 		if (!dest->wall) {
 			if (dest->parent != NULL) {
 				continue;
@@ -79,13 +79,13 @@ static struct Node *maze_link(struct Node *n, const int width,
 static void maze_init(const int width, const int height) {
 	int x;
 	int y;
+	Node *n = nodes;
 	for (y = 0; y < height; ++y) {
-		for (x = 0; x < width; ++x) {
-			struct Node *n = nodes + y * width + x;
+		for (x = 0; x < width; ++x, ++n) {
 			if (x * y % 2) {
 				n->x = x;
 				n->y = y;
-				n->dirs = 15;
+				n->dirs = 15; // set first four bits
 				n->wall = 0;
 			} else {
 				n->wall = 1;
@@ -99,15 +99,16 @@ void maze_generate(Map *map, const unsigned int sx, const unsigned int sy,
 	int width = map->width;
 	int height = map->height;
 
-	nodes = calloc(width * height, sizeof(struct Node));
+	nodes = calloc(width * height, sizeof(Node));
 	if (!nodes) {
 		return;
 	}
 
 	maze_init(width, height);
 
-	struct Node *first = nodes + (sy | 1) * width + (sx | 1);
-	struct Node *last = first;
+	// start x/y must be on uneven values
+	Node *first = nodes + (sy | 1) * width + (sx | 1);
+	Node *last = first;
 	first->parent = first;
 	while ((last = maze_link(last, width, height)) != first);
 

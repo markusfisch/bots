@@ -4,8 +4,6 @@
 #include "../player.h"
 #include "collect_gems.h"
 
-#define TILE_GEM '@'
-
 extern struct Config config;
 extern struct Game game;
 

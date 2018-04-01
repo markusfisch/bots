@@ -30,8 +30,7 @@ static char player_bearing(const int bearing) {
 	}
 }
 
-static char player_view_at(Player *p,
-		const int x, const int y) {
+static char player_view_at(Player *p, const int x, const int y) {
 	char tile = map_get(&game.map, x, y);
 	Player *enemy = player_at(
 		map_wrap(x, game.map.width),
@@ -118,8 +117,7 @@ static void player_move_by(Player *p, int x, int y) {
 	p->y = y;
 }
 
-static void player_step(Player *p,
-		const int steps) {
+static void player_step(Player *p, const int steps) {
 	switch (p->bearing % 4) {
 	case 0: // north
 		player_move_by(p, 0, -steps);

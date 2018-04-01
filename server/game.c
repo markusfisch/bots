@@ -32,9 +32,11 @@ unsigned int game_joined() {
 }
 
 void game_remove_player(Player *p) {
-	FD_CLR(p->fd, &game.watch);
-	close(p->fd);
-	p->fd = 0;
+	if (p->fd > 0) {
+		FD_CLR(p->fd, &game.watch);
+		close(p->fd);
+		p->fd = 0;
+	}
 }
 
 unsigned char game_marker_show_life(struct Player *p) {
@@ -47,14 +49,12 @@ static int game_compare_player(const void *a, const void *b) {
 }
 
 static void game_print_results() {
-	qsort(game.players, game.nplayers, sizeof(Player),
-		game_compare_player);
+	qsort(game.players, game.nplayers, sizeof(Player), game_compare_player);
 	printf("Place Name Score Moves\n");
 	int place = 1;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++place) {
-		printf("% 4d. %c    % 5d % 5d\n", place, p->name,
-			p->score, p->moves);
+		printf("% 4d. %c    % 5d % 5d\n", place, p->name, p->score, p->moves);
 	}
 }
 
@@ -89,7 +89,7 @@ static void game_inset_player(Player *p,
 		px += shiftX;
 		py += shiftY;
 	} while (--tries > 0 && (config.impassable(&game.map, px, py) ||
-			player_at(px, py)));
+		player_at(px, py)));
 	if (tries > 0) {
 		p->x = px;
 		p->y = py;
