@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+# read map line by line from file descriptor number 6
 read_map() {
 	LINES=0
 	while read -r <&6 || return 1
 	do
 		((LINES < 1)) && {
+			# we know the map has as many lines as columns
 			LINES=${#REPLY}
 		}
 		echo "$REPLY"
@@ -12,6 +14,7 @@ read_map() {
 	done
 }
 
+# open a socket to localhost:63187 on file descriptor number 6
 exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-63187}" || exit 1
 
 read_map && while read -n 1 -r -p 'Command (q<>^v): '
@@ -28,5 +31,6 @@ do
 	esac
 done
 
+# close input and output of file descriptor number 6
 exec 6<&-
 exec 6>&-
