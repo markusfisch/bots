@@ -192,6 +192,7 @@ OPTION can be any of:
   -f, --flatland STRING   characters a player can enter
   -x, --multiplier N      multiplier of flatland string
   -p, --placing TYPE      player placing, either circle or random
+  -A, --place-at N,N;...  place players at given coordinates
   -v, --view-radius N     how many fields a player can see in every direction
   -m, --max-turns N       maximum number of turns
   -S, --shrink-after N    shrink map after that many turns
