@@ -139,7 +139,7 @@ static void game_write() {
 			buf[offset] = p->name;
 		}
 	}
-	map_write(1, buf, game.map.width, game.map.height);
+	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
 	printf("turn: %d of %d, players: %d\n", game.turn, config.max_turns,
 		game_joined());
 }
