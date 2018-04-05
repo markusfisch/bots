@@ -39,3 +39,20 @@ void placing_random() {
 		p->y = py;
 	}
 }
+
+void placing_manual(Coords *coords) {
+	int width = game.map.width;
+	int height = game.map.height;
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p, ++coords) {
+		int px = coords->x;
+		int py = coords->y;
+		while (map_impassable(&game.map, px, py) ||
+				player_at(px, py)) {
+			px = rand() % width;
+			py = rand() % height;
+		}
+		p->x = px;
+		p->y = py;
+	}
+}

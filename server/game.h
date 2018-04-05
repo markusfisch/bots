@@ -14,10 +14,12 @@
 #define MAP_TYPE_MAZE 4
 #define PLACING_CIRCLE 1
 #define PLACING_RANDOM 2
+#define PLACING_MANUAL 3
 
 typedef struct Game Game;
 typedef struct Player Player;
 typedef struct Config Config;
+typedef struct Coords Coords;
 
 struct Game {
 	struct timeval tick;
@@ -56,6 +58,10 @@ struct Config {
 	const char *flatland;
 	unsigned int multiplier;
 	unsigned int placing;
+	struct Coords {
+		int x;
+		int y;
+	} coords[MAX_PLAYERS];
 	unsigned int view_radius;
 	unsigned int max_turns;
 	unsigned int shrink_after;

@@ -232,6 +232,7 @@ static int game_add_player(int fd) {
 	p->fd = fd;
 	p->name = 65 + game.nplayers;
 	p->life = 1;
+	p->x = p->y = -1;
 	++game.nplayers;
 	FD_SET(fd, &game.watch);
 	if (++fd > game.nfds) {
@@ -272,6 +273,9 @@ static void game_place_players() {
 		break;
 	case PLACING_RANDOM:
 		placing_random();
+		break;
+	case PLACING_MANUAL:
+		placing_manual(config.coords);
 		break;
 	}
 }

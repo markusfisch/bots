@@ -60,6 +60,7 @@ static void usage() {
 		"  -p, --placing TYPE      player placing, either "\
 			PLACING_ARG_CIRCLE" or "\
 			PLACING_ARG_RANDOM"\n"\
+		"  -A, --place-at N,N;...  place players at given coordinates\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
 		"  -m, --max-turns N       maximum number of turns\n"\
@@ -81,6 +82,15 @@ static void *pick_mode(const char *name) {
 		}
 	}
 	return NULL;
+}
+
+static int parse_placing_at(Coords *coords, char *arg) {
+	Coords *e = coords + MAX_PLAYERS;
+	char *pos = strtok(arg, ";");
+	for (; pos && coords < e; pos = strtok(NULL, ";"), ++coords) {
+		sscanf(pos, "%d,%d", &coords->x, &coords->y);
+	}
+	return PLACING_MANUAL;
 }
 
 static int parse_placing(const char *arg) {
@@ -119,6 +129,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "flatland", required_argument, NULL, 'f' },
 		{ "multiplier", required_argument, NULL, 'x' },
 		{ "placing", required_argument, NULL, 'p' },
+		{ "place-at", required_argument, NULL, 'A' },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-turns", required_argument, NULL, 'm' },
 		{ "shrink-after", required_argument, NULL, 'S' },
@@ -132,7 +143,8 @@ static void parse_arguments(int argc, char **argv) {
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "P:M:s:t:o:f:x:p:v:m:S:T:l:g:W:u:d",
+	while ((ch = getopt_long(argc, argv,
+			"P:M:s:t:o:f:x:p:A:v:m:S:T:l:g:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -162,6 +174,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'p':
 			config.placing = parse_placing(optarg);
+			break;
+		case 'A':
+			config.placing = parse_placing_at(config.coords, optarg);
 			break;
 		case 'v':
 			config.view_radius = atoi(optarg);
