@@ -265,7 +265,7 @@ static void game_set_players_life(int life) {
 }
 
 static void game_place_players() {
-	switch (config.map_type) {
+	switch (config.placing) {
 	default:
 	case PLACING_CIRCLE:
 		placing_circle();
