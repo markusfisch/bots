@@ -5,15 +5,12 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class BotsClient {
 	public static void main(String args[]) {
 		final String host = args.length > 0 ? args[0] : "localhost";
 		final int port = args.length > 1 ? Integer.parseInt(args[1]) : 63187;
-		Socket socket = null;
-		try {
-			socket = new Socket(host, port);
+		try (Socket socket = new Socket(host, port)) {
 			OutputStream out = socket.getOutputStream();
 			BufferedReader in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream(), "UTF-8"));
@@ -29,14 +26,6 @@ public class BotsClient {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (socket != null) {
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
