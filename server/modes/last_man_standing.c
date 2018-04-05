@@ -34,6 +34,7 @@ static void shoot(Player *p) {
 		Player *enemy = player_at(x, y);
 		if (enemy && --enemy->life < 1) {
 			++p->score;
+			enemy->killed_by = p->name;
 			game_remove_player(enemy);
 		}
 	}

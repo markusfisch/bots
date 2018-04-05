@@ -20,7 +20,6 @@ static void start() {
 static void move(Player *p, char cmd) {
 	player_move(p, cmd);
 	if (map_get(&game.map, p->x, p->y) == TILE_EXIT) {
-		printf("%c escaped\n", p->name);
 		p->score = points--;
 		game_remove_player(p);
 	}

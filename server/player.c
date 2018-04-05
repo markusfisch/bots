@@ -16,7 +16,7 @@ Player *player_at(const int x, const int y) {
 	return NULL;
 }
 
-static char player_bearing(const int bearing) {
+char player_bearing(const int bearing) {
 	switch (bearing % 4) {
 	default:
 	case 0:

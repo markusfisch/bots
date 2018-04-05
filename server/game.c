@@ -50,11 +50,16 @@ static int game_compare_player(const void *a, const void *b) {
 
 static void game_print_results() {
 	qsort(game.players, game.nplayers, sizeof(Player), game_compare_player);
-	printf("Place Name Score Moves\n");
+	printf("Place Name Score Moves Killer\n");
 	int place = 1;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++place) {
-		printf("% 4d. %c    % 5d % 5d\n", place, p->name, p->score, p->moves);
+		printf("% 4d. %c    % 5d % 5d %c\n",
+			place,
+			p->name,
+			p->score,
+			p->moves,
+			p->killed_by);
 	}
 }
 
@@ -129,19 +134,23 @@ static void game_write() {
 	size_t size = game.map.size;
 	char buf[size];
 	memcpy(buf, game.map.data, size);
-	int i;
 	Player *p = game.players, *e = p + game.nplayers;
-	for (i = 0; p < e; ++p, ++i) {
+	for (; p < e; ++p) {
 		if (p->fd > 0) {
-			int x = p->x;
-			int y = p->y;
-			size_t offset = (y * game.map.width + x) % size;
-			buf[offset] = p->name;
+			buf[(p->y * game.map.width + p->x) % size] = p->name;
 		}
 	}
 	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
-	printf("turn: %d of %d, players: %d\n", game.turn, config.max_turns,
-		game_joined());
+	printf("Turn %d of %d\n", game.turn, config.max_turns);
+	printf("Player Facing Life Moves Killer\n");
+	for (p = game.players; p < e; ++p) {
+		printf("%c      %c      % 4d % 5d %c\n",
+			p->name,
+			p->fd > 0 ? player_bearing(p->bearing) : 'x',
+			p->life,
+			p->moves,
+			p->killed_by > 0 ?: ' ');
+	}
 }
 
 static void game_send_views() {

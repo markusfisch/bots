@@ -44,6 +44,7 @@ struct Game {
 		unsigned int moves;
 		int score;
 		unsigned int life;
+		char killed_by;
 		void *trunk;
 	} players[MAX_PLAYERS];
 };
