@@ -166,7 +166,7 @@ static void game_write_json(char *buf) {
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
 			p->moves,
-			p->killed_by > 0 ?: ' ');
+			p->killed_by > 0 ? p->killed_by : ' ');
 	}
 	printf("\n],\"map\":[\n");
 	fflush(stdout);
@@ -196,7 +196,7 @@ static void game_write_plain(char *buf) {
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
 			p->moves,
-			p->killed_by > 0 ?: ' ');
+			p->killed_by > 0 ? p->killed_by : ' ');
 	}
 }
 
