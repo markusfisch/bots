@@ -54,6 +54,7 @@ static void game_print_results() {
 	switch (config.output_format) {
 	default:
 	case FORMAT_PLAIN:
+		printf("========== RESULTS ==========\n");
 		printf("Place Name Score Moves Killer\n");
 		format = "% 4d. %c    % 5d % 5d %c\n";
 		break;
