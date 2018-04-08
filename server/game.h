@@ -15,6 +15,8 @@
 #define PLACING_CIRCLE 1
 #define PLACING_RANDOM 2
 #define PLACING_MANUAL 3
+#define FORMAT_PLAIN 1
+#define FORMAT_JSON 2
 
 typedef struct Game Game;
 typedef struct Player Player;
@@ -69,6 +71,7 @@ struct Config {
 	unsigned int shrink_step;
 	unsigned int player_life;
 	unsigned int gems;
+	unsigned int output_format;
 	unsigned int keep_running;
 	time_t wait_for_joins;
 	time_t usec_per_turn;

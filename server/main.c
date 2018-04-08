@@ -19,6 +19,8 @@
 #define MAP_TYPE_ARG_MAZE "maze"
 #define PLACING_ARG_CIRCLE "circle"
 #define PLACING_ARG_RANDOM "random"
+#define FORMAT_ARG_PLAIN "plain"
+#define FORMAT_ARG_JSON "json"
 
 extern struct Config config;
 
@@ -69,6 +71,9 @@ static void usage() {
 			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
 		"  -g, --gems N            number of gems if there are gems\n"\
+		"  -F, --format TYPE       server output format, either "\
+			FORMAT_ARG_PLAIN" or "\
+			FORMAT_ARG_JSON"\n"\
 		"  -k, --keep-running      restart game after end\n"\
 		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
@@ -83,6 +88,16 @@ static void *pick_mode(const char *name) {
 		}
 	}
 	return NULL;
+}
+
+static int parse_format(char *arg) {
+	if (!strcmp(arg, FORMAT_ARG_PLAIN)) {
+		return FORMAT_PLAIN;
+	} else if (!strcmp(arg, FORMAT_ARG_JSON)) {
+		return FORMAT_JSON;
+	}
+	fprintf(stderr, "error: unknown format \"%s\"\n", arg);
+	exit(1);
 }
 
 static int parse_placing_at(Coords *coords, char *arg) {
@@ -137,6 +152,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "gems", required_argument, NULL, 'g' },
+		{ "format", required_argument, NULL, 'F' },
 		{ "keep-running", no_argument, NULL, 'k' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
@@ -146,7 +162,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:M:s:t:o:f:x:p:A:v:m:S:T:l:g:kW:u:d",
+			"P:M:s:t:o:f:x:p:A:v:m:S:T:l:g:F:kW:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -197,6 +213,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'F':
+			config.output_format = parse_format(optarg);
 			break;
 		case 'k':
 			config.keep_running = 1;

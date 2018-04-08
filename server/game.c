@@ -50,16 +50,36 @@ static int game_compare_player(const void *a, const void *b) {
 
 static void game_print_results() {
 	qsort(game.players, game.nplayers, sizeof(Player), game_compare_player);
-	printf("Place Name Score Moves Killer\n");
+	char *format;
+	switch (config.output_format) {
+	default:
+	case FORMAT_PLAIN:
+		printf("Place Name Score Moves Killer\n");
+		format = "% 4d. %c    % 5d % 5d %c\n";
+		break;
+	case FORMAT_JSON:
+		// close turns array and open results
+		printf("],\n\"results\":[\n");
+		format = "{\"place\":%d,\"name\":\"%c\",\"score\":%d,"\
+			"\"moves\":%d,\"killer\":\"%c\"}";
+		break;
+	}
 	int place = 1;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++place) {
-		printf("% 4d. %c    % 5d % 5d %c\n",
-			place,
-			p->name,
-			p->score,
-			p->moves,
-			p->killed_by);
+		if (config.output_format == FORMAT_JSON && p > game.players) {
+			printf(",\n");
+		}
+		printf(format, place, p->name, p->score, p->moves,
+			p->killed_by ?: ' ');
+	}
+	switch (config.output_format) {
+	case FORMAT_JSON:
+		// close results
+		printf("\n]\n");
+		// close root object
+		printf("}\n");
+		break;
 	}
 }
 
@@ -130,6 +150,56 @@ static void game_shrink() {
 	++game.shrink_level;
 }
 
+static void game_write_json(char *buf) {
+	if (game.turn > 1) {
+		printf(",\n");
+	}
+	printf("{\"turn\":%d,\"players\":[\n", game.turn);
+	Player *p = game.players, *e = p + game.nplayers;
+	for (p = game.players; p < e; ++p) {
+		if (p > game.players) {
+			puts(",");
+		}
+		printf("{\"name\":\"%c\",\"facing\":\"%c\",\"life\":%d,"\
+			"\"moves\":%d,\"killed_by\":\"%c\"}",
+			p->name,
+			p->fd > 0 ? player_bearing(p->bearing) : 'x',
+			p->life,
+			p->moves,
+			p->killed_by > 0 ?: ' ');
+	}
+	printf("\n],\"map\":[\n");
+	fflush(stdout);
+	unsigned int y;
+	for (y = 0; y < game.map.height; ++y) {
+		if (y > 0) {
+			write(STDOUT_FILENO, ",\n", 2);
+		}
+		write(STDOUT_FILENO, "\"", 1);
+		write(STDOUT_FILENO, buf, game.map.width);
+		write(STDOUT_FILENO, "\"", 1);
+		buf += game.map.width;
+	}
+	fflush(stdout);
+	printf("\n]\n}");
+}
+
+static void game_write_plain(char *buf) {
+	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
+	printf("Turn %d of %d.\n", game.turn, config.max_turns);
+	printf("%d players of %d alive.\n", game.nplayers, game_joined());
+	printf("Player Facing Life Moves Killer\n");
+	Player *p = game.players, *e = p + game.nplayers;
+	for (p = game.players; p < e; ++p) {
+		printf("%c      %c      % 4d % 5d %c\n",
+			p->name,
+			p->fd > 0 ? player_bearing(p->bearing) : 'x',
+			p->life,
+			p->moves,
+			p->killed_by > 0 ?: ' ');
+	}
+}
+
 static void game_write() {
 	size_t size = game.map.size;
 	char buf[size];
@@ -140,16 +210,14 @@ static void game_write() {
 			buf[(p->y * game.map.width + p->x) % size] = p->name;
 		}
 	}
-	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
-	printf("Turn %d of %d\n", game.turn, config.max_turns);
-	printf("Player Facing Life Moves Killer\n");
-	for (p = game.players; p < e; ++p) {
-		printf("%c      %c      % 4d % 5d %c\n",
-			p->name,
-			p->fd > 0 ? player_bearing(p->bearing) : 'x',
-			p->life,
-			p->moves,
-			p->killed_by > 0 ?: ' ');
+	switch (config.output_format) {
+	default:
+	case FORMAT_PLAIN:
+		game_write_plain(buf);
+		break;
+	case FORMAT_JSON:
+		game_write_json(buf);
+		break;
 	}
 }
 
@@ -237,7 +305,7 @@ static void game_read_commands() {
 
 static int game_add_player(int fd) {
 	if (game.nplayers >= MAX_PLAYERS) {
-		return 1;
+		return 0;
 	}
 	Player *p = &game.players[game.nplayers];
 	p->fd = fd;
@@ -249,7 +317,7 @@ static int game_add_player(int fd) {
 	if (++fd > game.nfds) {
 		game.nfds = fd;
 	}
-	return 0;
+	return 1;
 }
 
 static void game_handle_joins() {
@@ -259,9 +327,11 @@ static void game_handle_joins() {
 	struct sockaddr addr;
 	socklen_t len;
 	int fd = accept(game.listening_fd, &addr, &len);
-	if (!game.started && !game_add_player(fd)) {
-		printf("%d seats left, starting in %ld seconds ...\n",
-			MAX_PLAYERS - game.nplayers, config.wait_for_joins);
+	if (!game.started && game_add_player(fd)) {
+		if (config.output_format == FORMAT_PLAIN) {
+			printf("%d seats left, starting in %ld seconds ...\n",
+				MAX_PLAYERS - game.nplayers, config.wait_for_joins);
+		}
 	} else {
 		close(fd);
 	}
@@ -328,6 +398,11 @@ static void game_start() {
 	if (config.start) {
 		config.start();
 	}
+	switch (config.output_format) {
+	case FORMAT_JSON:
+		printf("{\n\"max_turns\":%d,\n\"turns\":[\n", config.max_turns);
+		break;
+	}
 }
 
 static void game_shutdown() {
@@ -341,8 +416,10 @@ static void game_reset(const int lfd) {
 	FD_SET(lfd, &game.watch);
 	game.listening_fd = lfd;
 	game.nfds = lfd + 1;
-	printf("waiting for players (at least %d) to join ...\n",
-		config.min_players);
+	if (config.output_format == FORMAT_PLAIN) {
+		printf("waiting for players (at least %d) to join ...\n",
+			config.min_players);
+	}
 }
 
 static int game_run(const int lfd) {
