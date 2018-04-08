@@ -376,7 +376,11 @@ static int game_run(const int lfd) {
 				}
 				game_print_results();
 				game_remove_players();
-				game_reset(lfd);
+				if (config.keep_running) {
+					game_reset(lfd);
+				} else {
+					break;
+				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
 				(ready == 0 && game.nplayers >= config.min_players)) {

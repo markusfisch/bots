@@ -69,6 +69,7 @@ static void usage() {
 			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
 		"  -g, --gems N            number of gems if there are gems\n"\
+		"  -k, --keep-running      restart game after end\n"\
 		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
@@ -136,6 +137,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "gems", required_argument, NULL, 'g' },
+		{ "keep-running", no_argument, NULL, 'k' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
@@ -144,7 +146,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:M:s:t:o:f:x:p:A:v:m:S:T:l:g:W:u:d",
+			"P:M:s:t:o:f:x:p:A:v:m:S:T:l:g:kW:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -195,6 +197,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'k':
+			config.keep_running = 1;
 			break;
 		case 'W':
 			config.wait_for_joins = atoi(optarg);
