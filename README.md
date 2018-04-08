@@ -199,6 +199,8 @@ OPTION can be any of:
   -T, --shrink-step N     amount of turns until next shrink, default is 1
   -l, --player-life N     life value of players, default is 1
   -g, --gems N            number of gems if there are gems
+  -F, --format TYPE       server output format, either plain or json
+  -k, --keep-running      restart game after end
   -W, --wait-for-joins N  number of seconds to wait for joins
   -u, --usec-per-turn N   maximum number of milliseconds per turn
   -d, --deterministic     don't seed the random number generator
