@@ -214,7 +214,9 @@ static void game_read_command(Player *p) {
 	char cmd;
 	int b;
 	if ((b = recv(p->fd, &cmd, sizeof(cmd), 0)) < 1) {
-		perror("recv");
+		if (b) {
+			perror("recv");
+		}
 		game_remove_player(p);
 		return;
 	}
