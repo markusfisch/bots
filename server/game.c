@@ -186,8 +186,8 @@ static void game_write_json(char *buf) {
 
 static void game_write_plain(char *buf) {
 	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
-	printf("Turn %d of %d.\n", game.turn, config.max_turns);
-	printf("%d players of %d alive.\n", game.nplayers, game_joined());
+	printf("Turn %d of %d. %d of %d players alive.\n", game.turn,
+		config.max_turns, game.nplayers, game_joined());
 	printf("Player Facing Life Moves Killer\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
