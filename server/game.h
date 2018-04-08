@@ -28,7 +28,6 @@ struct Game {
 	fd_set watch;
 	fd_set ready;
 	int nfds;
-	int listening_fd;
 	time_t started;
 	time_t stopped;
 	unsigned int turn;

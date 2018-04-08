@@ -321,13 +321,10 @@ static int game_add_player(int fd) {
 	return 1;
 }
 
-static void game_handle_joins() {
-	if (!FD_ISSET(game.listening_fd, &game.ready)) {
-		return;
-	}
+static void game_handle_joins(const int lfd) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
-	int fd = accept(game.listening_fd, &addr, &len);
+	int fd = accept(lfd, &addr, &len);
 	if (!game.started && game_add_player(fd)) {
 		if (config.output_format == FORMAT_PLAIN) {
 			printf("%d seats left, starting in %ld seconds ...\n",
@@ -406,8 +403,8 @@ static void game_start() {
 	}
 }
 
-static void game_shutdown() {
-	close(game.listening_fd);
+static void game_shutdown(const int lfd) {
+	close(lfd);
 	game_remove_players();
 	map_free(&game.map);
 }
@@ -415,7 +412,6 @@ static void game_shutdown() {
 static void game_reset(const int lfd) {
 	memset(&game, 0, sizeof(Game));
 	FD_SET(lfd, &game.watch);
-	game.listening_fd = lfd;
 	game.nfds = lfd + 1;
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
@@ -445,7 +441,9 @@ static int game_run(const int lfd) {
 			perror("select");
 			break;
 		} else if (ready > 0) {
-			game_handle_joins();
+			if (FD_ISSET(lfd, &game.ready)) {
+				game_handle_joins(lfd);
+			}
 			game_read_commands();
 		}
 
@@ -468,7 +466,7 @@ static int game_run(const int lfd) {
 		}
 	}
 
-	game_shutdown();
+	game_shutdown(lfd);
 
 	return 0;
 }
