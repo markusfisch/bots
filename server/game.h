@@ -15,8 +15,8 @@
 #define PLACING_CIRCLE 1
 #define PLACING_RANDOM 2
 #define PLACING_MANUAL 3
-#define FORMAT_PLAIN 1
-#define FORMAT_JSON 2
+#define FORMAT_PLAIN 0
+#define FORMAT_JSON 1
 
 typedef struct Game Game;
 typedef struct Player Player;
