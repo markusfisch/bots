@@ -325,7 +325,7 @@ static void game_handle_joins() {
 		return;
 	}
 	struct sockaddr addr;
-	socklen_t len;
+	socklen_t len = sizeof(addr);
 	int fd = accept(game.listening_fd, &addr, &len);
 	if (!game.started && game_add_player(fd)) {
 		if (config.output_format == FORMAT_PLAIN) {
