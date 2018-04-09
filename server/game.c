@@ -383,12 +383,12 @@ static int game_add_spectator(int fd) {
 	if (game.nspectators >= MAX_SPECTATORS) {
 		return 0;
 	}
-	game_watch_fd(fd);
 	Spectator *s = &game.spectators[game.nspectators];
 	s->fd = fd;
 	s->fp = fdopen(fd, "a");
 	s->match = config.spectator_key;
 	++game.nspectators;
+	game_watch_fd(fd);
 	return 1;
 }
 
@@ -472,10 +472,14 @@ static void game_init_map() {
 	}
 }
 
+static int game_spectator_authorized(const Spectator *s) {
+	return s->match && !*s->match;
+}
+
 static void game_remove_unauthorized_spectators() {
 	Spectator *s = game.spectators, *e = s + game.nspectators;
 	for (; s < e; ++s) {
-		if (s->fd > 0 && (!s->match || *s->match)) {
+		if (s->fd > 0 && !game_spectator_authorized(s)) {
 			game_remove_spectator(s);
 		}
 	}
