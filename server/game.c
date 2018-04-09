@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
@@ -48,19 +49,19 @@ static int game_compare_player(const void *a, const void *b) {
 	return ((Player *) b)->score - ((Player *) a)->score;
 }
 
-static void game_print_results() {
+static void game_print_results(FILE *fp) {
 	qsort(game.players, game.nplayers, sizeof(Player), game_compare_player);
 	char *format;
 	switch (config.output_format) {
 	default:
 	case FORMAT_PLAIN:
-		printf("========== RESULTS ==========\n");
-		printf("Place Name Score Moves Killer\n");
+		fprintf(fp, "========== RESULTS ==========\n");
+		fprintf(fp, "Place Name Score Moves Killer\n");
 		format = "% 4d. %c    % 5d % 5d %c\n";
 		break;
 	case FORMAT_JSON:
 		// close turns array and open results
-		printf("],\n\"results\":[\n");
+		fprintf(fp, "],\n\"results\":[\n");
 		format = "{\"place\":%d,\"name\":\"%c\",\"score\":%d,"\
 			"\"moves\":%d,\"killer\":\"%c\"}";
 		break;
@@ -69,17 +70,17 @@ static void game_print_results() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++place) {
 		if (config.output_format == FORMAT_JSON && p > game.players) {
-			printf(",\n");
+			fprintf(fp, ",\n");
 		}
-		printf(format, place, p->name, p->score, p->moves,
+		fprintf(fp, format, place, p->name, p->score, p->moves,
 			p->killed_by ?: ' ');
 	}
 	switch (config.output_format) {
 	case FORMAT_JSON:
 		// close results
-		printf("\n]\n");
+		fprintf(fp, "\n]\n");
 		// close root object
-		printf("}\n");
+		fprintf(fp, "}\n");
 		break;
 	}
 }
@@ -151,17 +152,17 @@ static void game_shrink() {
 	++game.shrink_level;
 }
 
-static void game_write_json(char *buf) {
+static void game_write_json(FILE *fp, char *buf) {
 	if (game.turn > 1) {
-		printf(",\n");
+		fprintf(fp, ",\n");
 	}
-	printf("{\"turn\":%d,\"players\":[\n", game.turn);
+	fprintf(fp, "{\"turn\":%d,\"players\":[\n", game.turn);
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
 		if (p > game.players) {
-			puts(",");
+			fprintf(fp, ",");
 		}
-		printf("{\"name\":\"%c\",\"facing\":\"%c\",\"life\":%d,"\
+		fprintf(fp, "{\"name\":\"%c\",\"facing\":\"%c\",\"life\":%d,"\
 			"\"moves\":%d,\"killed_by\":\"%c\"}",
 			p->name,
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
@@ -169,39 +170,42 @@ static void game_write_json(char *buf) {
 			p->moves,
 			p->killed_by > 0 ? p->killed_by : ' ');
 	}
-	printf("\n],\"map\":[\n");
-	fflush(stdout);
+	fprintf(fp, "\n],\"map\":[\n");
+	fflush(fp);
+	int fd = fileno(fp);
 	unsigned int y;
 	for (y = 0; y < game.map.height; ++y) {
 		if (y > 0) {
-			write(STDOUT_FILENO, ",\n", 2);
+			write(fd, ",\n", 2);
 		}
-		write(STDOUT_FILENO, "\"", 1);
-		write(STDOUT_FILENO, buf, game.map.width);
-		write(STDOUT_FILENO, "\"", 1);
+		write(fd, "\"", 1);
+		write(fd, buf, game.map.width);
+		write(fd, "\"", 1);
 		buf += game.map.width;
 	}
-	fflush(stdout);
-	printf("\n]\n}");
+	fflush(fp);
+	fprintf(fp, "\n]\n}");
 }
 
-static void game_write_plain(char *buf) {
-	map_write(STDOUT_FILENO, buf, game.map.width, game.map.height);
-	printf("Turn %d of %d. %d of %d players alive.\n", game.turn,
+static void game_write_plain(FILE *fp, char *buf) {
+	int fd = fileno(fp);
+	map_write(fd, buf, game.map.width, game.map.height);
+	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game.nplayers, game_joined());
-	printf("Player Facing Life Moves Killer\n");
+	fprintf(fp, "Player Facing Life Moves Killer\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
-		printf("%c      %c      % 4d % 5d %c\n",
+		fprintf(fp, "%c      %c      % 4d % 5d %c\n",
 			p->name,
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
 			p->moves,
 			p->killed_by > 0 ? p->killed_by : ' ');
 	}
+	fflush(fp);
 }
 
-static void game_write() {
+static void game_write(FILE *fp) {
 	size_t size = game.map.size;
 	char buf[size];
 	memcpy(buf, game.map.data, size);
@@ -214,15 +218,25 @@ static void game_write() {
 	switch (config.output_format) {
 	default:
 	case FORMAT_PLAIN:
-		game_write_plain(buf);
+		game_write_plain(fp, buf);
 		break;
 	case FORMAT_JSON:
-		game_write_json(buf);
+		game_write_json(fp, buf);
 		break;
 	}
 }
 
-static void game_send_views() {
+static void game_send_spectators(void (*writer)(FILE *)) {
+	Spectator *s = game.spectators, *e = s + game.nspectators;
+	for (; s < e; ++s) {
+		if (s->fp != NULL) {
+			writer(s->fp);
+		}
+	}
+	writer(stdout);
+}
+
+static void game_send_players() {
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -249,7 +263,7 @@ static void game_send_views() {
 				game.shrink_step = config.shrink_step;
 			}
 		}
-		game_write();
+		game_send_spectators(game_write);
 	}
 }
 
@@ -269,7 +283,7 @@ static time_t game_next_turn() {
 	time_t delta = (tv.tv_sec - game.tick.tv_sec) * USEC_PER_SEC -
 		game.tick.tv_usec + tv.tv_usec;
 	if (delta >= config.usec_per_turn || game_turn_complete()) {
-		game_send_views();
+		game_send_players();
 		game.tick.tv_sec = tv.tv_sec;
 		game.tick.tv_usec = tv.tv_usec;
 		delta = config.usec_per_turn;
@@ -277,6 +291,60 @@ static time_t game_next_turn() {
 		delta = config.usec_per_turn - delta;
 	}
 	return delta;
+}
+
+static void game_remove_spectator(Spectator *s) {
+	if (s->fd > 0) {
+		FD_CLR(s->fd, &game.watch);
+		fclose(s->fp);
+		s->fd = 0;
+		s->fp = NULL;
+		s->match = NULL;
+	}
+}
+
+static void game_remove_spectators() {
+	Spectator *s = game.spectators, *e = s + game.nspectators;
+	for (; s < e; ++s) {
+		if (s->fd > 0) {
+			game_remove_spectator(s);
+		}
+	}
+}
+
+static void game_read_spectator_key(Spectator *s) {
+	char key[0xff];
+	int b;
+	if ((b = recv(s->fd, &key, sizeof(key), 0)) < 1) {
+		if (b) {
+			perror("recv");
+		}
+		game_remove_spectator(s);
+		return;
+	}
+	if (game.started || !config.spectator_key || !s->match) {
+		return;
+	}
+	int already = s->match - config.spectator_key;
+	size_t max = strlen(config.spectator_key) - already;
+	if (max < 1) {
+		return;
+	}
+	size_t rest = (size_t) b < max ? (size_t) b : max;
+	if (strncmp(s->match + already, key, rest)) {
+		game_remove_spectator(s);
+		return;
+	}
+	s->match += rest;
+}
+
+static void game_read_spectators() {
+	Spectator *s = game.spectators, *e = s + game.nspectators;
+	for (; s < e; ++s) {
+		if (s->fd > 0 && FD_ISSET(s->fd, &game.ready)) {
+			game_read_spectator_key(s);
+		}
+	}
 }
 
 static void game_read_command(Player *p) {
@@ -304,6 +372,26 @@ static void game_read_commands() {
 	}
 }
 
+static void game_watch_fd(int fd) {
+	FD_SET(fd, &game.watch);
+	if (++fd > game.nfds) {
+		game.nfds = fd;
+	}
+}
+
+static int game_add_spectator(int fd) {
+	if (game.nspectators >= MAX_SPECTATORS) {
+		return 0;
+	}
+	game_watch_fd(fd);
+	Spectator *s = &game.spectators[game.nspectators];
+	s->fd = fd;
+	s->fp = fdopen(fd, "a");
+	s->match = config.spectator_key;
+	++game.nspectators;
+	return 1;
+}
+
 static int game_add_player(int fd) {
 	if (game.nplayers >= MAX_PLAYERS) {
 		return 0;
@@ -314,21 +402,21 @@ static int game_add_player(int fd) {
 	p->life = 1;
 	p->x = p->y = -1;
 	++game.nplayers;
-	FD_SET(fd, &game.watch);
-	if (++fd > game.nfds) {
-		game.nfds = fd;
-	}
+	game_watch_fd(fd);
 	return 1;
 }
 
-static void game_handle_joins(const int lfd) {
+static void game_join(const int lfd, int (*add)(int), const char *role) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 	int fd = accept(lfd, &addr, &len);
-	if (!game.started && game_add_player(fd)) {
+	if (!game.started && add(fd)) {
 		if (config.output_format == FORMAT_PLAIN) {
-			printf("%d seats left, starting in %ld seconds ...\n",
-				MAX_PLAYERS - game.nplayers, config.wait_for_joins);
+			struct sockaddr_in* ipv4 = (struct sockaddr_in *) &addr;
+			struct in_addr ip_addr = ipv4->sin_addr;
+			char ip_str[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &ip_addr, ip_str, INET_ADDRSTRLEN);
+			printf("%s joined as %s\n", ip_str, role);
 		}
 	} else {
 		close(fd);
@@ -384,7 +472,17 @@ static void game_init_map() {
 	}
 }
 
+static void game_remove_unauthorized_spectators() {
+	Spectator *s = game.spectators, *e = s + game.nspectators;
+	for (; s < e; ++s) {
+		if (s->fd > 0 && (!s->match || *s->match)) {
+			game_remove_spectator(s);
+		}
+	}
+}
+
 static void game_start() {
+	game_remove_unauthorized_spectators();
 	game_init_map();
 	game_place_players();
 	if (config.player_life > 0) {
@@ -396,33 +494,33 @@ static void game_start() {
 	if (config.start) {
 		config.start();
 	}
-	switch (config.output_format) {
-	case FORMAT_JSON:
+	if (config.output_format == FORMAT_JSON) {
 		printf("{\n\"max_turns\":%d,\n\"turns\":[\n", config.max_turns);
-		break;
 	}
 }
 
-static void game_shutdown(const int lfd) {
-	close(lfd);
+static void game_shutdown(const int fd_player, const int fd_spectator) {
+	close(fd_player);
+	close(fd_spectator);
 	game_remove_players();
+	game_remove_spectators();
 	map_free(&game.map);
 }
 
-static void game_reset(const int lfd) {
+static void game_reset(const int fd_player, const int fd_spectator) {
 	memset(&game, 0, sizeof(Game));
-	FD_SET(lfd, &game.watch);
-	game.nfds = lfd + 1;
+	game_watch_fd(fd_player);
+	game_watch_fd(fd_spectator);
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
 			config.min_players);
 	}
 }
 
-static int game_run(const int lfd) {
+static int game_run(const int fd_player, const int fd_spectator) {
 	struct timeval tv;
 
-	game_reset(lfd);
+	game_reset(fd_player, fd_spectator);
 
 	while (!stop) {
 		if (game.started) {
@@ -441,10 +539,14 @@ static int game_run(const int lfd) {
 			perror("select");
 			break;
 		} else if (ready > 0) {
-			if (FD_ISSET(lfd, &game.ready)) {
-				game_handle_joins(lfd);
+			if (FD_ISSET(fd_player, &game.ready)) {
+				game_join(fd_player, game_add_player, "player");
+			}
+			if (FD_ISSET(fd_spectator, &game.ready)) {
+				game_join(fd_spectator, game_add_spectator, "spectator");
 			}
 			game_read_commands();
+			game_read_spectators();
 		}
 
 		if (game.started) {
@@ -452,10 +554,10 @@ static int game_run(const int lfd) {
 				if (config.end) {
 					config.end();
 				}
-				game_print_results();
+				game_send_spectators(game_print_results);
 				game_remove_players();
 				if (config.keep_running) {
-					game_reset(lfd);
+					game_reset(fd_player, fd_spectator);
 				} else {
 					break;
 				}
@@ -466,7 +568,7 @@ static int game_run(const int lfd) {
 		}
 	}
 
-	game_shutdown(lfd);
+	game_shutdown(fd_player, fd_spectator);
 
 	return 0;
 }
@@ -497,27 +599,37 @@ static int game_bind_port(const int fd, const int port) {
 	return 0;
 }
 
-int game_serve() {
+int game_listen(const int port) {
 	int fd;
 	if ((fd = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
 		perror("socket");
-		return 1;
+		return -1;
 	}
 
-	if (game_bind_port(fd, config.port) != 0) {
+	if (game_bind_port(fd, port) != 0) {
 		perror("bind");
-		return 1;
+		return -1;
 	}
 
 	if (listen(fd, 4)) {
 		perror("listen");
 		close(fd);
-		return 1;
+		return -1;
+	}
+
+	return fd;
+}
+
+int game_serve() {
+	int fd_player = game_listen(config.port_player);
+	int fd_spectator = game_listen(config.port_spectator);
+	if (fd_player < 0 || fd_spectator < 0) {
+		return -1;
 	}
 
 	signal(SIGHUP, game_handle_signal);
 	signal(SIGINT, game_handle_signal);
 	signal(SIGTERM, game_handle_signal);
 
-	return game_run(fd);
+	return game_run(fd_player, fd_spectator);
 }

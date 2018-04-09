@@ -8,6 +8,7 @@
 
 #define USEC_PER_SEC 1000000L
 #define MAX_PLAYERS 16
+#define MAX_SPECTATORS 16
 #define MAP_TYPE_CHESS 1
 #define MAP_TYPE_PLAIN 2
 #define MAP_TYPE_RANDOM 3
@@ -20,6 +21,7 @@
 
 typedef struct Game Game;
 typedef struct Player Player;
+typedef struct Spectator Spectator;
 typedef struct Config Config;
 typedef struct Coords Coords;
 
@@ -48,10 +50,17 @@ struct Game {
 		char killed_by;
 		void *trunk;
 	} players[MAX_PLAYERS];
+	unsigned int nspectators;
+	struct Spectator {
+		int fd;
+		char *match;
+		void *fp;
+	} spectators[MAX_SPECTATORS];
 };
 
 struct Config {
-	unsigned int port;
+	unsigned int port_player;
+	unsigned int port_spectator;
 	unsigned int min_players;
 	unsigned int map_width;
 	unsigned int map_height;
@@ -74,6 +83,7 @@ struct Config {
 	unsigned int keep_running;
 	time_t wait_for_joins;
 	time_t usec_per_turn;
+	char *spectator_key;
 	void (*start)();
 	void (*turn_start)();
 	unsigned char (*marker)(Player *);
