@@ -41,6 +41,7 @@ struct Game {
 		char name;
 		int fd;
 		int can_move;
+		int is_shooting;
 		int x;
 		int y;
 		int bearing;

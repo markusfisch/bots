@@ -38,6 +38,7 @@ static void shoot(Player *p) {
 			game_remove_player(enemy);
 		}
 	}
+	p->is_shooting = 1;
 }
 
 static void move(Player *p, const char cmd) {

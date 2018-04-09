@@ -163,12 +163,13 @@ static void game_write_json(FILE *fp, char *buf) {
 			fprintf(fp, ",");
 		}
 		fprintf(fp, "{\"name\":\"%c\",\"facing\":\"%c\",\"life\":%d,"\
-			"\"moves\":%d,\"killed_by\":\"%c\"}",
+			"\"moves\":%d,\"killed_by\":\"%c\",\"is_shooting\":\"%c\"}",
 			p->name,
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
 			p->moves,
-			p->killed_by > 0 ? p->killed_by : ' ');
+			p->killed_by > 0 ? p->killed_by : '-',
+			p->is_shooting > 0 ? 'y' : 'n');
 	}
 	fprintf(fp, "\n],\"map\":[\n");
 	fflush(fp);
@@ -192,15 +193,16 @@ static void game_write_plain(FILE *fp, char *buf) {
 	map_write(fd, buf, game.map.width, game.map.height);
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game.nplayers, game_joined());
-	fprintf(fp, "Player Facing Life Moves Killer\n");
+	fprintf(fp, "Player Facing Life Moves Killer Shooting\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
-		fprintf(fp, "%c      %c      % 4d % 5d %c\n",
+		fprintf(fp, "%c      %c      % 4d % 5d %c      %c\n",
 			p->name,
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
 			p->moves,
-			p->killed_by > 0 ? p->killed_by : ' ');
+			p->killed_by > 0 ? p->killed_by : ' ',
+			p->is_shooting > 0 ? 'y' : ' ');
 	}
 	fflush(fp);
 }
@@ -240,7 +242,7 @@ static void game_send_players() {
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		if (p->fd != 0 && !p->can_move) {
+		if (p->fd > 0 && !p->can_move) {
 			if (!update && config.turn_start) {
 				config.turn_start();
 			}
@@ -264,6 +266,11 @@ static void game_send_players() {
 			}
 		}
 		game_send_spectators(game_write);
+	}
+	for (p = game.players; p < e; ++p) {
+		if (p->fd > 0) {
+			p->is_shooting = 0;
+		}
 	}
 }
 
