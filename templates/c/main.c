@@ -14,18 +14,18 @@ static int read_line(const int fd, char *buf, size_t size) {
 		}
 		if (*p == '\n') {
 			*p = 0;
-			return 0;
+			return p - buf;
 		}
 	}
 	return -1;
 }
 
 static int read_map(const int fd) {
-	char line[0xff];
+	char line[4096];
 	size_t lines = 0;
 	for (;;) {
 		if (read_line(fd, line, sizeof(line)) < 0) {
-			return -1;
+			return 0;
 		}
 		if (!lines) {
 			lines = strlen(line);
@@ -35,12 +35,12 @@ static int read_map(const int fd) {
 			break;
 		}
 	}
-	return 0;
+	return 1;
 }
 
 static int run(const int fd) {
 	setbuf(stdout, NULL);
-	while (!read_map(fd)) {
+	while (read_map(fd)) {
 		char cmd[2];
 		printf("Command (q<>^v): ");
 		read(STDIN_FILENO, cmd, sizeof(cmd));
@@ -54,10 +54,11 @@ static int run(const int fd) {
 }
 
 static int connect_to(const char *host, const int port) {
-	struct hostent *he;
-	if (!(he = gethostbyname(host))) {
+	struct hostent *he = gethostbyname(host);
+	if (!he) {
 		unsigned a = inet_addr(host);
-		if (!(he = gethostbyaddr((char *) &a, 4, AF_INET))) {
+		he = gethostbyaddr((char *) &a, 4, AF_INET);
+		if (!he) {
 			return -1;
 		}
 	}
@@ -68,9 +69,13 @@ static int connect_to(const char *host, const int port) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 
-	int fd;
-	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 ||
-			connect(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+	int fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd < 0) {
+		return -1;
+	}
+
+	if (connect(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		close(fd);
 		return -1;
 	}
 
