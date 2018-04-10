@@ -2,7 +2,7 @@
 
 Terrain parsing game for bots.
 
-The game world is an infinite two-dimensional orthogonal grid.
+The game world is a two-dimensional orthogonal grid.
 The game is turn-based. A turn ends as soon as all players have moved *or*
 after one second has passed and at least one player made a move.
 
@@ -14,8 +14,9 @@ Please find templates for such bots in the `templates` directory.
 ## What a bot receives from the server
 
 At the beginning of the game and in response to each command, a bot receives
-a top-down map of its environment. This map is always made from the same
-amount of columns and lines. For example, a 5x5 map would look like this:
+its environment as a top-down cutout of the whole map. This cutout is always
+made from the same amount of columns and lines. For example, a 5x5 cutout
+would look like this:
 
 	.....
 	....~
@@ -26,7 +27,7 @@ amount of columns and lines. For example, a 5x5 map would look like this:
 `A` is you. You can be any letter from A to P.
 First line is in front of you, the last one is behind you.
 
-`.` is flatland, `~` is water and `#` is wood.
+`.` is flatland, `~` is water, `#` is wood and `X` is a wall or a rock.
 You can't walk through water or wood or other players.
 
 `^`, `<`, `>` and `v` is another player. The character points in the
