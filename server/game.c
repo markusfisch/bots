@@ -103,7 +103,8 @@ static void game_inset_player(Player *p,
 		shiftY = 1;
 	} else if (y == bottom) {
 		shiftY = -1;
-	} else if (x == left) {
+	}
+	if (x == left) {
 		shiftX = 1;
 	} else if (x == right) {
 		shiftX = -1;
