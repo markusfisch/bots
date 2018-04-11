@@ -56,7 +56,7 @@ static void game_print_results(FILE *fp) {
 	case FORMAT_PLAIN:
 		fprintf(fp, "========== RESULTS ==========\n");
 		fprintf(fp, "Place Name Score Moves Killer\n");
-		format = "% 4d. %c    % 5d % 5d %c\n";
+		format = "% 4d. %c	% 5d % 5d %c\n";
 		break;
 	case FORMAT_JSON:
 		// close turns array and open results
@@ -196,7 +196,7 @@ static void game_write_plain(FILE *fp, char *buf) {
 	fprintf(fp, "Player Facing Life Moves Killer Shooting\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
-		fprintf(fp, "%c      %c      % 4d % 5d %c      %c\n",
+		fprintf(fp, "%c	  %c	  % 4d % 5d %c	  %c\n",
 			p->name,
 			p->fd > 0 ? player_bearing(p->bearing) : 'x',
 			p->life,
@@ -371,10 +371,23 @@ static void game_read_command(Player *p) {
 }
 
 static void game_read_commands() {
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (p->fd > 0 && FD_ISSET(p->fd, &game.ready)) {
-			game_read_command(p);
+	// use a Fisher-Yates shuffle to process commands in random order
+	Player *queue[MAX_PLAYERS];
+	Player **q = queue, **e = queue + game.nplayers;
+	Player *p = game.players;
+	for (; q < e; ++q, ++p) {
+		*q = p;
+	}
+	int i;
+	for (i = game.nplayers; i-- > 1;) {
+		int j = rand() % i;
+		Player *tmp = queue[j];
+		queue[j] = queue[i];
+		queue[i] = tmp;
+	}
+	for (q = queue; q < e; ++q) {
+		if ((*q)->fd > 0 && FD_ISSET((*q)->fd, &game.ready)) {
+			game_read_command(*q);
 		}
 	}
 }
