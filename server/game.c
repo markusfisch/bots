@@ -40,9 +40,8 @@ void game_remove_player(Player *p) {
 	}
 }
 
-unsigned char game_marker_show_life(struct Player *p) {
-	return p->life < config.player_life ? (unsigned char) 48 + p->life :
-		p->name;
+char game_marker_show_life(struct Player *p) {
+	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
 }
 
 static int game_compare_player(const void *a, const void *b) {
@@ -322,7 +321,7 @@ static void game_remove_spectators() {
 static void game_read_spectator_key(Spectator *s) {
 	char key[0xff];
 	int b;
-	if ((b = recv(s->fd, &key, sizeof(key), 0)) < 1) {
+	if ((b = recv(s->fd, key, sizeof(key), 0)) < 1) {
 		if (b) {
 			perror("recv");
 		}
@@ -607,8 +606,8 @@ static int game_bind_port(const int fd, const int port) {
 }
 
 int game_listen(const int port) {
-	int fd;
-	if ((fd = socket(PF_INET, SOCK_STREAM, 6)) < 1) {
+	int fd = socket(PF_INET, SOCK_STREAM, 6);
+	if (fd < 1) {
 		perror("socket");
 		return -1;
 	}

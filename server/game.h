@@ -86,7 +86,7 @@ struct Config {
 	char *spectator_key;
 	void (*start)();
 	void (*turn_start)();
-	unsigned char (*marker)(Player *);
+	char (*marker)(Player *);
 	int (*impassable)(Map *, int, int);
 	void (*move)(Player *, char);
 	void (*end)();
@@ -94,7 +94,7 @@ struct Config {
 
 void game_remove_player(Player *);
 unsigned int game_joined();
-unsigned char game_marker_show_life(Player *);
+char game_marker_show_life(Player *);
 void game_end();
 int game_serve();
 
