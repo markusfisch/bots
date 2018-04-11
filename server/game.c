@@ -461,10 +461,6 @@ static void game_init_map() {
 	}
 	switch (config.map_type) {
 	default:
-	case MAP_TYPE_CHESS:
-		map_init_chess(&game.map, *config.flatland,
-			strlen(config.flatland) > 1 ? config.flatland[1] : TILE_BLACK);
-		break;
 	case MAP_TYPE_PLAIN:
 		memset(game.map.data, *config.flatland, game.map.size);
 		break;

@@ -64,8 +64,7 @@ server will process the accumulated commands in the following turns.
 
 ### training
 
-Just learn to move around and to parse the map. You move on a simple
-chess-like pattern of `.` and `_` characters.
+Just learn to move around and to parse the map.
 
 ### escape
 
@@ -116,16 +115,6 @@ Use `--map-size` to set a custom map size and `--view-radius` to control
 how many fields a bot can see of it.
 
 Use `--map-type` to choose a map for a given game mode.
-
-### chess
-
-A bot can enter all fields:
-
-	_._._
-	._._.
-	_.A._
-	._._.
-	_._._
 
 ### plain
 

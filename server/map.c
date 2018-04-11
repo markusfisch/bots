@@ -29,17 +29,6 @@ void map_create(Map *map, const unsigned int width,
 	map->data = calloc(map->size, sizeof(char));
 }
 
-void map_init_chess(Map *map, const char white, const char black) {
-	char *offset = map->data;
-	unsigned int x;
-	unsigned int y;
-	for (y = 0; y < map->height; ++y) {
-		for (x = 0; x < map->height; ++x) {
-			*offset++ = (x + y) % 2 ? white : black;
-		}
-	}
-}
-
 void map_init_random(Map *map, const unsigned int multiplier,
 		const char *flat, const char *obstacles) {
 	size_t nflat = flat ? strlen(flat) : 0;

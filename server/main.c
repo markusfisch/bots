@@ -13,7 +13,6 @@
 #include "modes/snakes.h"
 #include "modes/training.h"
 
-#define MAP_TYPE_ARG_CHESS "chess"
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
 #define MAP_TYPE_ARG_MAZE "maze"
@@ -53,7 +52,6 @@ static void usage() {
 		"  -M, --min-players N     minimum number of players for a game\n"\
 		"  -s, --map-size N[xN]    map size\n"\
 		"  -t, --map-type TYPE     map type, either "\
-			MAP_TYPE_ARG_CHESS", "\
 			MAP_TYPE_ARG_PLAIN", "\
 			MAP_TYPE_ARG_RANDOM" or "\
 			MAP_TYPE_ARG_MAZE"\n"\
@@ -122,9 +120,7 @@ static int parse_placing(const char *arg) {
 }
 
 static int parse_map_type(const char *arg) {
-	if (!strcmp(arg, MAP_TYPE_ARG_CHESS)) {
-		return MAP_TYPE_CHESS;
-	} else if (!strcmp(arg, MAP_TYPE_ARG_PLAIN)) {
+	if (!strcmp(arg, MAP_TYPE_ARG_PLAIN)) {
 		return MAP_TYPE_PLAIN;
 	} else if (!strcmp(arg, MAP_TYPE_ARG_RANDOM)) {
 		return MAP_TYPE_RANDOM;

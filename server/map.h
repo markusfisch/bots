@@ -18,7 +18,6 @@ typedef struct {
 void map_write(int, char *, unsigned int, unsigned int);
 void map_free(Map *);
 void map_create(Map *, unsigned int, unsigned int);
-void map_init_chess(Map *, const char, const char);
 void map_init_random(Map *, unsigned int, const char *, const char *);
 int map_wrap(int, unsigned int);
 char map_get(Map *, int, int);
