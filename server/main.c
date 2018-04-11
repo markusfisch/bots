@@ -49,7 +49,7 @@ static void usage() {
 	printf("\nOPTION can be any of:\n"\
 		"  -P, --port N            port number to listen for players\n"\
 		"  -w, --spectator-port N  port number to listen for spectators\n"\
-		"  -M, --min-players N     minimum number of players for a game\n"\
+		"  -m, --min-players N     minimum number of players for a game\n"\
 		"  -s, --map-size N[xN]    map size\n"\
 		"  -t, --map-type TYPE     map type, either "\
 			MAP_TYPE_ARG_PLAIN", "\
@@ -64,7 +64,7 @@ static void usage() {
 		"  -A, --place-at N,N;...  place players at given coordinates\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
-		"  -m, --max-turns N       maximum number of turns\n"\
+		"  -M, --max-turns N       maximum number of turns\n"\
 		"  -S, --shrink-after N    shrink map after that many turns\n"\
 		"  -T, --shrink-step N     amount of turns until next shrink, "\
 			"default is 1\n"\
@@ -137,7 +137,7 @@ static void parse_arguments(int argc, char **argv) {
 	struct option longopts[] = {
 		{ "port", required_argument, NULL, 'P' },
 		{ "spectator-port", required_argument, NULL, 'w' },
-		{ "min-players", required_argument, NULL, 'M' },
+		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
 		{ "obstacles", required_argument, NULL, 'o' },
@@ -146,7 +146,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "placing", required_argument, NULL, 'p' },
 		{ "place-at", required_argument, NULL, 'A' },
 		{ "view-radius", required_argument, NULL, 'v' },
-		{ "max-turns", required_argument, NULL, 'm' },
+		{ "max-turns", required_argument, NULL, 'M' },
 		{ "shrink-after", required_argument, NULL, 'S' },
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
@@ -162,7 +162,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:M:s:t:o:f:x:p:A:v:m:S:T:l:g:F:kW:u:K:d",
+			"P:w:m:s:t:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:K:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -171,7 +171,7 @@ static void parse_arguments(int argc, char **argv) {
 		case 'w':
 			config.port_spectator = atoi(optarg);
 			break;
-		case 'M':
+		case 'm':
 			config.min_players = atoi(optarg);
 			break;
 		case 's': {
@@ -202,7 +202,7 @@ static void parse_arguments(int argc, char **argv) {
 		case 'v':
 			config.view_radius = atoi(optarg);
 			break;
-		case 'm':
+		case 'M':
 			config.max_turns = atoi(optarg);
 			break;
 		case 'S':

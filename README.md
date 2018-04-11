@@ -176,16 +176,16 @@ MODE must be one of:
 OPTION can be any of:
   -P, --port N            port number to listen for players
   -w, --spectator-port N  port number to listen for spectators
-  -M, --min-players N     minimum number of players for a game
+  -m, --min-players N     minimum number of players for a game
   -s, --map-size N[xN]    map size
-  -t, --map-type TYPE     map type, either chess, plain, random or maze
+  -t, --map-type TYPE     map type, either plain, random or maze
   -o, --obstacles STRING  characters a player cannot enter
   -f, --flatland STRING   characters a player can enter
   -x, --multiplier N      multiplier of flatland string
   -p, --placing TYPE      player placing, either circle or random
   -A, --place-at N,N;...  place players at given coordinates
   -v, --view-radius N     how many fields a player can see in every direction
-  -m, --max-turns N       maximum number of turns
+  -M, --max-turns N       maximum number of turns
   -S, --shrink-after N    shrink map after that many turns
   -T, --shrink-step N     amount of turns until next shrink, default is 1
   -l, --player-life N     life value of players, default is 1
