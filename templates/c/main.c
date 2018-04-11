@@ -69,7 +69,7 @@ static int connect_to(const char *host, const int port) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 
-	int fd = socket(AF_INET, SOCK_STREAM, 0);
+	int fd = socket(PF_INET, SOCK_STREAM, 6);
 	if (fd < 0) {
 		return -1;
 	}
