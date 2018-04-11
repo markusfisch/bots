@@ -49,6 +49,7 @@ static void usage() {
 	printf("\nOPTION can be any of:\n"\
 		"  -P, --port N            port number to listen for players\n"\
 		"  -w, --spectator-port N  port number to listen for spectators\n"\
+		"  -K, --key KEY           spectator key\n"\
 		"  -m, --min-players N     minimum number of players for a game\n"\
 		"  -s, --map-size N[xN]    map size\n"\
 		"  -t, --map-type TYPE     map type, either "\
@@ -76,7 +77,6 @@ static void usage() {
 		"  -k, --keep-running      restart game after end\n"\
 		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
-		"  -K, --key KEY           spectator key\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
 }
 
@@ -137,6 +137,7 @@ static void parse_arguments(int argc, char **argv) {
 	struct option longopts[] = {
 		{ "port", required_argument, NULL, 'P' },
 		{ "spectator-port", required_argument, NULL, 'w' },
+		{ "spectator-key", required_argument, NULL, 'K' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
@@ -155,14 +156,13 @@ static void parse_arguments(int argc, char **argv) {
 		{ "keep-running", no_argument, NULL, 'k' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
-		{ "spectator-key", required_argument, NULL, 'K' },
 		{ "deterministic", no_argument, &deterministic, 1 },
 		{ NULL, 0, NULL, 0 }
 	};
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:m:s:t:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:K:d",
+			"P:w:K:m:s:t:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -170,6 +170,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'w':
 			config.port_spectator = atoi(optarg);
+			break;
+		case 'K':
+			config.spectator_key = optarg;
 			break;
 		case 'm':
 			config.min_players = atoi(optarg);
@@ -228,9 +231,6 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'u':
 			config.usec_per_turn = atoi(optarg);
-			break;
-		case 'K':
-			config.spectator_key = optarg;
 			break;
 		case 'd':
 			deterministic = 1;

@@ -176,6 +176,7 @@ MODE must be one of:
 OPTION can be any of:
   -P, --port N            port number to listen for players
   -w, --spectator-port N  port number to listen for spectators
+  -K, --key KEY           spectator key
   -m, --min-players N     minimum number of players for a game
   -s, --map-size N[xN]    map size
   -t, --map-type TYPE     map type, either plain, random or maze
@@ -194,7 +195,6 @@ OPTION can be any of:
   -k, --keep-running      restart game after end
   -W, --wait-for-joins N  number of seconds to wait for joins
   -u, --usec-per-turn N   maximum number of milliseconds per turn
-  -K, --key KEY           spectator key
   -d, --deterministic     don't seed the random number generator
 ```
 
