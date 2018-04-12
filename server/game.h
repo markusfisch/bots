@@ -65,6 +65,7 @@ struct Config {
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int map_type;
+	char *custom_map;
 	const char *obstacles;
 	const char *flatland;
 	unsigned int multiplier;

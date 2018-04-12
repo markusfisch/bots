@@ -180,6 +180,7 @@ OPTION can be any of:
   -m, --min-players N     minimum number of players for a game
   -s, --map-size N[xN]    map size
   -t, --map-type TYPE     map type, either plain, random or maze
+  -c, --custom-map FILE   custom map
   -o, --obstacles STRING  characters a player cannot enter
   -f, --flatland STRING   characters a player can enter
   -x, --multiplier N      multiplier of flatland string

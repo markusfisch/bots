@@ -472,6 +472,10 @@ static void game_init_map() {
 			game.map.height != config.map_height) {
 		map_create(&game.map, config.map_width, config.map_height);
 	}
+	if (config.custom_map) {
+		memcpy(game.map.data, config.custom_map, game.map.size);
+		return;
+	}
 	switch (config.map_type) {
 	default:
 	case MAP_TYPE_PLAIN:

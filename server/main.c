@@ -56,6 +56,7 @@ static void usage() {
 			MAP_TYPE_ARG_PLAIN", "\
 			MAP_TYPE_ARG_RANDOM" or "\
 			MAP_TYPE_ARG_MAZE"\n"\
+		"  -c, --custom-map FILE   custom map\n"\
 		"  -o, --obstacles STRING  characters a player cannot enter\n"\
 		"  -f, --flatland STRING   characters a player can enter\n"\
 		"  -x, --multiplier N      multiplier of flatland string\n"\
@@ -88,6 +89,51 @@ static void *pick_mode(const char *name) {
 		}
 	}
 	return NULL;
+}
+
+static char *load_map(const char *file) {
+	FILE *fp = fopen(file, "r");
+	if (fp == NULL) {
+		perror("fopen");
+		exit(1);
+	}
+	long size = fseek(fp, 0, SEEK_END) ? -1 : ftell(fp);
+	if (size < 1 || fseek(fp, 0, SEEK_SET)) {
+		perror("fseek");
+		fclose(fp);
+		exit(1);
+	}
+	char *buf = NULL, *p;
+	#define MAX_LINE 4096
+	char line[MAX_LINE];
+	size_t width = 0;
+	size_t height = 0;
+	while (fgets(line, MAX_LINE, fp)) {
+		size_t len = strcspn(line, "\n");
+		if (len < 1) {
+			break;
+		} else if (!width) {
+			width = len;
+			height = size / (width + 1);
+			if (height < 1 || height * (width + 1) != (size_t) size) {
+				break;
+			}
+			p = buf = calloc(width * height, sizeof(char));
+		} else if (width != len) {
+			break;
+		}
+		memcpy(p, line, width);
+		p += width;
+	}
+	if (ferror(fp)) {
+		fprintf(stderr, "error: unknown map format in \"%s\"\n", file);
+		fclose(fp);
+		exit(1);
+	}
+	fclose(fp);
+	config.map_width = width;
+	config.map_height = height;
+	return buf;
 }
 
 static int parse_format(char *arg) {
@@ -141,6 +187,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
+		{ "custom-map", required_argument, NULL, 'c' },
 		{ "obstacles", required_argument, NULL, 'o' },
 		{ "flatland", required_argument, NULL, 'f' },
 		{ "multiplier", required_argument, NULL, 'x' },
@@ -162,7 +209,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:m:s:t:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:d",
+			"P:w:K:m:s:t:c:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -178,6 +225,10 @@ static void parse_arguments(int argc, char **argv) {
 			config.min_players = atoi(optarg);
 			break;
 		case 's': {
+			if (config.map_width || config.map_height) {
+				fprintf(stderr, "error: map size already set\n");
+				exit(1);
+			}
 			int width = atoi(strtok(optarg, "x"));
 			char *height = strtok(NULL, "x");
 			config.map_width = width;
@@ -186,6 +237,9 @@ static void parse_arguments(int argc, char **argv) {
 		}
 		case 't':
 			config.map_type = parse_map_type(optarg);
+			break;
+		case 'c':
+			config.custom_map = load_map(optarg);
 			break;
 		case 'o':
 			config.obstacles = optarg && *optarg ? optarg : NULL;
@@ -285,5 +339,7 @@ int main(int argc, char **argv) {
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
 
-	return game_serve();
+	int rv = game_serve();
+	free(config.custom_map);
+	return rv;
 }
