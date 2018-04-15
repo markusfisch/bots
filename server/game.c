@@ -507,6 +507,9 @@ static void game_remove_unauthorized_spectators() {
 
 static void game_start() {
 	game_remove_unauthorized_spectators();
+	if (config.prepare) {
+		config.prepare();
+	}
 	game_init_map();
 	game_place_players();
 	if (config.player_life > 0) {

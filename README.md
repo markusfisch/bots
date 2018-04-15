@@ -14,8 +14,8 @@ Please find templates for such bots in the `templates` directory.
 ## What a bot receives from the server
 
 At the beginning of the game and in response to each command, a bot receives
-its environment as a top-down cutout of the whole map. This cutout is always
-made from the same amount of columns and lines. For example, a 5x5 cutout
+its environment as a top-down section of the whole map. This section is always
+made from the same amount of columns and lines. For example, a 5x5 section
 would look like this:
 
 	.....
@@ -64,7 +64,14 @@ server will process the accumulated commands in the following turns.
 
 ### training
 
-Just learn to move around and to parse the map.
+Just learn to move around and to parse the map. Upon start, every player
+gets the same section so it's easy to introduce a group of people:
+
+	..#..
+	.....
+	..A..
+	.....
+	..~..
 
 ### escape
 
