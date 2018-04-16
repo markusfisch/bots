@@ -474,6 +474,7 @@ static void game_init_map() {
 	}
 	if (config.custom_map) {
 		memcpy(game.map.data, config.custom_map, game.map.size);
+		game.map.obstacles = config.obstacles;
 		return;
 	}
 	switch (config.map_type) {
