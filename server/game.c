@@ -527,90 +527,6 @@ static void game_start() {
 	}
 }
 
-static void game_shutdown(const int fd_player, const int fd_spectator) {
-	close(fd_player);
-	close(fd_spectator);
-	game_remove_players();
-	game_remove_spectators();
-	map_free(&game.map);
-}
-
-static void game_reset(const int fd_player, const int fd_spectator) {
-	memset(&game, 0, sizeof(Game));
-	game_watch_fd(fd_player);
-	game_watch_fd(fd_spectator);
-	if (config.output_format == FORMAT_PLAIN) {
-		printf("waiting for players (at least %d) to join ...\n",
-			config.min_players);
-	}
-}
-
-static int game_run(const int fd_player, const int fd_spectator) {
-	struct timeval tv;
-
-	game_reset(fd_player, fd_spectator);
-
-	while (!stop) {
-		if (game.started) {
-			time_t usec = game_next_turn();
-			tv.tv_sec = usec / USEC_PER_SEC;
-			tv.tv_usec = usec - (tv.tv_sec * USEC_PER_SEC);
-		} else {
-			tv.tv_sec = game.nplayers < MAX_PLAYERS ?
-				config.wait_for_joins : 0;
-			tv.tv_usec = 0;
-		}
-
-		memcpy(&game.ready, &game.watch, sizeof(fd_set));
-		int ready = select(game.nfds, &game.ready, NULL, NULL, &tv);
-		if (ready < 0) {
-			perror("select");
-			break;
-		} else if (ready > 0) {
-			if (FD_ISSET(fd_player, &game.ready)) {
-				game_join(fd_player, game_add_player, "player");
-			}
-			if (FD_ISSET(fd_spectator, &game.ready)) {
-				game_join(fd_spectator, game_add_spectator, "spectator");
-			}
-			game_read_commands();
-			game_read_spectators();
-		}
-
-		if (game.started) {
-			if (game.stopped || game_joined() < config.min_players) {
-				if (config.end) {
-					config.end();
-				}
-				game_send_spectators(game_print_results);
-				game_remove_players();
-				if (config.keep_running) {
-					game_reset(fd_player, fd_spectator);
-				} else {
-					break;
-				}
-			}
-		} else if (game.nplayers == MAX_PLAYERS ||
-				(ready == 0 && game.nplayers >= config.min_players)) {
-			game_start();
-		}
-	}
-
-	game_shutdown(fd_player, fd_spectator);
-
-	return 0;
-}
-
-static void game_handle_signal(const int id) {
-	switch (id) {
-	case SIGHUP:
-	case SIGINT:
-	case SIGTERM:
-		stop = 1;
-		break;
-	}
-}
-
 static int game_bind_port(const int fd, const int port) {
 	struct sockaddr_in addr;
 
@@ -648,16 +564,113 @@ int game_listen(const int port) {
 	return fd;
 }
 
-int game_serve() {
-	int fd_player = game_listen(config.port_player);
-	int fd_spectator = game_listen(config.port_spectator);
-	if (fd_player < 0 || fd_spectator < 0) {
+static void game_listeners_close(int *fd_player, int *fd_spectator) {
+	FD_CLR(*fd_player, &game.watch);
+	FD_CLR(*fd_spectator, &game.watch);
+	close(*fd_player);
+	close(*fd_spectator);
+	*fd_player = *fd_spectator = 0;
+}
+
+static int game_listeners_open(int *fd_player, int *fd_spectator) {
+	*fd_player = game_listen(config.port_player);
+	*fd_spectator = game_listen(config.port_spectator);
+	if (*fd_player < 0 || *fd_spectator < 0) {
 		return -1;
 	}
+	game_watch_fd(*fd_player);
+	game_watch_fd(*fd_spectator);
+	return 0;
+}
+
+static void game_reset() {
+	memset(&game, 0, sizeof(Game));
+	if (config.output_format == FORMAT_PLAIN) {
+		printf("waiting for players (at least %d) to join ...\n",
+			config.min_players);
+	}
+}
+
+static void game_handle_signal(const int id) {
+	switch (id) {
+	case SIGHUP:
+	case SIGINT:
+	case SIGTERM:
+		stop = 1;
+		break;
+	}
+}
+
+int game_serve() {
+	struct timeval tv;
+	int fd_player;
+	int fd_spectator;
 
 	signal(SIGHUP, game_handle_signal);
 	signal(SIGINT, game_handle_signal);
 	signal(SIGTERM, game_handle_signal);
 
-	return game_run(fd_player, fd_spectator);
+	game_reset();
+	if (game_listeners_open(&fd_player, &fd_spectator)) {
+		return -1;
+	}
+
+	while (!stop) {
+		if (game.started) {
+			time_t usec = game_next_turn();
+			tv.tv_sec = usec / USEC_PER_SEC;
+			tv.tv_usec = usec - (tv.tv_sec * USEC_PER_SEC);
+		} else {
+			tv.tv_sec = game.nplayers < MAX_PLAYERS ?
+				config.wait_for_joins : 0;
+			tv.tv_usec = 0;
+		}
+
+		memcpy(&game.ready, &game.watch, sizeof(fd_set));
+		int ready = select(game.nfds, &game.ready, NULL, NULL, &tv);
+		if (ready < 0) {
+			perror("select");
+			break;
+		} else if (ready > 0) {
+			if (FD_ISSET(fd_player, &game.ready)) {
+				game_join(fd_player, game_add_player, "player");
+			}
+			if (FD_ISSET(fd_spectator, &game.ready)) {
+				game_join(fd_spectator, game_add_spectator, "spectator");
+			}
+			game_read_commands();
+			game_read_spectators();
+		}
+
+		if (game.started) {
+			if (game.stopped || game_joined() < config.min_players) {
+				if (config.end) {
+					config.end();
+				}
+				game_send_spectators(game_print_results);
+				game_remove_players();
+				if (config.keep_running) {
+					map_free(&game.map);
+					game_reset();
+					if (game_listeners_open(&fd_player, &fd_spectator)) {
+						game_remove_spectators();
+						return -1;
+					}
+				} else {
+					break;
+				}
+			}
+		} else if (game.nplayers == MAX_PLAYERS ||
+				(ready == 0 && game.nplayers >= config.min_players)) {
+			game_listeners_close(&fd_player, &fd_spectator);
+			game_start();
+		}
+	}
+
+	game_listeners_close(&fd_player, &fd_spectator);
+	game_remove_players();
+	game_remove_spectators();
+	map_free(&game.map);
+
+	return 0;
 }
