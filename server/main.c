@@ -291,8 +291,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'h':
 		case '?':
-		default:
 			usage();
+			break;
+		default:
 			break;
 		}
 	}
