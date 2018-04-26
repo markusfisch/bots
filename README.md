@@ -121,7 +121,11 @@ The bot that survives the longest wins.
 Use `--map-size` to set a custom map size and `--view-radius` to control
 how many fields a bot can see of it.
 
-Use `--map-type` to choose a map for a given game mode.
+Use `--map-type` to choose a map.
+
+All four edges of a map are connected to their opposite edge.
+So if a bot leaves a map on one side, it will appear on the opposite side
+of the map again.
 
 ### plain
 
