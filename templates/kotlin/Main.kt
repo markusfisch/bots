@@ -23,19 +23,20 @@ fun main(args: Array<String>) {
 		if (args.size > 0) args[0] else "localhost",
 		if (args.size > 1) Integer.parseInt(args[1]) else 63187
 	)
-	val output = socket.outputStream
-	val input = socket.inputStream.bufferedReader()
-	while (true) {
-		readMap(input)
-		print("Command (q<>^v): ")
-		var ch: Int
-		do {
-			ch = System.`in`.read()
-		} while (ch == '\n'.toInt())
-		if (ch == 'q'.toInt()) {
-			break
+	socket.use {
+		val output = socket.outputStream
+		val input = socket.inputStream.bufferedReader()
+		while (true) {
+			readMap(input)
+			print("Command (q<>^v): ")
+			var ch: Int
+			do {
+				ch = System.`in`.read()
+			} while (ch == '\n'.toInt())
+			if (ch == 'q'.toInt()) {
+				break
+			}
+			output.write(ch)
 		}
-		output.write(ch)
 	}
-	socket.close()
 }

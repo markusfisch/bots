@@ -1,4 +1,4 @@
-SOURCES = main.kt
+SOURCES = Main.kt
 JAR = client.jar
 
 all: $(JAR)
