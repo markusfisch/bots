@@ -38,6 +38,9 @@ static void free_tail(Tail *first) {
 
 static void drag_tail(Player *p, const char tile) {
 	Tail *tail = calloc(1, sizeof(Tail));
+	if (!tail) {
+		return;
+	}
 	tail->tile = tile;
 	tail->x = p->x;
 	tail->y = p->y;

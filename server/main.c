@@ -119,6 +119,11 @@ static char *load_map(const char *file) {
 				break;
 			}
 			p = buf = calloc(width * height, sizeof(char));
+			if (!p) {
+				perror("calloc");
+				fclose(fp);
+				exit(1);
+			}
 		} else if (width != len) {
 			break;
 		}
