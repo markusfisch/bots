@@ -536,7 +536,6 @@ static int game_bind_port(const int fd, const int port) {
 	addr.sin_port = htons(port);
 
 	if (bind(fd, (struct sockaddr *) &addr, sizeof(addr))) {
-		close(fd);
 		return 1;
 	}
 
@@ -552,6 +551,7 @@ int game_listen(const int port) {
 
 	if (game_bind_port(fd, port) != 0) {
 		perror("bind");
+		close(fd);
 		return -1;
 	}
 
