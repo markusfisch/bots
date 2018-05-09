@@ -240,6 +240,15 @@ static void game_send_spectators(void (*writer)(FILE *)) {
 	writer(stdout);
 }
 
+static void game_remove_defunkt_players() {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && p->moves + config.max_lag < game.turn) {
+			game_remove_player(p);
+		}
+	}
+}
+
 static void game_send_players() {
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
@@ -645,6 +654,7 @@ int game_serve() {
 		}
 
 		if (game.started) {
+			game_remove_defunkt_players();
 			if (game.stopped || game_joined() < config.min_players) {
 				if (config.end) {
 					config.end();

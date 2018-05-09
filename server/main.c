@@ -67,6 +67,7 @@ static void usage() {
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
 		"  -M, --max-turns N       maximum number of turns\n"\
+		"  -L, --max-lag N         number of turns a player can miss\n"\
 		"  -S, --shrink-after N    shrink map after that many turns\n"\
 		"  -T, --shrink-step N     amount of turns until next shrink, "\
 			"default is 1\n"\
@@ -200,6 +201,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "place-at", required_argument, NULL, 'A' },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-turns", required_argument, NULL, 'M' },
+		{ "max-lag", required_argument, NULL, 'L' },
 		{ "shrink-after", required_argument, NULL, 'S' },
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
@@ -214,7 +216,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:m:s:t:c:o:f:x:p:A:v:M:S:T:l:g:F:kW:u:d",
+			"P:w:K:m:s:t:c:o:f:x:p:A:v:M:L:S:T:l:g:F:kW:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -266,6 +268,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'M':
 			config.max_turns = atoi(optarg);
+			break;
+		case 'L':
+			config.max_lag = atoi(optarg);
 			break;
 		case 'S':
 			config.shrink_after = atoi(optarg);
@@ -335,6 +340,7 @@ int main(int argc, char **argv) {
 	config.placing = config.placing ?: PLACING_CIRCLE;
 	config.view_radius = config.view_radius ?: 2;
 	config.max_turns = config.max_turns ?: 1024;
+	config.max_lag = config.max_lag ?: config.max_turns;
 	config.shrink_after = config.shrink_after ?: config.max_turns;
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;

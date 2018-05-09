@@ -76,6 +76,7 @@ struct Config {
 	} coords[MAX_PLAYERS];
 	unsigned int view_radius;
 	unsigned int max_turns;
+	unsigned int max_lag;
 	unsigned int shrink_after;
 	unsigned int shrink_step;
 	unsigned int player_life;
