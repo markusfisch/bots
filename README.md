@@ -199,6 +199,7 @@ OPTION can be any of:
   -A, --place-at N,N;...  place players at given coordinates
   -v, --view-radius N     how many fields a player can see in every direction
   -M, --max-turns N       maximum number of turns
+  -L, --max-lag N         number of turns a player can miss
   -S, --shrink-after N    shrink map after that many turns
   -T, --shrink-step N     amount of turns until next shrink, default is 1
   -l, --player-life N     life value of players, default is 1
