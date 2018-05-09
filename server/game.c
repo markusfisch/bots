@@ -172,25 +172,27 @@ static void game_write_json(FILE *fp, char *buf) {
 			p->is_shooting > 0 ? 'y' : 'n');
 	}
 	fprintf(fp, "\n],\"map\":[\n");
-	fflush(fp);
-	int fd = fileno(fp);
 	unsigned int y;
 	for (y = 0; y < game.map.height; ++y) {
 		if (y > 0) {
-			write(fd, ",\n", 2);
+			fwrite(",\n", sizeof(char), 2, fp);
 		}
-		write(fd, "\"", 1);
-		write(fd, buf, game.map.width);
-		write(fd, "\"", 1);
+		fwrite("\"", sizeof(char), 1, fp);
+		fwrite(buf, sizeof(char), game.map.width, fp);
+		fwrite("\"", sizeof(char),  1, fp);
 		buf += game.map.width;
 	}
-	fflush(fp);
 	fprintf(fp, "\n]\n}");
+	fflush(fp);
 }
 
 static void game_write_plain(FILE *fp, char *buf) {
-	int fd = fileno(fp);
-	map_write(fd, buf, game.map.width, game.map.height);
+	unsigned int y;
+	for (y = 0; y < game.map.height; ++y) {
+		fwrite(buf, sizeof(char), game.map.width, fp);
+		fwrite("\n", sizeof(char),  1, fp);
+		buf += game.map.width;
+	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game.nplayers, game_joined());
 	fprintf(fp, "Player Facing Life Moves Killer Shooting\n");
