@@ -576,11 +576,16 @@ int game_listen(const int port) {
 }
 
 static void game_listeners_close(int *fd_player, int *fd_spectator) {
-	FD_CLR(*fd_player, &game.watch);
-	FD_CLR(*fd_spectator, &game.watch);
-	close(*fd_player);
-	close(*fd_spectator);
-	*fd_player = *fd_spectator = 0;
+	if (fd_player && *fd_player) {
+		FD_CLR(*fd_player, &game.watch);
+		close(*fd_player);
+		*fd_player = 0;
+	}
+	if (fd_spectator && *fd_spectator) {
+		FD_CLR(*fd_spectator, &game.watch);
+		close(*fd_spectator);
+		*fd_spectator = 0;
+	}
 }
 
 static int game_listeners_open(int *fd_player, int *fd_spectator) {
