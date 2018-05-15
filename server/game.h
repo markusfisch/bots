@@ -75,6 +75,7 @@ struct Config {
 		int y;
 	} coords[MAX_PLAYERS];
 	unsigned int view_radius;
+	unsigned int max_games;
 	unsigned int max_turns;
 	unsigned int max_lag;
 	unsigned int shrink_after;
@@ -82,7 +83,6 @@ struct Config {
 	unsigned int player_life;
 	unsigned int gems;
 	unsigned int output_format;
-	unsigned int keep_running;
 	time_t wait_for_joins;
 	time_t usec_per_turn;
 	char *spectator_key;

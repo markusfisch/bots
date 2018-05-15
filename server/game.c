@@ -666,15 +666,15 @@ int game_serve() {
 				}
 				game_send_spectators(game_print_results);
 				game_remove_players();
-				if (config.keep_running) {
+				if (config.max_games > 0 && --config.max_games < 1) {
+					break;
+				} else {
 					map_free(&game.map);
 					game_reset();
 					if (game_listeners_open(&fd_player, &fd_spectator)) {
 						game_remove_spectators();
 						return -1;
 					}
-				} else {
-					break;
 				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||

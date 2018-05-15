@@ -66,6 +66,7 @@ static void usage() {
 		"  -A, --place-at N,N;...  place players at given coordinates\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction\n"\
+		"  -G, --max-games N       maximum number of games\n"\
 		"  -M, --max-turns N       maximum number of turns\n"\
 		"  -L, --max-lag N         number of turns a player can miss\n"\
 		"  -S, --shrink-after N    shrink map after that many turns\n"\
@@ -76,7 +77,6 @@ static void usage() {
 		"  -F, --format TYPE       server output format, either "\
 			FORMAT_ARG_PLAIN" or "\
 			FORMAT_ARG_JSON"\n"\
-		"  -k, --keep-running      restart game after end\n"\
 		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
@@ -200,6 +200,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "placing", required_argument, NULL, 'p' },
 		{ "place-at", required_argument, NULL, 'A' },
 		{ "view-radius", required_argument, NULL, 'v' },
+		{ "max-games", required_argument, NULL, 'G' },
 		{ "max-turns", required_argument, NULL, 'M' },
 		{ "max-lag", required_argument, NULL, 'L' },
 		{ "shrink-after", required_argument, NULL, 'S' },
@@ -207,7 +208,6 @@ static void parse_arguments(int argc, char **argv) {
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "gems", required_argument, NULL, 'g' },
 		{ "format", required_argument, NULL, 'F' },
-		{ "keep-running", no_argument, NULL, 'k' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
@@ -216,7 +216,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:m:s:t:c:o:f:x:p:A:v:M:L:S:T:l:g:F:kW:u:d",
+			"P:w:K:m:s:t:c:o:f:x:p:A:v:G:M:L:S:T:l:g:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -266,6 +266,9 @@ static void parse_arguments(int argc, char **argv) {
 		case 'v':
 			config.view_radius = atoi(optarg);
 			break;
+		case 'G':
+			config.max_games = atoi(optarg);
+			break;
 		case 'M':
 			config.max_turns = atoi(optarg);
 			break;
@@ -286,9 +289,6 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'F':
 			config.output_format = parse_format(optarg);
-			break;
-		case 'k':
-			config.keep_running = 1;
 			break;
 		case 'W':
 			config.wait_for_joins = atoi(optarg);
