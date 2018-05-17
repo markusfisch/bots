@@ -198,6 +198,7 @@ OPTION can be any of:
   -p, --placing TYPE      player placing, either circle or random
   -A, --place-at N,N;...  place players at given coordinates
   -v, --view-radius N     how many fields a player can see in every direction
+  -G, --max-games N       maximum number of games
   -M, --max-turns N       maximum number of turns
   -L, --max-lag N         number of turns a player can miss
   -S, --shrink-after N    shrink map after that many turns
@@ -205,7 +206,6 @@ OPTION can be any of:
   -l, --player-life N     life value of players, default is 1
   -g, --gems N            number of gems if there are gems
   -F, --format TYPE       server output format, either plain or json
-  -k, --keep-running      restart game after end
   -W, --wait-for-joins N  number of seconds to wait for joins
   -u, --usec-per-turn N   maximum number of milliseconds per turn
   -d, --deterministic     don't seed the random number generator
