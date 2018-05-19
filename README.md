@@ -177,37 +177,44 @@ Without any arguments you will see all modes and options:
 usage: bots [OPTION...] MODE
 
 MODE must be one of:
-  training - just learn to move and see
+  training - just learn to see and move
   escape - find the exit field 'O'
   collect - collect as many gems '@' as possible
   snakes - eat gems '@' to get longer
   rumble - last man standing, shoot with 'f'
-  avoid - survive inside an asteroid shower
+  avoid - survive inside an asteroid 'X' shower
 
 OPTION can be any of:
-  -P, --port N            port number to listen for players
-  -w, --spectator-port N  port number to listen for spectators
-  -K, --key KEY           spectator key
-  -m, --min-players N     minimum number of players for a game
-  -s, --map-size N[xN]    map size
-  -t, --map-type TYPE     map type, either plain, random or maze
+  -P, --port N            port to listen for players, default is 63187
+  -w, --spectator-port N  port to listen for spectators, default is 63188
+  -K, --key KEY           spectator key, default is unset
+  -m, --min-players N     minimum number of players, default depends on mode
+  -s, --map-size N[xN]    map size, default is 32x32
+  -t, --map-type TYPE     map type, either 'plain', 'random' or 'maze',
+                          default is 'plain'
   -c, --custom-map FILE   custom map
   -o, --obstacles STRING  characters a player cannot enter
   -f, --flatland STRING   characters a player can enter
-  -x, --multiplier N      multiplier of flatland string
-  -p, --placing TYPE      player placing, either circle or random
+  -x, --multiplier N      multiplier of flatland string, default is 14
+  -p, --placing TYPE      player placing, either 'circle' or 'random',
+                          default depends on mode
   -A, --place-at N,N;...  place players at given coordinates
-  -v, --view-radius N     how many fields a player can see in every direction
-  -G, --max-games N       maximum number of games
-  -M, --max-turns N       maximum number of turns
-  -L, --max-lag N         number of turns a player can miss
-  -S, --shrink-after N    shrink map after that many turns
+  -v, --view-radius N     how many fields a player can see in every direction,
+                          default is 2
+  -G, --max-games N       maximum number of games, default is unlimited
+  -M, --max-turns N       maximum number of turns, default is 1024
+  -L, --max-lag N         number of turns a player can miss, default is 1024
+  -S, --shrink-after N    shrink map after that many turns, default is 1024
   -T, --shrink-step N     amount of turns until next shrink, default is 1
   -l, --player-life N     life value of players, default is 1
-  -g, --gems N            number of gems if there are gems
-  -F, --format TYPE       server output format, either plain or json
-  -W, --wait-for-joins N  number of seconds to wait for joins
-  -u, --usec-per-turn N   maximum number of milliseconds per turn
+  -g, --gems N            number of gems if there are gems, default equals
+                          map width
+  -F, --format TYPE       server output format, either 'plain' or 'json',
+                          default is 'plain'
+  -k, --keep-running      restart game after end
+  -W, --wait-for-joins N  number of seconds to wait for joins, default is 10
+  -u, --usec-per-turn N   maximum number of milliseconds per turn, default is
+                          1000000
   -d, --deterministic     don't seed the random number generator
 ```
 
