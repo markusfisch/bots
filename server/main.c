@@ -30,12 +30,12 @@ static const struct Mode {
 	char *description;
 	void *init;
 } modes[] = {
-	{ "training", "just learn to move and see", training },
+	{ "training", "just learn to see and move", training },
 	{ "escape", "find the exit field 'O'", find_exit },
 	{ "collect", "collect as many gems '@' as possible", collect_gems },
 	{ "snakes", "eat gems '@' to get longer", snakes },
 	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
-	{ "avoid", "survive inside an asteroid shower", asteroid_shower },
+	{ "avoid", "survive inside an asteroid 'X' shower", asteroid_shower },
 	{ NULL, NULL, NULL }
 };
 
@@ -47,38 +47,56 @@ static void usage() {
 		printf("  %s - %s\n", m->name, m->description);
 	}
 	printf("\nOPTION can be any of:\n"\
-		"  -P, --port N            port number to listen for players\n"\
-		"  -w, --spectator-port N  port number to listen for spectators\n"\
-		"  -K, --key KEY           spectator key\n"\
-		"  -m, --min-players N     minimum number of players for a game\n"\
-		"  -s, --map-size N[xN]    map size\n"\
-		"  -t, --map-type TYPE     map type, either "\
-			MAP_TYPE_ARG_PLAIN", "\
-			MAP_TYPE_ARG_RANDOM" or "\
-			MAP_TYPE_ARG_MAZE"\n"\
+		"  -P, --port N            port to listen for players, "\
+			"default is 63187\n"\
+		"  -w, --spectator-port N  port to listen for spectators, "\
+			"default is 63188\n"\
+		"  -K, --key KEY           spectator key, default is unset\n"\
+		"  -m, --min-players N     minimum number of players, "\
+			"default depends on mode\n"\
+		"  -s, --map-size N[xN]    map size, default is 32x32\n"\
+		"  -t, --map-type TYPE     map type, either '"\
+			MAP_TYPE_ARG_PLAIN"', '"\
+			MAP_TYPE_ARG_RANDOM"' or '"\
+			MAP_TYPE_ARG_MAZE"',\n"\
+		"                          default is '"MAP_TYPE_ARG_PLAIN"'\n"\
 		"  -c, --custom-map FILE   custom map\n"\
 		"  -o, --obstacles STRING  characters a player cannot enter\n"\
 		"  -f, --flatland STRING   characters a player can enter\n"\
-		"  -x, --multiplier N      multiplier of flatland string\n"\
-		"  -p, --placing TYPE      player placing, either "\
-			PLACING_ARG_CIRCLE" or "\
-			PLACING_ARG_RANDOM"\n"\
+		"  -x, --multiplier N      multiplier of flatland string, "\
+			"default is 14\n"\
+		"  -p, --placing TYPE      player placing, either '"\
+			PLACING_ARG_CIRCLE"' or '"\
+			PLACING_ARG_RANDOM"',\n"\
+		"                          default depends on mode\n"\
 		"  -A, --place-at N,N;...  place players at given coordinates\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
-			"every direction\n"\
-		"  -G, --max-games N       maximum number of games\n"\
-		"  -M, --max-turns N       maximum number of turns\n"\
-		"  -L, --max-lag N         number of turns a player can miss\n"\
-		"  -S, --shrink-after N    shrink map after that many turns\n"\
+			"every direction,\n"\
+		"                          default is 2\n"\
+		"  -G, --max-games N       maximum number of games, "\
+			"default is unlimited\n"\
+		"  -M, --max-turns N       maximum number of turns, "\
+			"default is 1024\n"\
+		"  -L, --max-lag N         number of turns a player can miss, "\
+			"default is 1024\n"\
+		"  -S, --shrink-after N    shrink map after that many turns, "\
+			"default is 1024\n"\
 		"  -T, --shrink-step N     amount of turns until next shrink, "\
 			"default is 1\n"\
 		"  -l, --player-life N     life value of players, default is 1\n"\
-		"  -g, --gems N            number of gems if there are gems\n"\
-		"  -F, --format TYPE       server output format, either "\
-			FORMAT_ARG_PLAIN" or "\
-			FORMAT_ARG_JSON"\n"\
-		"  -W, --wait-for-joins N  number of seconds to wait for joins\n"\
-		"  -u, --usec-per-turn N   maximum number of milliseconds per turn\n"\
+		"  -g, --gems N            number of gems if there are gems, "\
+			"default equals\n"\
+		"                          map width\n"\
+		"  -F, --format TYPE       server output format, either '"\
+			FORMAT_ARG_PLAIN"' or '"\
+			FORMAT_ARG_JSON"',\n"\
+		"                          default is '"FORMAT_ARG_PLAIN"'\n"\
+		"  -k, --keep-running      restart game after end\n"\
+		"  -W, --wait-for-joins N  number of seconds to wait for joins, "\
+			"default is 10\n"\
+		"  -u, --usec-per-turn N   maximum number of milliseconds per turn, "\
+			"default is\n"\
+		"                          1000000\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
 }
 
