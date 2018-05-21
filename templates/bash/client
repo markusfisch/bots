@@ -25,7 +25,7 @@ do
 		break
 		;;
 	*)
-		echo -n "$REPLY" >&6
+		echo -n "${REPLY:-^}" >&6
 		read_map || break
 		;;
 	esac
