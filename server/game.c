@@ -555,98 +555,28 @@ static void game_start() {
 	}
 }
 
-static int game_bind_port(const int fd, const int port) {
-	struct sockaddr_in addr;
-
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(port);
-
-	if (bind(fd, (struct sockaddr *) &addr, sizeof(addr))) {
-		return 1;
-	}
-
-	return 0;
+static void game_shutdown(const int fd_player, const int fd_spectator) {
+	close(fd_player);
+	close(fd_spectator);
+	game_remove_players();
+	game_remove_spectators();
+	map_free(&game.map);
 }
 
-int game_listen(const int port) {
-	int fd = socket(PF_INET, SOCK_STREAM, 6);
-	if (fd < 1) {
-		perror("socket");
-		return -1;
-	}
-
-	if (game_bind_port(fd, port) != 0) {
-		perror("bind");
-		close(fd);
-		return -1;
-	}
-
-	if (listen(fd, 4)) {
-		perror("listen");
-		close(fd);
-		return -1;
-	}
-
-	return fd;
-}
-
-static void game_listeners_close(int *fd_player, int *fd_spectator) {
-	if (fd_player && *fd_player) {
-		FD_CLR(*fd_player, &game.watch);
-		close(*fd_player);
-		*fd_player = 0;
-	}
-	if (fd_spectator && *fd_spectator) {
-		FD_CLR(*fd_spectator, &game.watch);
-		close(*fd_spectator);
-		*fd_spectator = 0;
-	}
-}
-
-static int game_listeners_open(int *fd_player, int *fd_spectator) {
-	*fd_player = game_listen(config.port_player);
-	*fd_spectator = game_listen(config.port_spectator);
-	if (*fd_player < 0 || *fd_spectator < 0) {
-		return -1;
-	}
-	game_watch_fd(*fd_player);
-	game_watch_fd(*fd_spectator);
-	return 0;
-}
-
-static void game_reset() {
+static void game_reset(const int fd_player, const int fd_spectator) {
 	memset(&game, 0, sizeof(Game));
+	game_watch_fd(fd_player);
+	game_watch_fd(fd_spectator);
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
 			config.min_players);
 	}
 }
 
-static void game_handle_signal(const int id) {
-	switch (id) {
-	case SIGHUP:
-	case SIGINT:
-	case SIGTERM:
-		stop = 1;
-		break;
-	}
-}
-
-int game_serve() {
+static int game_run(const int fd_player, const int fd_spectator) {
 	struct timeval tv;
-	int fd_player;
-	int fd_spectator;
 
-	signal(SIGHUP, game_handle_signal);
-	signal(SIGINT, game_handle_signal);
-	signal(SIGTERM, game_handle_signal);
-
-	game_reset();
-	if (game_listeners_open(&fd_player, &fd_spectator)) {
-		return -1;
-	}
+	game_reset(fd_player, fd_spectator);
 
 	while (!stop) {
 		if (game.started) {
@@ -687,25 +617,77 @@ int game_serve() {
 				if (config.max_games > 0 && --config.max_games < 1) {
 					break;
 				} else {
-					map_free(&game.map);
-					game_reset();
-					if (game_listeners_open(&fd_player, &fd_spectator)) {
-						game_remove_spectators();
-						return -1;
-					}
+					game_reset(fd_player, fd_spectator);
 				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
 				(ready == 0 && game.nplayers >= config.min_players)) {
-			game_listeners_close(&fd_player, &fd_spectator);
 			game_start();
 		}
 	}
 
-	game_listeners_close(&fd_player, &fd_spectator);
-	game_remove_players();
-	game_remove_spectators();
-	map_free(&game.map);
+	game_shutdown(fd_player, fd_spectator);
 
 	return 0;
+}
+
+static void game_handle_signal(const int id) {
+	switch (id) {
+	case SIGHUP:
+	case SIGINT:
+	case SIGTERM:
+		stop = 1;
+		break;
+	}
+}
+
+static int game_bind_port(const int fd, const int port) {
+	struct sockaddr_in addr;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_port = htons(port);
+
+	if (bind(fd, (struct sockaddr *) &addr, sizeof(addr))) {
+		close(fd);
+		return 1;
+	}
+
+	return 0;
+}
+
+int game_listen(const int port) {
+	int fd = socket(PF_INET, SOCK_STREAM, 6);
+	if (fd < 1) {
+		perror("socket");
+		return -1;
+	}
+
+	if (game_bind_port(fd, port) != 0) {
+		perror("bind");
+		return -1;
+	}
+
+	if (listen(fd, 4)) {
+		perror("listen");
+		close(fd);
+		return -1;
+	}
+
+	return fd;
+}
+
+int game_serve() {
+	int fd_player = game_listen(config.port_player);
+	int fd_spectator = game_listen(config.port_spectator);
+	if (fd_player < 0 || fd_spectator < 0) {
+		return -1;
+	}
+
+	signal(SIGHUP, game_handle_signal);
+	signal(SIGINT, game_handle_signal);
+	signal(SIGTERM, game_handle_signal);
+
+	return game_run(fd_player, fd_spectator);
 }
