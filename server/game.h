@@ -40,13 +40,14 @@ struct Game {
 		char name;
 		int fd;
 		int can_move;
-		int is_shooting;
 		int x;
 		int y;
 		int bearing;
 		unsigned int moves;
 		int score;
 		unsigned int life;
+		int attack_x;
+		int attack_y;
 		char killed_by;
 		void *trunk;
 	} players[MAX_PLAYERS];

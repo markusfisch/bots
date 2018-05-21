@@ -8,43 +8,10 @@
 extern struct Config config;
 extern struct Game game;
 
-static void shoot(Player *p) {
-	int vx = 0;
-	int vy = 0;
-	switch (p->bearing % 4) {
-	case 0:
-		vy = -1;
-		break;
-	case 1:
-		vx = 1;
-		break;
-	case 2:
-		vy = 1;
-		break;
-	case 3:
-		vx = -1;
-		break;
-	}
-	int range = config.view_radius;
-	int x = p->x;
-	int y = p->y;
-	while (range-- > 0) {
-		x += vx;
-		y += vy;
-		Player *enemy = player_at(x, y);
-		if (enemy && --enemy->life < 1) {
-			++p->score;
-			enemy->killed_by = p->name;
-			game_remove_player(enemy);
-		}
-	}
-	p->is_shooting = 1;
-}
-
 static void move(Player *p, const char cmd) {
 	switch (cmd) {
 	case 'f':
-		shoot(p);
+		player_shoot(p);
 		break;
 	default:
 		player_move(p, cmd);

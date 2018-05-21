@@ -162,14 +162,22 @@ static void game_write_json(FILE *fp, char *buf) {
 		if (p > game.players) {
 			fprintf(fp, ",");
 		}
-		fprintf(fp, "{\"name\":\"%c\",\"facing\":\"%c\",\"life\":%d,"\
-			"\"moves\":%d,\"killed_by\":\"%c\",\"is_shooting\":\"%c\"}",
+		fprintf(fp, "{\"name\":\"%c\",\"x\":%d,\"y\":%d,\"bearing\":\"%c\","\
+			"\"life\":%d,\"moves\":%d",
 			p->name,
-			p->fd > 0 ? player_bearing(p->bearing) : 'x',
-			p->life,
-			p->moves,
-			p->killed_by > 0 ? p->killed_by : '-',
-			p->is_shooting > 0 ? 'y' : 'n');
+			p->x,
+			p->y,
+			player_bearing(p->bearing),
+			p->fd > 0 ? p->life : 0,
+			p->moves);
+		if (p->killed_by > 0) {
+			fprintf(fp, ",\"killed_by\":\"%c\"", p->killed_by);
+		}
+		if (p->attack_x > -1) {
+			fprintf(fp, ",\"attack_x\":%d,\"attack_y\":%d",
+				p->attack_x, p->attack_y);
+		}
+		fprintf(fp, "}");
 	}
 	fprintf(fp, "\n],\"map\":[\n");
 	unsigned int y;
@@ -195,16 +203,24 @@ static void game_write_plain(FILE *fp, char *buf) {
 	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game.nplayers, game_joined());
-	fprintf(fp, "Player Facing Life Moves Killer Shooting\n");
+	fprintf(fp, "P       X       Y ° Life Moves Attacks\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
-		fprintf(fp, "%c      %c      % 4d % 5d %c      %c\n",
+		fprintf(fp, "%c % 7d % 7d %c ",
 			p->name,
-			p->fd > 0 ? player_bearing(p->bearing) : 'x',
-			p->life,
-			p->moves,
-			p->killed_by > 0 ? p->killed_by : ' ',
-			p->is_shooting > 0 ? 'y' : ' ');
+			p->x,
+			p->y,
+			player_bearing(p->bearing));
+		if (p->fd < 1) {
+			fprintf(fp, "   0 ");
+		} else {
+			fprintf(fp, "% 4d ", p->life);
+		}
+		fprintf(fp, "% 5d", p->moves);
+		if (p->attack_x > -1) {
+			fprintf(fp, " %d/%d", p->attack_x, p->attack_y);
+		}
+		fprintf(fp, "\n");
 	}
 	fflush(fp);
 }
@@ -280,7 +296,7 @@ static void game_send_players() {
 	}
 	for (p = game.players; p < e; ++p) {
 		if (p->fd > 0) {
-			p->is_shooting = 0;
+			p->attack_x = p->attack_y = -1;
 		}
 	}
 }
@@ -432,6 +448,7 @@ static int game_add_player(int fd) {
 	p->name = 65 + game.nplayers;
 	p->life = 1;
 	p->x = p->y = -1;
+	p->attack_x = p->attack_y = -1;
 	++game.nplayers;
 	game_watch_fd(fd);
 	return 1;
@@ -664,6 +681,7 @@ int game_serve() {
 				if (config.end) {
 					config.end();
 				}
+				game_send_spectators(game_write);
 				game_send_spectators(game_print_results);
 				game_remove_players();
 				if (config.max_games > 0 && --config.max_games < 1) {

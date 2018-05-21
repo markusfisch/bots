@@ -154,3 +154,35 @@ void player_move(Player *p, const char cmd) {
 		break;
 	}
 }
+
+void player_shoot(Player *p) {
+	int vx = 0;
+	int vy = 0;
+	switch (p->bearing % 4) {
+	case 0:
+		vy = -1;
+		break;
+	case 1:
+		vx = 1;
+		break;
+	case 2:
+		vy = 1;
+		break;
+	case 3:
+		vx = -1;
+		break;
+	}
+	int range = config.view_radius;
+	p->attack_x = p->x;
+	p->attack_y = p->y;
+	while (range-- > 0) {
+		p->attack_x += vx;
+		p->attack_y += vy;
+		Player *enemy = player_at(p->attack_x, p->attack_y);
+		if (enemy && --enemy->life < 1) {
+			++p->score;
+			enemy->killed_by = p->name;
+			game_remove_player(enemy);
+		}
+	}
+}
