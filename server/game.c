@@ -82,6 +82,7 @@ static void game_print_results(FILE *fp) {
 		fprintf(fp, "}\n");
 		break;
 	}
+	fflush(fp);
 }
 
 static void game_remove_players() {
@@ -202,7 +203,7 @@ static void game_write_plain(FILE *fp, char *buf) {
 		buf += game.map.width;
 	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
-		config.max_turns, game.nplayers, game_joined());
+		config.max_turns, game_joined(), game.nplayers);
 	fprintf(fp, "P       X       Y ° Life Moves Attacks\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
