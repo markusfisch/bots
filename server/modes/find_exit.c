@@ -5,7 +5,7 @@
 #include "../player.h"
 #include "find_exit.h"
 
-#define TILE_EXIT 'O'
+#define TILE_EXIT 'o'
 
 extern struct Config config;
 extern struct Game game;

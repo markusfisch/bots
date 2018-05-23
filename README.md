@@ -75,7 +75,7 @@ gets the same section so it's easy to introduce a group of people:
 
 ### escape
 
-Find and enter the exit field `O`.
+Find and enter the exit field `o`.
 The bots are placed in a circle around this field with a random orientation.
 The game ends when all players found the exit.
 
