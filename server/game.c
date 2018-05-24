@@ -72,7 +72,7 @@ static void game_print_results(FILE *fp) {
 			fprintf(fp, ",\n");
 		}
 		fprintf(fp, format, place, p->name, p->score, p->moves,
-			p->killed_by ?: ' ');
+			p->killed_by ?: '-');
 	}
 	switch (config.output_format) {
 	case FORMAT_JSON:
@@ -164,13 +164,14 @@ static void game_write_json(FILE *fp, char *buf) {
 			fprintf(fp, ",");
 		}
 		fprintf(fp, "{\"name\":\"%c\",\"x\":%d,\"y\":%d,\"bearing\":\"%c\","\
-			"\"life\":%d,\"moves\":%d",
+			"\"life\":%d,\"moves\":%d,\"score\":%d",
 			p->name,
 			p->x,
 			p->y,
 			player_bearing(p->bearing),
 			p->fd > 0 ? p->life : 0,
-			p->moves);
+			p->moves,
+			p->score);
 		if (p->killed_by > 0) {
 			fprintf(fp, ",\"killed_by\":\"%c\"", p->killed_by);
 		}
@@ -204,7 +205,7 @@ static void game_write_plain(FILE *fp, char *buf) {
 	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game_joined(), game.nplayers);
-	fprintf(fp, "P       X       Y ° Life Moves Attacks\n");
+	fprintf(fp, "Name    X       Y ° Life Moves Score Attacks\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
 		fprintf(fp, "%c % 7d % 7d %c ",
@@ -217,7 +218,7 @@ static void game_write_plain(FILE *fp, char *buf) {
 		} else {
 			fprintf(fp, "% 4d ", p->life);
 		}
-		fprintf(fp, "% 5d", p->moves);
+		fprintf(fp, "% 5d % 5d", p->moves, p->score);
 		if (p->attack_x > -1) {
 			fprintf(fp, " %d/%d", p->attack_x, p->attack_y);
 		}
