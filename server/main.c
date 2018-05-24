@@ -91,7 +91,6 @@ static void usage() {
 			FORMAT_ARG_PLAIN"' or '"\
 			FORMAT_ARG_JSON"',\n"\
 		"                          default is '"FORMAT_ARG_PLAIN"'\n"\
-		"  -k, --keep-running      restart game after end\n"\
 		"  -W, --wait-for-joins N  number of seconds to wait for joins, "\
 			"default is 10\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn, "\

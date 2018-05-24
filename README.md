@@ -211,7 +211,6 @@ OPTION can be any of:
                           map width
   -F, --format TYPE       server output format, either 'plain' or 'json',
                           default is 'plain'
-  -k, --keep-running      restart game after end
   -W, --wait-for-joins N  number of seconds to wait for joins, default is 10
   -u, --usec-per-turn N   maximum number of milliseconds per turn, default is
                           1000000
