@@ -3,6 +3,7 @@
 
 #include <sys/time.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 
 #include "map.h"
 
@@ -37,6 +38,7 @@ struct Game {
 	unsigned int nplayers;
 	Map map;
 	struct Player {
+		char addr[INET_ADDRSTRLEN];
 		char name;
 		int fd;
 		int can_move;
@@ -53,6 +55,7 @@ struct Game {
 	} players[MAX_PLAYERS];
 	unsigned int nspectators;
 	struct Spectator {
+		char addr[INET_ADDRSTRLEN];
 		int fd;
 		char *match;
 		void *fp;

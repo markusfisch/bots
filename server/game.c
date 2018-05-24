@@ -44,12 +44,13 @@ char game_marker_show_life(struct Player *p) {
 	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
 }
 
-static int game_compare_player(const void *a, const void *b) {
+static int game_compare_player_score(const void *a, const void *b) {
 	return ((Player *) b)->score - ((Player *) a)->score;
 }
 
 static void game_print_results(FILE *fp) {
-	qsort(game.players, game.nplayers, sizeof(Player), game_compare_player);
+	qsort(game.players, game.nplayers, sizeof(Player),
+		game_compare_player_score);
 	char *format;
 	switch (config.output_format) {
 	default:
@@ -163,8 +164,9 @@ static void game_write_json(FILE *fp, char *buf) {
 		if (p > game.players) {
 			fprintf(fp, ",");
 		}
-		fprintf(fp, "{\"name\":\"%c\",\"x\":%d,\"y\":%d,\"bearing\":\"%c\","\
-			"\"life\":%d,\"moves\":%d,\"score\":%d",
+		fprintf(fp, "{\"addr\":\"%s\",\"name\":\"%c\",\"x\":%d,\"y\":%d,"\
+			"\"bearing\":\"%c\",\"life\":%d,\"moves\":%d,\"score\":%d",
+			p->addr,
 			p->name,
 			p->x,
 			p->y,
@@ -205,10 +207,12 @@ static void game_write_plain(FILE *fp, char *buf) {
 	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game_joined(), game.nplayers);
-	fprintf(fp, "Name    X       Y ° Life Moves Score Attacks\n");
+	fprintf(fp, "Address          Name    X       Y ° "\
+		"Life Moves Score Attacks\n");
 	Player *p = game.players, *e = p + game.nplayers;
 	for (p = game.players; p < e; ++p) {
-		fprintf(fp, "%c % 7d % 7d %c ",
+		fprintf(fp, "%-16s %c % 7d % 7d %c ",
+			p->addr,
 			p->name,
 			p->x,
 			p->y,
@@ -428,11 +432,12 @@ static void game_watch_fd(int fd) {
 	}
 }
 
-static int game_add_spectator(int fd) {
+static int game_add_spectator(int fd, char *addr) {
 	if (game.nspectators >= MAX_SPECTATORS) {
 		return 0;
 	}
 	Spectator *s = &game.spectators[game.nspectators];
+	strcpy(s->addr, addr);
 	s->fd = fd;
 	s->fp = fdopen(fd, "a");
 	s->match = config.spectator_key;
@@ -441,13 +446,13 @@ static int game_add_spectator(int fd) {
 	return 1;
 }
 
-static int game_add_player(int fd) {
+static int game_add_player(int fd, char *addr) {
 	if (game.nplayers >= MAX_PLAYERS) {
 		return 0;
 	}
 	Player *p = &game.players[game.nplayers];
+	strcpy(p->addr, addr);
 	p->fd = fd;
-	p->name = 65 + game.nplayers;
 	p->life = 1;
 	p->x = p->y = -1;
 	p->attack_x = p->attack_y = -1;
@@ -456,20 +461,22 @@ static int game_add_player(int fd) {
 	return 1;
 }
 
-static void game_join(const int lfd, int (*add)(int), const char *role) {
+static void game_join(const int lfd, int (*add)(int, char *),
+		const char *role) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 	int fd = accept(lfd, &addr, &len);
-	if (!game.started && add(fd)) {
-		if (config.output_format == FORMAT_PLAIN) {
-			struct sockaddr_in* ipv4 = (struct sockaddr_in *) &addr;
-			struct in_addr ip_addr = ipv4->sin_addr;
-			char ip_str[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &ip_addr, ip_str, INET_ADDRSTRLEN);
-			printf("%s joined as %s\n", ip_str, role);
-		}
-	} else {
+	if (game.started) {
 		close(fd);
+		return;
+	}
+	struct sockaddr_in* ipv4 = (struct sockaddr_in *) &addr;
+	struct in_addr sin_addr = ipv4->sin_addr;
+	char ip_str[INET_ADDRSTRLEN] = { 0 };
+	inet_ntop(AF_INET, &sin_addr, ip_str, INET_ADDRSTRLEN);
+	if (add(fd, ip_str) && config.output_format == FORMAT_PLAIN) {
+		printf("%s joined as %s\n", ip_str, role);
+		fflush(stdout);
 	}
 }
 
@@ -523,6 +530,20 @@ static void game_init_map() {
 	}
 }
 
+static int game_compare_player_address(const void *a, const void *b) {
+	return strcmp(((Player *) b)->addr, ((Player *) a)->addr);
+}
+
+static void game_assign_player_names() {
+	qsort(game.players, game.nplayers, sizeof(Player),
+		game_compare_player_address);
+	Player *p = game.players, *e = p + game.nplayers;
+	char name = 'A';
+	for (; p < e; ++p) {
+		p->name = name++;
+	}
+}
+
 static int game_spectator_authorized(const Spectator *s) {
 	return s->match && !*s->match;
 }
@@ -538,6 +559,7 @@ static void game_remove_unauthorized_spectators() {
 
 static void game_start() {
 	game_remove_unauthorized_spectators();
+	game_assign_player_names();
 	if (config.prepare) {
 		config.prepare();
 	}
