@@ -637,10 +637,11 @@ static int game_run(const int fd_player, const int fd_spectator) {
 				}
 				game_send_spectators(game_write);
 				game_send_spectators(game_print_results);
-				game_remove_players();
 				if (config.max_games > 0 && --config.max_games < 1) {
 					break;
 				} else {
+					game_remove_players();
+					map_free(&game.map);
 					game_reset(fd_player, fd_spectator);
 				}
 			}
