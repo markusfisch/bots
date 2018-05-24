@@ -666,8 +666,19 @@ int game_listen(const int port) {
 		return -1;
 	}
 
+	// avoid blocking the port when a player hasn't closed it's side
+	// of the socket and the server has just been terminated
+	int enable = 1;
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable,
+			sizeof(int)) < 0) {
+		perror("setsockopt");
+		close(fd);
+		return -1;
+	}
+
 	if (game_bind_port(fd, port) != 0) {
 		perror("bind");
+		close(fd);
 		return -1;
 	}
 
@@ -682,8 +693,11 @@ int game_listen(const int port) {
 
 int game_serve() {
 	int fd_player = game_listen(config.port_player);
+	if (fd_player < 0) {
+		return -1;
+	}
 	int fd_spectator = game_listen(config.port_spectator);
-	if (fd_player < 0 || fd_spectator < 0) {
+	if (fd_player < 0) {
 		return -1;
 	}
 
