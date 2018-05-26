@@ -140,6 +140,11 @@ static void player_turn(Player *p, const int direction) {
 
 void player_move(Player *p, const char cmd) {
 	switch (cmd) {
+	case 'f':
+		if (config.can_shoot) {
+			player_shoot(p);
+		}
+		break;
 	case '^':
 		player_step(p, 1);
 		break;

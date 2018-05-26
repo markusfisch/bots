@@ -85,6 +85,7 @@ struct Config {
 	unsigned int shrink_after;
 	unsigned int shrink_step;
 	unsigned int player_life;
+	int can_shoot;
 	unsigned int gems;
 	unsigned int output_format;
 	time_t wait_for_joins;
