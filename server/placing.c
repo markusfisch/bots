@@ -33,7 +33,7 @@ void placing_random() {
 		do {
 			px = rand() % width;
 			py = rand() % height;
-		} while (map_impassable(&game.map, px, py) ||
+		} while (config.impassable(&game.map, px, py) ||
 			player_at(px, py));
 		p->x = px;
 		p->y = py;
