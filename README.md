@@ -199,6 +199,7 @@ OPTION can be any of:
   -p, --placing TYPE      player placing, either 'circle' or 'random',
                           default depends on mode
   -A, --place-at N,N;...  place players at given coordinates
+  -N, --non-exclusive     multiple players can occupy the same cell
   -v, --view-radius N     how many fields a player can see in every direction,
                           default is 2
   -G, --max-games N       maximum number of games, default is unlimited

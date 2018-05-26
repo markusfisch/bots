@@ -117,8 +117,7 @@ static void game_inset_player(Player *p,
 	do {
 		px += shiftX;
 		py += shiftY;
-	} while (--tries > 0 && (config.impassable(&game.map, px, py) ||
-		player_at(px, py)));
+	} while (--tries > 0 && player_cannot_move_to(px, py));
 	if (tries > 0) {
 		p->x = px;
 		p->y = py;
@@ -144,8 +143,8 @@ static void game_shrink() {
 	for (y = top; y <= bottom; ++y) {
 		step = (y == top || y == bottom) ? 1 : width;
 		for (x = left; x <= right; x += step) {
-			Player *p = player_at(x, y);
-			if (p) {
+			Player *p = NULL;
+			while ((p = player_at(x, y, p))) {
 				game_inset_player(p, x, y, left, top, right, bottom);
 			}
 			map_set(&game.map, x, y, TILE_GONE);

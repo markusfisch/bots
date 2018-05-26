@@ -3,7 +3,8 @@
 
 struct Player;
 
-Player *player_at(int, int);
+Player *player_at(int, int, Player *);
+int player_cannot_move_to(int, int);
 char player_bearing(const int);
 void player_send_view(Player *);
 void player_move(Player *, char);

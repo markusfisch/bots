@@ -6,14 +6,19 @@
 extern struct Config config;
 extern struct Game game;
 
-Player *player_at(const int x, const int y) {
-	Player *p = game.players, *e = p + game.nplayers;
+Player *player_at(const int x, const int y, Player *last) {
+	Player *p = last ?: game.players, *e = game.players + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && p->x == x && p->y == y) {
 			return p;
 		}
 	}
 	return NULL;
+}
+
+int player_cannot_move_to(const int x, const int y) {
+	return config.impassable(&game.map, x, y) ||
+		(!config.non_exclusive && player_at(x, y, NULL));
 }
 
 char player_bearing(const int bearing) {
@@ -34,7 +39,8 @@ static char player_view_at(Player *p, const int x, const int y) {
 	char tile = map_get(&game.map, x, y);
 	Player *enemy = player_at(
 		map_wrap(x, game.map.width),
-		map_wrap(y, game.map.height));
+		map_wrap(y, game.map.height),
+		NULL);
 	if (enemy) {
 		tile = player_bearing(enemy->bearing + 4 - p->bearing);
 	}
@@ -110,7 +116,7 @@ void player_send_view(Player *player) {
 static void player_move_by(Player *p, int x, int y) {
 	x = map_wrap(p->x + x, game.map.width);
 	y = map_wrap(p->y + y, game.map.height);
-	if (config.impassable(&game.map, x, y) || player_at(x, y)) {
+	if (player_cannot_move_to(x, y)) {
 		return;
 	}
 	p->x = x;
@@ -183,11 +189,13 @@ void player_shoot(Player *p) {
 	while (range-- > 0) {
 		p->attack_x += vx;
 		p->attack_y += vy;
-		Player *enemy = player_at(p->attack_x, p->attack_y);
-		if (enemy && --enemy->life < 1) {
-			++p->score;
-			enemy->killed_by = p->name;
-			game_remove_player(enemy);
+		Player *enemy = NULL;
+		while ((enemy = player_at(p->attack_x, p->attack_y, enemy))) {
+			if (--enemy->life < 1) {
+				++p->score;
+				enemy->killed_by = p->name;
+				game_remove_player(enemy);
+			}
 		}
 	}
 }

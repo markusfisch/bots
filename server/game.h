@@ -78,6 +78,7 @@ struct Config {
 		int x;
 		int y;
 	} coords[MAX_PLAYERS];
+	int non_exclusive;
 	unsigned int view_radius;
 	unsigned int max_games;
 	unsigned int max_turns;

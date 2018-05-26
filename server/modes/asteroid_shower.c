@@ -20,14 +20,14 @@ int vy;
 int score;
 
 static void asteroids_move() {
-	Player *hit;
 	struct Asteroid *p = asteroids, *e = asteroids + nasteroids;
 	for (; p < e; ++p) {
 		map_set(&game.map, p->x, p->y, *config.flatland);
 		p->x = map_wrap(p->x + vx, game.map.width);
 		p->y = map_wrap(p->y + vy, game.map.height);
 		map_set(&game.map, p->x, p->y, TILE_GONE);
-		if ((hit = player_at(p->x, p->y))) {
+		Player *hit = NULL;
+		while ((hit = player_at(p->x, p->y, hit))) {
 			hit->score = score++;
 			game_remove_player(hit);
 		}
@@ -40,7 +40,7 @@ static void asteroids_place() {
 		do {
 			p->x = rand() % game.map.width;
 			p->y = rand() % game.map.height;
-		} while (player_at(p->x, p->y));
+		} while (player_at(p->x, p->y, NULL));
 	}
 }
 

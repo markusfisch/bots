@@ -70,6 +70,8 @@ static void usage() {
 			PLACING_ARG_RANDOM"',\n"\
 		"                          default depends on mode\n"\
 		"  -A, --place-at N,N;...  place players at given coordinates\n"\
+		"  -N, --non-exclusive     multiple players can occupy the same "\
+			"cell\n"\
 		"  -v, --view-radius N     how many fields a player can see in "\
 			"every direction,\n"\
 		"                          default is 2\n"\
@@ -218,6 +220,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "multiplier", required_argument, NULL, 'x' },
 		{ "placing", required_argument, NULL, 'p' },
 		{ "place-at", required_argument, NULL, 'A' },
+		{ "non-exclusive", required_argument, &config.non_exclusive, 1 },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-games", required_argument, NULL, 'G' },
 		{ "max-turns", required_argument, NULL, 'M' },
@@ -236,7 +239,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:m:s:t:c:o:f:x:p:A:v:G:M:L:S:T:l:Xg:F:W:u:d",
+			"P:w:K:m:s:t:c:o:f:x:p:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -282,6 +285,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'A':
 			config.placing = parse_placing_at(config.coords, optarg);
+			break;
+		case 'N':
+			config.non_exclusive = 1;
 			break;
 		case 'v':
 			config.view_radius = atoi(optarg);

@@ -5,6 +5,7 @@
 #include "player.h"
 #include "placing.h"
 
+extern struct Config config;
 extern struct Game game;
 
 void placing_circle() {
@@ -34,25 +35,17 @@ void placing_random() {
 			px = rand() % width;
 			py = rand() % height;
 		} while (config.impassable(&game.map, px, py) ||
-			player_at(px, py));
+			player_at(px, py, NULL));
 		p->x = px;
 		p->y = py;
 	}
 }
 
 void placing_manual(Coords *coords) {
-	int width = game.map.width;
-	int height = game.map.height;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++coords) {
-		int px = coords->x;
-		int py = coords->y;
-		while (map_impassable(&game.map, px, py) ||
-				player_at(px, py)) {
-			px = rand() % width;
-			py = rand() % height;
-		}
-		p->x = px;
-		p->y = py;
+		p->x = coords->x;
+		p->y = coords->y;
+		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
 	}
 }
