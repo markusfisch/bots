@@ -31,11 +31,11 @@ static const struct Mode {
 	void *init;
 } modes[] = {
 	{ "training", "just learn to see and move", training },
-	{ "escape", "find the exit field 'O'", find_exit },
+	{ "escape", "find the exit field 'o'", find_exit },
 	{ "collect", "collect as many gems '@' as possible", collect_gems },
-	{ "snakes", "eat gems '@' to get longer", snakes },
+	{ "snakes", "eat gems '@' and grow a tail", snakes },
 	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
-	{ "avoid", "survive inside an asteroid 'X' shower", asteroid_shower },
+	{ "avoid", "survive an asteroid shower of 'X'", asteroid_shower },
 	{ NULL, NULL, NULL }
 };
 
@@ -97,7 +97,7 @@ static void usage() {
 			"default is 10\n"\
 		"  -u, --usec-per-turn N   maximum number of milliseconds per turn, "\
 			"default is\n"\
-		"                          1000000\n"\
+		"                          1000000 (one second)\n"\
 		"  -d, --deterministic     don't seed the random number generator\n");
 }
 

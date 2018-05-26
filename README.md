@@ -178,11 +178,11 @@ usage: bots [OPTION...] MODE
 
 MODE must be one of:
   training - just learn to see and move
-  escape - find the exit field 'O'
+  escape - find the exit field 'o'
   collect - collect as many gems '@' as possible
-  snakes - eat gems '@' to get longer
+  snakes - eat gems '@' and grow a tail
   rumble - last man standing, shoot with 'f'
-  avoid - survive inside an asteroid 'X' shower
+  avoid - survive an asteroid shower of 'X'
 
 OPTION can be any of:
   -P, --port N            port to listen for players, default is 63187
@@ -207,13 +207,14 @@ OPTION can be any of:
   -S, --shrink-after N    shrink map after that many turns, default is 1024
   -T, --shrink-step N     amount of turns until next shrink, default is 1
   -l, --player-life N     life value of players, default is 1
+  -X, --shoot             players can shoot, default depends on mode
   -g, --gems N            number of gems if there are gems, default equals
                           map width
   -F, --format TYPE       server output format, either 'plain' or 'json',
                           default is 'plain'
   -W, --wait-for-joins N  number of seconds to wait for joins, default is 10
   -u, --usec-per-turn N   maximum number of milliseconds per turn, default is
-                          1000000
+                          1000000 (one second)
   -d, --deterministic     don't seed the random number generator
 ```
 
