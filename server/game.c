@@ -574,7 +574,13 @@ static void game_start() {
 		config.start();
 	}
 	if (config.output_format == FORMAT_JSON) {
-		printf("{\n\"max_turns\":%d,\n\"turns\":[\n", config.max_turns);
+		printf("{\n\"max_turns\":%d,\n"\
+				"\"map_width\":%d,\n"\
+				"\"map_height\":%d,\n"\
+				"\"turns\":[\n",
+			config.max_turns,
+			config.map_width,
+			config.map_height);
 	}
 }
 
