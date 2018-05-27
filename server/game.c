@@ -182,18 +182,13 @@ static void game_write_json(FILE *fp, char *buf) {
 		}
 		fprintf(fp, "}");
 	}
-	fprintf(fp, "\n],\"map\":[\n");
+	fprintf(fp, "\n],\"map\":\"");
 	unsigned int y;
 	for (y = 0; y < game.map.height; ++y) {
-		if (y > 0) {
-			fwrite(",\n", sizeof(char), 2, fp);
-		}
-		fwrite("\"", sizeof(char), 1, fp);
 		fwrite(buf, sizeof(char), game.map.width, fp);
-		fwrite("\"", sizeof(char),  1, fp);
 		buf += game.map.width;
 	}
-	fprintf(fp, "\n]\n}");
+	fprintf(fp, "\"}");
 	fflush(fp);
 }
 
