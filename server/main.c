@@ -174,10 +174,19 @@ static int parse_format(char *arg) {
 }
 
 static int parse_placing_at(Coords *coords, char *arg) {
-	Coords *e = coords + MAX_PLAYERS;
-	char *pos = strtok(arg, ";");
-	for (; pos && coords < e; pos = strtok(NULL, ";"), ++coords) {
-		sscanf(pos, "%d,%d", &coords->x, &coords->y);
+	#define SEPARATOR ";"
+	Coords *p = coords, *e = p + MAX_PLAYERS;
+	char *s = strtok(arg, SEPARATOR);
+	for (; s && coords < e; s = strtok(NULL, SEPARATOR), ++p) {
+		sscanf(s, "%d,%d", &p->x, &p->y);
+	}
+	if (p > coords) {
+		// replicate last coordinate for remaining players
+		Coords *last = p - 1;
+		for (; p < e; ++p) {
+			p->x = last->x;
+			p->y = last->y;
+		}
 	}
 	return PLACING_MANUAL;
 }
