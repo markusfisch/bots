@@ -36,6 +36,7 @@ void placing_random() {
 			py = rand() % height;
 		} while (config.impassable(&game.map, px, py) ||
 			player_at(px, py, NULL));
+		p->bearing = rand() % 4;
 		p->x = px;
 		p->y = py;
 	}
@@ -46,6 +47,7 @@ void placing_manual(Coords *coords) {
 	for (; p < e; ++p, ++coords) {
 		p->x = coords->x;
 		p->y = coords->y;
+		p->bearing = coords->bearing < 4 ? coords->bearing : rand() % 4;
 		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
 	}
 }

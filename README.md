@@ -185,38 +185,42 @@ MODE must be one of:
   avoid - survive an asteroid shower of 'X'
 
 OPTION can be any of:
-  -P, --port N            port to listen for players, default is 63187
-  -w, --spectator-port N  port to listen for spectators, default is 63188
-  -K, --key KEY           spectator key, default is unset
-  -m, --min-players N     minimum number of players, default depends on mode
-  -s, --map-size N[xN]    map size, default is 32x32
-  -t, --map-type TYPE     map type, either 'plain', 'random' or 'maze',
-                          default is 'plain'
-  -c, --custom-map FILE   custom map
-  -o, --obstacles STRING  characters a player cannot enter
-  -f, --flatland STRING   characters a player can enter
-  -x, --multiplier N      multiplier of flatland string, default is 14
-  -p, --placing TYPE      player placing, either 'circle' or 'random',
-                          default depends on mode
-  -A, --place-at N,N;...  place players at given coordinates
-  -N, --non-exclusive     multiple players can occupy the same cell
-  -v, --view-radius N     how many fields a player can see in every direction,
-                          default is 2
-  -G, --max-games N       maximum number of games, default is unlimited
-  -M, --max-turns N       maximum number of turns, default is 1024
-  -L, --max-lag N         number of turns a player can miss, default is 1024
-  -S, --shrink-after N    shrink map after that many turns, default is 1024
-  -T, --shrink-step N     amount of turns until next shrink, default is 1
-  -l, --player-life N     life value of players, default is 1
-  -X, --shoot             players can shoot, default depends on mode
-  -g, --gems N            number of gems if there are gems, default equals
-                          map width
-  -F, --format TYPE       server output format, either 'plain' or 'json',
-                          default is 'plain'
-  -W, --wait-for-joins N  number of seconds to wait for joins, default is 10
-  -u, --usec-per-turn N   maximum number of milliseconds per turn, default is
-                          1000000 (one second)
-  -d, --deterministic     don't seed the random number generator
+  -P, --port N                port to listen for players, default is 63187
+  -w, --spectator-port N      port to listen for spectators, default is 63188
+  -K, --key KEY               spectator key, default is unset
+  -m, --min-players N         minimum number of alive players, default depends
+                              on mode
+  -s, --map-size N[xN]        map size, default is 32x32
+  -t, --map-type TYPE         map type, either "plain", "random" or "maze",
+                              default is "plain"
+  -c, --custom-map FILE       custom map
+  -o, --obstacles STRING      characters a player cannot enter
+  -f, --flatland STRING       characters a player can enter
+  -x, --multiplier N          multiplier of flatland string, default is 14
+  -p, --placing TYPE          player placing, either "circle" or "random",
+                              default depends on mode
+  -A, --place-at X,Y[,D];...  place players at given coordinates and in given
+                              direction, either '^', '>', 'v' or '<'
+  -N, --non-exclusive         multiple players can occupy the same cell
+  -v, --view-radius N         how many fields a player can see in every
+                              direction, default is 2
+  -G, --max-games N           maximum number of games, default is unlimited
+  -M, --max-turns N           maximum number of turns, default is 1024
+  -L, --max-lag N             number of turns a player can miss,
+                              default is 1024
+  -S, --shrink-after N        shrink map after that many turns, default is 1024
+  -T, --shrink-step N         amount of turns until next shrink, default is 1
+  -l, --player-life N         life value of players, default is 1
+  -X, --shoot                 players can shoot, default depends on mode
+  -g, --gems N                number of gems if there are gems, default equals
+                              map width
+  -F, --format TYPE           server output format, either "plain" or "json",
+                              default is "plain"
+  -W, --wait-for-joins N      number of seconds to wait for joins,
+                              default is 10
+  -u, --usec-per-turn N       maximum number of milliseconds per turn,
+                              default is 1000000 (one second)
+  -d, --deterministic         don't seed the random number generator
 ```
 
 For example, to start the `escape` game, run:

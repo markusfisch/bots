@@ -47,60 +47,70 @@ static void usage() {
 		printf("  %s - %s\n", m->name, m->description);
 	}
 	printf("\nOPTION can be any of:\n"\
-		"  -P, --port N            port to listen for players, "\
+		"  -P, --port N                port to listen for players, "\
 			"default is 63187\n"\
-		"  -w, --spectator-port N  port to listen for spectators, "\
+		"  -w, --spectator-port N      port to listen for spectators, "\
 			"default is 63188\n"\
-		"  -K, --key KEY           spectator key, default is unset\n"\
-		"  -m, --min-players N     minimum number of players, "\
-			"default depends on mode\n"\
-		"  -s, --map-size N[xN]    map size, default is 32x32\n"\
-		"  -t, --map-type TYPE     map type, either '"\
-			MAP_TYPE_ARG_PLAIN"', '"\
-			MAP_TYPE_ARG_RANDOM"' or '"\
-			MAP_TYPE_ARG_MAZE"',\n"\
-		"                          default is '"MAP_TYPE_ARG_PLAIN"'\n"\
-		"  -c, --custom-map FILE   custom map\n"\
-		"  -o, --obstacles STRING  characters a player cannot enter\n"\
-		"  -f, --flatland STRING   characters a player can enter\n"\
-		"  -x, --multiplier N      multiplier of flatland string, "\
+		"  -K, --key KEY               spectator key, default is unset\n"\
+		"  -m, --min-players N         minimum number of alive players, "\
+			"default depends\n"\
+		"                              on mode\n"\
+		"  -s, --map-size N[xN]        map size, default is 32x32\n"\
+		"  -t, --map-type TYPE         map type, either \""\
+			MAP_TYPE_ARG_PLAIN"\", \""\
+			MAP_TYPE_ARG_RANDOM"\" or \""\
+			MAP_TYPE_ARG_MAZE"\",\n"\
+		"                              default is \""\
+			MAP_TYPE_ARG_PLAIN"\"\n"\
+		"  -c, --custom-map FILE       custom map\n"\
+		"  -o, --obstacles STRING      characters a player cannot enter\n"\
+		"  -f, --flatland STRING       characters a player can enter\n"\
+		"  -x, --multiplier N          multiplier of flatland string, "\
 			"default is 14\n"\
-		"  -p, --placing TYPE      player placing, either '"\
-			PLACING_ARG_CIRCLE"' or '"\
-			PLACING_ARG_RANDOM"',\n"\
-		"                          default depends on mode\n"\
-		"  -A, --place-at N,N;...  place players at given coordinates\n"\
-		"  -N, --non-exclusive     multiple players can occupy the same "\
-			"cell\n"\
-		"  -v, --view-radius N     how many fields a player can see in "\
-			"every direction,\n"\
-		"                          default is 2\n"\
-		"  -G, --max-games N       maximum number of games, "\
+		"  -p, --placing TYPE          player placing, either \""\
+			PLACING_ARG_CIRCLE"\" or \""\
+			PLACING_ARG_RANDOM"\",\n"\
+		"                              default depends on mode\n"\
+		"  -A, --place-at X,Y[,D];...  place players at given "\
+			"coordinates and in given\n"\
+		"                              direction, either '^', '>', "\
+			"'v' or '<'\n"
+		"  -N, --non-exclusive         multiple players can occupy "\
+			"the same cell\n"\
+		"  -v, --view-radius N         how many fields a player can "\
+			"see in every\n"\
+		"                              direction, default is 2\n"\
+		"  -G, --max-games N           maximum number of games, "\
 			"default is unlimited\n"\
-		"  -M, --max-turns N       maximum number of turns, "\
+		"  -M, --max-turns N           maximum number of turns, "\
 			"default is 1024\n"\
-		"  -L, --max-lag N         number of turns a player can miss, "\
-			"default is 1024\n"\
-		"  -S, --shrink-after N    shrink map after that many turns, "\
-			"default is 1024\n"\
-		"  -T, --shrink-step N     amount of turns until next shrink, "\
+		"  -L, --max-lag N             number of turns a player can "\
+			"miss,\n"\
+		"                              default is 1024\n"\
+		"  -S, --shrink-after N        shrink map after that many "\
+			"turns, default is 1024\n"\
+		"  -T, --shrink-step N         amount of turns until next "\
+			"shrink, default is 1\n"\
+		"  -l, --player-life N         life value of players, "\
 			"default is 1\n"\
-		"  -l, --player-life N     life value of players, default is 1\n"\
-		"  -X, --shoot             players can shoot, "\
+		"  -X, --shoot                 players can shoot, "\
 			"default depends on mode\n"\
-		"  -g, --gems N            number of gems if there are gems, "\
-			"default equals\n"\
-		"                          map width\n"\
-		"  -F, --format TYPE       server output format, either '"\
-			FORMAT_ARG_PLAIN"' or '"\
-			FORMAT_ARG_JSON"',\n"\
-		"                          default is '"FORMAT_ARG_PLAIN"'\n"\
-		"  -W, --wait-for-joins N  number of seconds to wait for joins, "\
-			"default is 10\n"\
-		"  -u, --usec-per-turn N   maximum number of milliseconds per turn, "\
-			"default is\n"\
-		"                          1000000 (one second)\n"\
-		"  -d, --deterministic     don't seed the random number generator\n");
+		"  -g, --gems N                number of gems if there are "\
+			"gems, default equals\n"\
+		"                              map width\n"\
+		"  -F, --format TYPE           server output format, either \""\
+			FORMAT_ARG_PLAIN"\" or \""\
+			FORMAT_ARG_JSON"\",\n"\
+		"                              default is \""\
+			FORMAT_ARG_PLAIN"\"\n"\
+		"  -W, --wait-for-joins N      number of seconds to wait "\
+			"for joins,\n"\
+		"                              default is 10\n"\
+		"  -u, --usec-per-turn N       maximum number of milliseconds "\
+			"per turn, \n"\
+		"                              default is 1000000 (one second)\n"\
+		"  -d, --deterministic         don't seed the random number "\
+			"generator\n");
 }
 
 static void *pick_mode(const char *name) {
@@ -173,12 +183,28 @@ static int parse_format(char *arg) {
 	exit(1);
 }
 
+static int map_bearing(const char bearing) {
+	switch (bearing) {
+	default:
+	case '^':
+		return 0;
+	case '>':
+		return 1;
+	case 'v':
+		return 2;
+	case '<':
+		return 3;
+	}
+}
+
 static int parse_placing_at(Coords *coords, char *arg) {
 	#define SEPARATOR ";"
 	Coords *p = coords, *e = p + MAX_PLAYERS;
 	char *s = strtok(arg, SEPARATOR);
 	for (; s && coords < e; s = strtok(NULL, SEPARATOR), ++p) {
-		sscanf(s, "%d,%d", &p->x, &p->y);
+		char bearing = 0;
+		sscanf(s, "%d,%d,%c", &p->x, &p->y, &bearing);
+		p->bearing = bearing == 0 ? 4 : map_bearing(bearing);
 	}
 	if (p > coords) {
 		// replicate last coordinate for remaining players
@@ -186,6 +212,7 @@ static int parse_placing_at(Coords *coords, char *arg) {
 		for (; p < e; ++p) {
 			p->x = last->x;
 			p->y = last->y;
+			p->bearing = last->bearing;
 		}
 	}
 	return PLACING_MANUAL;

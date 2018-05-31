@@ -77,6 +77,7 @@ struct Config {
 	struct Coords {
 		int x;
 		int y;
+		int bearing;
 	} coords[MAX_PLAYERS];
 	int non_exclusive;
 	unsigned int view_radius;
