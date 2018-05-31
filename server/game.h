@@ -65,6 +65,7 @@ struct Game {
 struct Config {
 	unsigned int port_player;
 	unsigned int port_spectator;
+	unsigned int min_starters;
 	unsigned int min_players;
 	unsigned int map_width;
 	unsigned int map_height;

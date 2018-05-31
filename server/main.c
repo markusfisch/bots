@@ -52,6 +52,9 @@ static void usage() {
 		"  -w, --spectator-port N      port to listen for spectators, "\
 			"default is 63188\n"\
 		"  -K, --key KEY               spectator key, default is unset\n"\
+		"  -b, --min-starters N        minimum number of players to start "\
+			"a game,\n"\
+		"                              default is 1\n"\
 		"  -m, --min-players N         minimum number of alive players, "\
 			"default depends\n"\
 		"                              on mode\n"\
@@ -247,6 +250,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "port", required_argument, NULL, 'P' },
 		{ "spectator-port", required_argument, NULL, 'w' },
 		{ "spectator-key", required_argument, NULL, 'K' },
+		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
@@ -275,7 +279,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:m:s:t:c:o:f:x:p:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
+			"P:w:K:b:m:s:t:c:o:f:x:p:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -286,6 +290,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'K':
 			config.spectator_key = optarg;
+			break;
+		case 'b':
+			config.min_starters = atoi(optarg);
 			break;
 		case 'm':
 			config.min_players = atoi(optarg);
@@ -396,6 +403,7 @@ int main(int argc, char **argv) {
 	config.port_player = config.port_player ?: 63187;
 	config.port_spectator = config.port_spectator ?: 63188;
 	config.min_players = config.min_players ?: 1;
+	config.min_starters = config.min_starters ?: config.min_players;
 	config.map_width = config.map_width ?: 32;
 	config.map_height = config.map_height ?: config.map_width;
 	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;

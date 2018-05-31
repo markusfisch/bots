@@ -593,7 +593,7 @@ static void game_reset(const int fd_player, const int fd_spectator) {
 	game_watch_fd(fd_spectator);
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
-			config.min_players);
+			config.min_starters);
 	}
 }
 
@@ -646,7 +646,7 @@ static int game_run(const int fd_player, const int fd_spectator) {
 				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
-				(ready == 0 && game.nplayers >= config.min_players)) {
+				(ready == 0 && game.nplayers >= config.min_starters)) {
 			game_start();
 		}
 	}
