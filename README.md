@@ -188,6 +188,8 @@ OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187
   -w, --spectator-port N      port to listen for spectators, default is 63188
   -K, --key KEY               spectator key, default is unset
+  -b, --min-starters N        minimum number of players to start a game,
+                              default is 1
   -m, --min-players N         minimum number of alive players, default depends
                               on mode
   -s, --map-size N[xN]        map size, default is 32x32
