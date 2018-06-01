@@ -10,6 +10,11 @@ extern struct Game game;
 static unsigned int collected;
 
 void scatter_gems() {
+	unsigned int gems = map_count(&game.map, TILE_GEM);
+	if (gems > 0) {
+		config.gems = gems;
+		return;
+	}
 	unsigned int i;
 	for (i = 0; i < config.gems; ++i) {
 		int x, y;

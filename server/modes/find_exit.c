@@ -14,7 +14,10 @@ static int points;
 
 static void start() {
 	points = 16;
-	map_set(&game.map, game.map.width / 2, game.map.height / 2, TILE_EXIT);
+	if (!map_count(&game.map, TILE_EXIT)) {
+		map_set(&game.map, game.map.width / 2, game.map.height / 2,
+			TILE_EXIT);
+	}
 }
 
 static void move(Player *p, char cmd) {

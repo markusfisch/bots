@@ -23,5 +23,6 @@ int map_wrap(int, unsigned int);
 char map_get(Map *, int, int);
 void map_set(Map *, int, int, char);
 int map_impassable(Map *, int, int);
+unsigned int map_count(Map *, const char);
 
 #endif

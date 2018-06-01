@@ -70,3 +70,13 @@ int map_impassable(Map *map, const int x, const int y) {
 	return tile == TILE_GONE ||
 		(map->obstacles && strchr(map->obstacles, tile)) ? 1 : 0;
 }
+
+unsigned int map_count(Map *map, const char tile) {
+	unsigned int count = 0;
+	size_t size = map->size;
+	char *p;
+	for (p = map->data; (p = memchr(p, tile, size)); ++count) {
+		size -= ++p - map->data;
+	}
+	return count;
+}
