@@ -199,10 +199,12 @@ OPTION can be any of:
   -o, --obstacles STRING      characters a player cannot enter
   -f, --flatland STRING       characters a player can enter
   -x, --multiplier N          multiplier of flatland string, default is 14
-  -p, --placing TYPE          player placing, either "circle" or "random",
-                              default depends on mode
-  -A, --place-at X,Y[,D];...  place players at given coordinates and in given
-                              direction, either '^', '>', 'v' or '<'
+  -p, --placing TYPE          player placing, either "circle", "random" or
+                              "grid", default depends on mode
+  -Z, --fuzzy N               maximum potential deviaton from calculated
+                              position, default is 0
+  -A, --place-at X,Y[,D];...  manually place players at given coordinates and
+                              in given direction, either '^', '>', 'v' or '<'
   -N, --non-exclusive         multiple players can occupy the same cell
   -v, --view-radius N         how many fields a player can see in every
                               direction, default is 2

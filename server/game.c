@@ -487,16 +487,16 @@ static void game_place_players() {
 	switch (config.placing) {
 	default:
 	case PLACING_CIRCLE:
-		placing_circle();
+		placing_circle(config.placing_fuzz);
 		break;
 	case PLACING_RANDOM:
-		placing_random();
+		placing_random(config.placing_fuzz);
 		break;
 	case PLACING_GRID:
-		placing_grid();
+		placing_grid(config.placing_fuzz);
 		break;
 	case PLACING_MANUAL:
-		placing_manual(config.coords);
+		placing_manual(config.coords, config.placing_fuzz);
 		break;
 	}
 }

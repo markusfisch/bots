@@ -76,10 +76,13 @@ static void usage() {
 			PLACING_ARG_RANDOM"\" or\n"\
 		"                              \""PLACING_ARG_GRID"\", "\
 			"default depends on mode\n"\
-		"  -A, --place-at X,Y[,D];...  place players at given "\
-			"coordinates and in given\n"\
-		"                              direction, either '^', '>', "\
-			"'v' or '<'\n"
+		"  -Z, --fuzzy N               maximum potential deviaton "\
+			"from calculated\n"\
+		"                              position, default is 0\n"\
+		"  -A, --place-at X,Y[,D];...  manually place players at "\
+			"given coordinates and\n"\
+		"                              in given direction, either "\
+			"'^', '>', 'v' or '<'\n"
 		"  -N, --non-exclusive         multiple players can occupy "\
 			"the same cell\n"\
 		"  -v, --view-radius N         how many fields a player can "\
@@ -263,6 +266,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "flatland", required_argument, NULL, 'f' },
 		{ "multiplier", required_argument, NULL, 'x' },
 		{ "placing", required_argument, NULL, 'p' },
+		{ "fuzzy", required_argument, NULL, 'Z' },
 		{ "place-at", required_argument, NULL, 'A' },
 		{ "non-exclusive", required_argument, &config.non_exclusive, 1 },
 		{ "view-radius", required_argument, NULL, 'v' },
@@ -283,7 +287,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:b:m:s:t:c:o:f:x:p:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
+			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -329,6 +333,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'p':
 			config.placing = parse_placing(optarg);
+			break;
+		case 'Z':
+			config.placing_fuzz = atoi(optarg);
 			break;
 		case 'A':
 			config.placing = parse_placing_at(config.coords, optarg);

@@ -76,6 +76,7 @@ struct Config {
 	const char *flatland;
 	unsigned int multiplier;
 	unsigned int placing;
+	unsigned int placing_fuzz;
 	struct Coords {
 		int x;
 		int y;

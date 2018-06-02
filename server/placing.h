@@ -3,9 +3,9 @@
 
 struct Coords;
 
-void placing_circle();
-void placing_random();
-void placing_grid();
-void placing_manual(Coords *);
+void placing_circle(unsigned int);
+void placing_random(unsigned int);
+void placing_grid(unsigned int);
+void placing_manual(Coords *, unsigned int);
 
 #endif
