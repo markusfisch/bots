@@ -492,6 +492,9 @@ static void game_place_players() {
 	case PLACING_RANDOM:
 		placing_random();
 		break;
+	case PLACING_GRID:
+		placing_grid();
+		break;
 	case PLACING_MANUAL:
 		placing_manual(config.coords);
 		break;

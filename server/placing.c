@@ -32,13 +32,33 @@ void placing_random() {
 		int px;
 		int py;
 		do {
-			px = rand() % width;
-			py = rand() % height;
+			px = (rand() % width);
+			py = (rand() % height);
 		} while (config.impassable(&game.map, px, py) ||
 			player_at(px, py, NULL));
 		p->bearing = rand() % 4;
 		p->x = px;
 		p->y = py;
+	}
+}
+
+void placing_grid() {
+	int sq = ceil(sqrt(game.nplayers));
+	int xgap = game.map.width / sq;
+	int ygap = game.map.height / sq;
+	int x = 0;
+	int y = 0;
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		p->bearing = rand() % 4;
+		p->x = map_wrap(x, game.map.width);
+		p->y = map_wrap(y, game.map.height);
+		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
+		x += xgap;
+		if (x >= (int) game.map.width) {
+			x = 0;
+			y += ygap;
+		}
 	}
 }
 

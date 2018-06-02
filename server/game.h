@@ -15,7 +15,8 @@
 #define MAP_TYPE_MAZE 3
 #define PLACING_CIRCLE 1
 #define PLACING_RANDOM 2
-#define PLACING_MANUAL 3
+#define PLACING_GRID 3
+#define PLACING_MANUAL 4
 #define FORMAT_PLAIN 0
 #define FORMAT_JSON 1
 

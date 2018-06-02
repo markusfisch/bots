@@ -5,6 +5,7 @@ struct Coords;
 
 void placing_circle();
 void placing_random();
+void placing_grid();
 void placing_manual(Coords *);
 
 #endif

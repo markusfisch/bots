@@ -18,6 +18,7 @@
 #define MAP_TYPE_ARG_MAZE "maze"
 #define PLACING_ARG_CIRCLE "circle"
 #define PLACING_ARG_RANDOM "random"
+#define PLACING_ARG_GRID "grid"
 #define FORMAT_ARG_PLAIN "plain"
 #define FORMAT_ARG_JSON "json"
 
@@ -71,9 +72,10 @@ static void usage() {
 		"  -x, --multiplier N          multiplier of flatland string, "\
 			"default is 14\n"\
 		"  -p, --placing TYPE          player placing, either \""\
-			PLACING_ARG_CIRCLE"\" or \""\
-			PLACING_ARG_RANDOM"\",\n"\
-		"                              default depends on mode\n"\
+			PLACING_ARG_CIRCLE"\", \""\
+			PLACING_ARG_RANDOM"\" or\n"\
+		"                              \""PLACING_ARG_GRID"\", "\
+			"default depends on mode\n"\
 		"  -A, --place-at X,Y[,D];...  place players at given "\
 			"coordinates and in given\n"\
 		"                              direction, either '^', '>', "\
@@ -226,6 +228,8 @@ static int parse_placing(const char *arg) {
 		return PLACING_CIRCLE;
 	} else if (!strcmp(arg, PLACING_ARG_RANDOM)) {
 		return PLACING_RANDOM;
+	} else if (!strcmp(arg, PLACING_ARG_GRID)) {
+		return PLACING_GRID;
 	}
 	fprintf(stderr, "error: unknown placing \"%s\"\n", arg);
 	exit(1);
