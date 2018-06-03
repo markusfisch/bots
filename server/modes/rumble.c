@@ -3,12 +3,12 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "last_man_standing.h"
+#include "rumble.h"
 
 extern struct Config config;
 extern struct Game game;
 
-void last_man_standing() {
+void rumble() {
 	config.min_players = config.min_players ?: 2;
 	config.view_radius = config.view_radius ?: 4;
 	config.max_turns = config.max_turns ?: game.map.size;

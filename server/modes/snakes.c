@@ -3,7 +3,7 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "collect_gems.h"
+#include "collect.h"
 #include "snakes.h"
 
 #define TILE_TAIL '*'

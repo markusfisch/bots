@@ -2,7 +2,7 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "collect_gems.h"
+#include "collect.h"
 
 extern struct Config config;
 extern struct Game game;
@@ -43,7 +43,7 @@ static void move(Player *p, char cmd) {
 	}
 }
 
-void collect_gems() {
+void collect() {
 	config.placing = config.placing ?: PLACING_RANDOM;
 
 	config.start = start;

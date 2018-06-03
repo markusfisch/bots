@@ -5,7 +5,7 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "asteroid_shower.h"
+#include "avoid.h"
 
 extern struct Config config;
 extern struct Game game;
@@ -69,7 +69,7 @@ static void turn_start() {
 	asteroids_move();
 }
 
-void asteroid_shower() {
+void avoid() {
 	config.placing = config.placing ?: PLACING_RANDOM;
 	config.view_radius = config.view_radius ?: 4;
 

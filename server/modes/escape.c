@@ -3,7 +3,7 @@
 
 #include "../game.h"
 #include "../player.h"
-#include "find_exit.h"
+#include "escape.h"
 
 #define TILE_EXIT 'o'
 
@@ -28,7 +28,7 @@ static void move(Player *p, char cmd) {
 	}
 }
 
-void find_exit() {
+void escape() {
 	config.start = start;
 	config.move = move;
 }

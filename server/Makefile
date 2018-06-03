@@ -1,9 +1,9 @@
 BIN = bots
 OBJECTS = map.o maze.o placing.o player.o game.o \
-	modes/asteroid_shower.o \
-	modes/collect_gems.o \
-	modes/find_exit.o \
-	modes/last_man_standing.o \
+	modes/avoid.o \
+	modes/collect.o \
+	modes/escape.o \
+	modes/rumble.o \
 	modes/snakes.o \
 	modes/training.o \
 	modes/word.o \

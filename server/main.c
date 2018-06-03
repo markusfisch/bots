@@ -6,10 +6,10 @@
 
 #include "game.h"
 #include "player.h"
-#include "modes/asteroid_shower.h"
-#include "modes/collect_gems.h"
-#include "modes/find_exit.h"
-#include "modes/last_man_standing.h"
+#include "modes/avoid.h"
+#include "modes/collect.h"
+#include "modes/escape.h"
+#include "modes/rumble.h"
 #include "modes/snakes.h"
 #include "modes/training.h"
 #include "modes/word.h"
@@ -33,11 +33,11 @@ static const struct Mode {
 	void *init;
 } modes[] = {
 	{ "training", "just learn to see and move", training },
-	{ "escape", "find the exit field 'o'", find_exit },
-	{ "collect", "collect as many gems '@' as possible", collect_gems },
+	{ "escape", "find the exit field 'o'", escape },
+	{ "collect", "collect as many gems '@' as possible", collect },
 	{ "snakes", "eat gems '@' and grow a tail", snakes },
-	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
-	{ "avoid", "survive an asteroid shower of 'X'", asteroid_shower },
+	{ "rumble", "last man standing, shoot with 'f'", rumble },
+	{ "avoid", "survive an asteroid shower of 'X'", avoid },
 	{ "word", "find a word somewhere on the map", word },
 	{ NULL, NULL, NULL }
 };
