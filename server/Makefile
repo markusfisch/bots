@@ -6,6 +6,7 @@ OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/last_man_standing.o \
 	modes/snakes.o \
 	modes/training.o \
+	modes/word.o \
 	main.o
 LIBS = -lm
 FLAGS = -O2 -Wall -Wextra

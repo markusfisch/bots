@@ -116,6 +116,13 @@ If a bot gets hit, it's destroyed.
 The bots are randomly placed with a random orientation.
 The bot that survives the longest wins.
 
+### word
+
+Find a random word of random length at the middle of the map and send it
+back to the server.
+The bots are placed in a circle around the word with a random orientation.
+Use `--word` to set a custom word.
+
 ## Available maps
 
 Use `--map-size` to set a custom map size and `--view-radius` to control
@@ -183,6 +190,7 @@ MODE must be one of:
   snakes - eat gems '@' and grow a tail
   rumble - last man standing, shoot with 'f'
   avoid - survive an asteroid shower of 'X'
+  word - find a word somewhere on the map
 
 OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187
@@ -218,6 +226,7 @@ OPTION can be any of:
   -X, --shoot                 players can shoot, default depends on mode
   -g, --gems N                number of gems if there are gems, default equals
                               map width
+  -R, --word STRING           custom word for "word" mode, random by default
   -F, --format TYPE           server output format, either "plain" or "json",
                               default is "plain"
   -W, --wait-for-joins N      number of seconds to wait for joins,

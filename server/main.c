@@ -12,6 +12,7 @@
 #include "modes/last_man_standing.h"
 #include "modes/snakes.h"
 #include "modes/training.h"
+#include "modes/word.h"
 
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
@@ -37,6 +38,7 @@ static const struct Mode {
 	{ "snakes", "eat gems '@' and grow a tail", snakes },
 	{ "rumble", "last man standing, shoot with 'f'", last_man_standing },
 	{ "avoid", "survive an asteroid shower of 'X'", asteroid_shower },
+	{ "word", "find a word somewhere on the map", word },
 	{ NULL, NULL, NULL }
 };
 
@@ -106,6 +108,8 @@ static void usage() {
 		"  -g, --gems N                number of gems if there are "\
 			"gems, default equals\n"\
 		"                              map width\n"\
+		"  -R, --word STRING           custom word for \"word\" mode, "\
+			"random by default\n"\
 		"  -F, --format TYPE           server output format, either \""\
 			FORMAT_ARG_PLAIN"\" or \""\
 			FORMAT_ARG_JSON"\",\n"\
@@ -115,7 +119,7 @@ static void usage() {
 			"for joins,\n"\
 		"                              default is 10\n"\
 		"  -u, --usec-per-turn N       maximum number of milliseconds "\
-			"per turn, \n"\
+			"per turn,\n"\
 		"                              default is 1000000 (one second)\n"\
 		"  -d, --deterministic         don't seed the random number "\
 			"generator\n");
@@ -278,6 +282,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "shoot", no_argument, &config.can_shoot, 1 },
 		{ "gems", required_argument, NULL, 'g' },
+		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
@@ -287,7 +292,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:F:W:u:d",
+			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -369,6 +374,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'R':
+			config.word = optarg;
 			break;
 		case 'F':
 			config.output_format = parse_format(optarg);

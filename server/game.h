@@ -96,6 +96,7 @@ struct Config {
 	time_t wait_for_joins;
 	time_t usec_per_turn;
 	char *spectator_key;
+	char *word;
 	void (*prepare)();
 	void (*start)();
 	void (*turn_start)();
