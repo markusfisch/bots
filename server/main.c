@@ -108,6 +108,10 @@ static void usage() {
 		"  -g, --gems N                number of gems if there are "\
 			"gems, default equals\n"\
 		"                              map width\n"\
+		"  -D, --diagonal-asteroids    allow asteroids in avoid to move "\
+			"diagonal,\n"\
+		"                              per default they move on one "\
+			"axis only\n"\
 		"  -R, --word STRING           custom word for \"word\" mode, "\
 			"random by default\n"\
 		"  -F, --format TYPE           server output format, either \""\
@@ -282,6 +286,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "shoot", no_argument, &config.can_shoot, 1 },
 		{ "gems", required_argument, NULL, 'g' },
+		{ "diagonal-asteroids", no_argument, &config.diagonal_asteroids, 1 },
 		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
 		{ "wait-for-joins", required_argument, NULL, 'W' },
@@ -292,7 +297,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:W:u:d",
+			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:DR:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -374,6 +379,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'D':
+			config.diagonal_asteroids = 1;
 			break;
 		case 'R':
 			config.word = optarg;

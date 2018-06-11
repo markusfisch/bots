@@ -62,6 +62,13 @@ static void start() {
 		vx = (rand() % 3) - 1;
 		vy = (rand() % 3) - 1;
 	} while (!vx && !vy);
+	if (!config.diagonal_asteroids) {
+		if (vx) {
+			vy = 0;
+		} else {
+			vx = 0;
+		}
+	}
 	score = MAX_PLAYERS - game.nplayers;
 }
 
