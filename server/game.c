@@ -55,15 +55,15 @@ static void game_print_results(FILE *fp) {
 	switch (config.output_format) {
 	default:
 	case FORMAT_PLAIN:
-		fprintf(fp, "========== RESULTS ==========\n");
-		fprintf(fp, "Place Name Score Moves Killer\n");
-		format = "% 4d. %c    % 5d % 5d %c\n";
+		fprintf(fp, "================== RESULTS ==================\n");
+		fprintf(fp, "Place Address         Name Score Moves Killer\n");
+		format = "% 4d. %-15s %c    % 5d % 5d %c\n";
 		break;
 	case FORMAT_JSON:
 		// close turns array and open results
 		fprintf(fp, "],\n\"results\":[\n");
-		format = "{\"place\":%d,\"name\":\"%c\",\"score\":%d,"\
-			"\"moves\":%d,\"killer\":\"%c\"}";
+		format = "{\"place\":%d,\"addr\":\"%s\",\"name\":\"%c\","\
+			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
 		break;
 	}
 	int place = 1;
@@ -72,7 +72,7 @@ static void game_print_results(FILE *fp) {
 		if (config.output_format == FORMAT_JSON && p > game.players) {
 			fprintf(fp, ",\n");
 		}
-		fprintf(fp, format, place, p->name, p->score, p->moves,
+		fprintf(fp, format, place, p->addr, p->name, p->score, p->moves,
 			p->killed_by ?: '-');
 	}
 	switch (config.output_format) {
