@@ -575,10 +575,16 @@ static void game_start() {
 		printf("{\n\"max_turns\":%d,\n"\
 				"\"map_width\":%d,\n"\
 				"\"map_height\":%d,\n"\
+				"\"view_radius\":%d,\n"\
+				"\"obstacles\":\"%s\",\n"\
+				"\"flatland\":\"%s\",\n"\
 				"\"turns\":[\n",
 			config.max_turns,
 			config.map_width,
-			config.map_height);
+			config.map_height,
+			config.view_radius,
+			config.obstacles,
+			config.flatland);
 	}
 }
 
