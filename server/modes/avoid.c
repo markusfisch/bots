@@ -62,7 +62,7 @@ static void start() {
 		vx = (rand() % 3) - 1;
 		vy = (rand() % 3) - 1;
 	} while (!vx && !vy);
-	score = 0;
+	score = MAX_PLAYERS - game.nplayers;
 }
 
 static void turn_start() {

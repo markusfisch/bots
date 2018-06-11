@@ -26,7 +26,7 @@ static void move(Player *p, char cmd) {
 }
 
 static void start() {
-	points = 16;
+	points = MAX_PLAYERS;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		p->trunk = config.word;
