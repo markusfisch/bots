@@ -17,10 +17,6 @@ struct Game game;
 
 static int stop = 0;
 
-void game_end() {
-	game.stopped = time(NULL);
-}
-
 unsigned int game_joined() {
 	size_t n = 0;
 	Player *p = game.players, *e = p + game.nplayers;
@@ -265,6 +261,13 @@ static void game_remove_defunkt_players() {
 	}
 }
 
+void game_end() {
+	if (!game.stopped) {
+		game_send_spectators(game_write);
+		game.stopped = time(NULL);
+	}
+}
+
 static void game_send_players() {
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
@@ -272,6 +275,10 @@ static void game_send_players() {
 		if (p->fd > 0 && !p->can_move) {
 			if (!update && config.turn_start) {
 				config.turn_start();
+				// check again if this player got removed
+				if (p->fd < 1) {
+					continue;
+				}
 			}
 			player_send_view(p);
 			update = 1;
@@ -644,7 +651,6 @@ static int game_run(const int fd_player, const int fd_spectator) {
 				if (config.end) {
 					config.end();
 				}
-				game_send_spectators(game_write);
 				game_send_spectators(game_print_results);
 				if (config.max_games > 0 && --config.max_games < 1) {
 					break;
