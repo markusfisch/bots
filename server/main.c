@@ -164,7 +164,9 @@ static char *load_map(const char *file) {
 			width = len;
 			height = size / (width + 1);
 			if (height < 1 || height * (width + 1) != (size_t) size) {
-				break;
+				fprintf(stderr, "error: malformed map in \"%s\"\n", file);
+				fclose(fp);
+				exit(1);
 			}
 			p = buf = calloc(width * height, sizeof(char));
 			if (!p) {
