@@ -92,7 +92,6 @@ struct Config {
 	unsigned int player_life;
 	int can_shoot;
 	unsigned int gems;
-	int diagonal_asteroids;
 	unsigned int output_format;
 	time_t wait_for_joins;
 	time_t usec_per_turn;
