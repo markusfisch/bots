@@ -8,11 +8,19 @@ OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/training.o \
 	modes/word.o \
 	main.o
+DEPS = map.h maze.h placing.h player.h game.h \
+	modes/avoid.h \
+	modes/collect.h \
+	modes/escape.h \
+	modes/rumble.h \
+	modes/snakes.h \
+	modes/training.h \
+	modes/word.h
 LIBS = -lm
-FLAGS = -O2 -Wall -Wextra
+CFLAGS = -O2 -Wall -Wextra
 
-.c.o: $(OBJECTS)
-	$(CC) -c $< -o $@ $(FLAGS)
+%.o: %.c $(DEPS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BIN): $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS)
