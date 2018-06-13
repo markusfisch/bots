@@ -643,6 +643,9 @@ static int game_run(const int fd_player, const int fd_spectator) {
 		if (game.started) {
 			game_remove_defunkt_players();
 			if (game.stopped || game_joined() < config.min_players) {
+				if (!game.stopped) {
+					game_end();
+				}
 				if (config.end) {
 					config.end();
 				}
