@@ -241,16 +241,6 @@ static void game_write(FILE *fp) {
 	fflush(fp);
 }
 
-static void game_send_spectators(void (*writer)(FILE *)) {
-	Spectator *s = game.spectators, *e = s + game.nspectators;
-	for (; s < e; ++s) {
-		if (s->fp != NULL) {
-			writer(s->fp);
-		}
-	}
-	writer(stdout);
-}
-
 static void game_remove_defunkt_players() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -262,7 +252,7 @@ static void game_remove_defunkt_players() {
 
 void game_end() {
 	if (!game.stopped) {
-		game_send_spectators(game_write);
+		game_write(stdout);
 		game.stopped = time(NULL);
 	}
 }
@@ -298,7 +288,7 @@ static void game_send_players() {
 				game.shrink_step = config.shrink_step;
 			}
 		}
-		game_send_spectators(game_write);
+		game_write(stdout);
 	}
 	for (p = game.players; p < e; ++p) {
 		if (p->fd > 0) {
@@ -331,57 +321,6 @@ static time_t game_next_turn() {
 		delta = config.usec_per_turn - delta;
 	}
 	return delta;
-}
-
-static void game_remove_spectator(Spectator *s) {
-	if (s->fd > 0) {
-		FD_CLR(s->fd, &game.watch);
-		fclose(s->fp);
-		s->fd = 0;
-		s->fp = NULL;
-		s->match = NULL;
-	}
-}
-
-static void game_remove_spectators() {
-	Spectator *s = game.spectators, *e = s + game.nspectators;
-	for (; s < e; ++s) {
-		if (s->fd > 0) {
-			game_remove_spectator(s);
-		}
-	}
-}
-
-static void game_read_spectator_key(Spectator *s) {
-	char key[0xff];
-	int b;
-	if ((b = recv(s->fd, key, sizeof(key), 0)) < 1) {
-		game_remove_spectator(s);
-		return;
-	}
-	if (game.started || !config.spectator_key || !s->match) {
-		return;
-	}
-	int already = s->match - config.spectator_key;
-	size_t max = strlen(config.spectator_key) - already;
-	if (max < 1) {
-		return;
-	}
-	size_t rest = (size_t) b < max ? (size_t) b : max;
-	if (strncmp(s->match + already, key, rest)) {
-		game_remove_spectator(s);
-		return;
-	}
-	s->match += rest;
-}
-
-static void game_read_spectators() {
-	Spectator *s = game.spectators, *e = s + game.nspectators;
-	for (; s < e; ++s) {
-		if (s->fd > 0 && FD_ISSET(s->fd, &game.ready)) {
-			game_read_spectator_key(s);
-		}
-	}
 }
 
 static void game_read_command(Player *p) {
@@ -426,20 +365,6 @@ static void game_watch_fd(int fd) {
 	}
 }
 
-static int game_add_spectator(int fd, char *addr) {
-	if (game.nspectators >= MAX_SPECTATORS) {
-		return 0;
-	}
-	Spectator *s = &game.spectators[game.nspectators];
-	strcpy(s->addr, addr);
-	s->fd = fd;
-	s->fp = fdopen(fd, "a");
-	s->match = config.spectator_key;
-	++game.nspectators;
-	game_watch_fd(fd);
-	return 1;
-}
-
 static int game_add_player(int fd, char *addr) {
 	if (game.nplayers >= MAX_PLAYERS) {
 		return 0;
@@ -455,8 +380,7 @@ static int game_add_player(int fd, char *addr) {
 	return 1;
 }
 
-static void game_join(const int lfd, int (*add)(int, char *),
-		const char *role) {
+static void game_join(const int lfd, int (*add)(int, char *)) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 	int fd = accept(lfd, &addr, &len);
@@ -469,7 +393,7 @@ static void game_join(const int lfd, int (*add)(int, char *),
 	char ip_str[INET_ADDRSTRLEN] = { 0 };
 	inet_ntop(AF_INET, &sin_addr, ip_str, INET_ADDRSTRLEN);
 	if (add(fd, ip_str) && config.output_format == FORMAT_PLAIN) {
-		printf("%s joined as %s\n", ip_str, role);
+		printf("%s joined\n", ip_str);
 		fflush(stdout);
 	}
 }
@@ -543,21 +467,7 @@ static void game_assign_player_names() {
 	}
 }
 
-static int game_spectator_authorized(const Spectator *s) {
-	return s->match && !*s->match;
-}
-
-static void game_remove_unauthorized_spectators() {
-	Spectator *s = game.spectators, *e = s + game.nspectators;
-	for (; s < e; ++s) {
-		if (s->fd > 0 && !game_spectator_authorized(s)) {
-			game_remove_spectator(s);
-		}
-	}
-}
-
 static void game_start() {
-	game_remove_unauthorized_spectators();
 	game_assign_player_names();
 	if (config.prepare) {
 		config.prepare();
@@ -590,28 +500,25 @@ static void game_start() {
 	}
 }
 
-static void game_shutdown(const int fd_player, const int fd_spectator) {
+static void game_shutdown(const int fd_player) {
 	close(fd_player);
-	close(fd_spectator);
 	game_remove_players();
-	game_remove_spectators();
 	map_free(&game.map);
 }
 
-static void game_reset(const int fd_player, const int fd_spectator) {
+static void game_reset(const int fd_player) {
 	memset(&game, 0, sizeof(Game));
 	game_watch_fd(fd_player);
-	game_watch_fd(fd_spectator);
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
 			config.min_starters);
 	}
 }
 
-static int game_run(const int fd_player, const int fd_spectator) {
+static int game_run(const int fd_player) {
 	struct timeval tv;
 
-	game_reset(fd_player, fd_spectator);
+	game_reset(fd_player);
 
 	while (!stop) {
 		if (game.started) {
@@ -631,13 +538,9 @@ static int game_run(const int fd_player, const int fd_spectator) {
 			break;
 		} else if (ready > 0) {
 			if (FD_ISSET(fd_player, &game.ready)) {
-				game_join(fd_player, game_add_player, "player");
-			}
-			if (FD_ISSET(fd_spectator, &game.ready)) {
-				game_join(fd_spectator, game_add_spectator, "spectator");
+				game_join(fd_player, game_add_player);
 			}
 			game_read_commands();
-			game_read_spectators();
 		}
 
 		if (game.started) {
@@ -649,13 +552,13 @@ static int game_run(const int fd_player, const int fd_spectator) {
 				if (config.end) {
 					config.end();
 				}
-				game_send_spectators(game_print_results);
+				game_print_results(stdout);
 				if (config.max_games > 0 && --config.max_games < 1) {
 					break;
 				} else {
 					game_remove_players();
 					map_free(&game.map);
-					game_reset(fd_player, fd_spectator);
+					game_reset(fd_player);
 				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
@@ -664,7 +567,7 @@ static int game_run(const int fd_player, const int fd_spectator) {
 		}
 	}
 
-	game_shutdown(fd_player, fd_spectator);
+	game_shutdown(fd_player);
 
 	return 0;
 }
@@ -738,10 +641,6 @@ int game_serve() {
 	if (fd_player < 0) {
 		return -1;
 	}
-	int fd_spectator = game_listen(config.port_spectator);
-	if (fd_player < 0) {
-		return -1;
-	}
 
 	signal(SIGHUP, game_handle_signal);
 	signal(SIGINT, game_handle_signal);
@@ -750,5 +649,5 @@ int game_serve() {
 	signal(SIGPIPE, game_handle_signal);
 #endif
 
-	return game_run(fd_player, fd_spectator);
+	return game_run(fd_player);
 }

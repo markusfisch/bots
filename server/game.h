@@ -55,20 +55,12 @@ struct Game {
 		void *trunk;
 		unsigned int counter;
 	} players[MAX_PLAYERS];
-	unsigned int nspectators;
-	struct Spectator {
-		char addr[INET_ADDRSTRLEN];
-		int fd;
-		char *match;
-		void *fp;
-	} spectators[MAX_SPECTATORS];
 };
 
 struct Config {
 	unsigned int port_player;
-	unsigned int port_spectator;
-	unsigned int min_starters;
 	unsigned int min_players;
+	unsigned int min_starters;
 	unsigned int map_width;
 	unsigned int map_height;
 	unsigned int map_type;
@@ -96,7 +88,6 @@ struct Config {
 	unsigned int output_format;
 	time_t wait_for_joins;
 	time_t usec_per_turn;
-	char *spectator_key;
 	char *word;
 	void (*prepare)();
 	void (*start)();

@@ -53,9 +53,6 @@ static void usage() {
 	printf("\nOPTION can be any of:\n"\
 		"  -P, --port N                port to listen for players, "\
 			"default is 63187\n"\
-		"  -w, --spectator-port N      port to listen for spectators, "\
-			"default is 63188\n"\
-		"  -K, --key KEY               spectator key, default is unset\n"\
 		"  -b, --min-starters N        minimum number of players to start "\
 			"a game,\n"\
 		"                              default is 1\n"\
@@ -261,8 +258,6 @@ static void parse_arguments(int argc, char **argv) {
 
 	struct option longopts[] = {
 		{ "port", required_argument, NULL, 'P' },
-		{ "spectator-port", required_argument, NULL, 'w' },
-		{ "spectator-key", required_argument, NULL, 'K' },
 		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
@@ -294,17 +289,11 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:w:K:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:W:u:d",
+			"P:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:W:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
 			config.port_player = atoi(optarg);
-			break;
-		case 'w':
-			config.port_spectator = atoi(optarg);
-			break;
-		case 'K':
-			config.spectator_key = optarg;
 			break;
 		case 'b':
 			config.min_starters = atoi(optarg);
@@ -422,7 +411,6 @@ int main(int argc, char **argv) {
 	parse_arguments(argc, argv);
 
 	config.port_player = config.port_player ?: 63187;
-	config.port_spectator = config.port_spectator ?: 63188;
 	config.min_players = config.min_players ?: 1;
 	config.min_starters = config.min_starters ?: config.min_players;
 	config.map_width = config.map_width ?: 32;
@@ -441,7 +429,6 @@ int main(int argc, char **argv) {
 	config.gems = config.gems ?: config.map_width;
 	config.wait_for_joins = config.wait_for_joins ?: 10;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
-	config.spectator_key = config.spectator_key ?: "";
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;
 
