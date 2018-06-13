@@ -522,6 +522,7 @@ static void game_init_map() {
 	default:
 	case MAP_TYPE_PLAIN:
 		memset(game.map.data, *config.flatland, game.map.size);
+		game.map.obstacles = config.obstacles;
 		break;
 	case MAP_TYPE_RANDOM:
 		map_init_random(&game.map, config.multiplier, config.flatland,
@@ -530,6 +531,7 @@ static void game_init_map() {
 	case MAP_TYPE_MAZE:
 		maze_generate(&game.map, game.map.width / 2, game.map.height / 2,
 			*config.flatland, TILE_GONE);
+		game.map.obstacles = config.obstacles;
 		break;
 	}
 }
