@@ -22,6 +22,7 @@
 #define PLACING_ARG_GRID "grid"
 #define FORMAT_ARG_PLAIN "plain"
 #define FORMAT_ARG_JSON "json"
+#define PLACING_SEPARATOR ":"
 
 extern struct Config config;
 
@@ -81,8 +82,8 @@ static void usage() {
 		"  -Z, --fuzzy N               maximum potential deviaton "\
 			"from calculated\n"\
 		"                              position, default is 0\n"\
-		"  -A, --place-at X,Y[,D];...  manually place players at "\
-			"given coordinates and\n"\
+		"  -A, --place-at X,Y[,D]"PLACING_SEPARATOR"...  manually "\
+			"place players at given coordinates and\n"\
 		"                              in given direction, either "\
 			"'^', '>', 'v' or '<'\n"
 		"  -N, --non-exclusive         multiple players can occupy "\
@@ -212,10 +213,9 @@ static int map_bearing(const char bearing) {
 }
 
 static int parse_placing_at(Coords *coords, char *arg) {
-	#define SEPARATOR ";"
 	Coords *p = coords, *e = p + MAX_PLAYERS;
-	char *s = strtok(arg, SEPARATOR);
-	for (; s && coords < e; s = strtok(NULL, SEPARATOR), ++p) {
+	char *s = strtok(arg, PLACING_SEPARATOR);
+	for (; s && coords < e; s = strtok(NULL, PLACING_SEPARATOR), ++p) {
 		char bearing = 0;
 		sscanf(s, "%d,%d,%c", &p->x, &p->y, &bearing);
 		p->bearing = bearing == 0 ? 4 : map_bearing(bearing);
