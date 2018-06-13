@@ -676,6 +676,12 @@ static void game_handle_signal(const int id) {
 	case SIGTERM:
 		stop = 1;
 		break;
+#ifndef MSG_NOSIGNAL
+	case SIGPIPE:
+		// ignore; send when a socket is shut down for
+		// writing what shouldn't terminate the server
+		break;
+#endif
 	}
 }
 
@@ -740,6 +746,9 @@ int game_serve() {
 	signal(SIGHUP, game_handle_signal);
 	signal(SIGINT, game_handle_signal);
 	signal(SIGTERM, game_handle_signal);
+#ifndef MSG_NOSIGNAL
+	signal(SIGPIPE, game_handle_signal);
+#endif
 
 	return game_run(fd_player, fd_spectator);
 }
