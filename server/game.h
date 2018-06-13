@@ -53,6 +53,7 @@ struct Game {
 		int attack_y;
 		char killed_by;
 		void *trunk;
+		unsigned int counter;
 	} players[MAX_PLAYERS];
 	unsigned int nspectators;
 	struct Spectator {
