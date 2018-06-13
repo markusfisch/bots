@@ -94,10 +94,16 @@ static char *generate_random_word() {
 	return random_word;
 }
 
+int impassable(Map *map, const int x, const int y) {
+	char tile = map_get(map, x, y);
+	return map_impassable(map, x, y) ||
+		strchr("abcdefghijklmnopqrstuvwxyz", tile);
+}
+
 void word() {
 	config.move = move;
 	config.start = start;
 	config.end = free_buffers;
 	config.word = config.word ?: generate_random_word();
-	config.obstacles = config.obstacles ?: "abcdefghijklmnopqrstuvwxyz";
+	config.impassable = impassable;
 }
