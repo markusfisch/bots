@@ -13,18 +13,18 @@ extern struct Game game;
 static struct Asteroid {
 	int x;
 	int y;
+	int vx;
+	int vy;
 } *asteroids = NULL;
 size_t nasteroids;
-int vx;
-int vy;
 int score;
 
 static void asteroids_move() {
-	struct Asteroid *p = asteroids, *e = asteroids + nasteroids;
+	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
 		map_set(&game.map, p->x, p->y, *config.flatland);
-		p->x = map_wrap(p->x + vx, game.map.width);
-		p->y = map_wrap(p->y + vy, game.map.height);
+		p->x = map_wrap(p->x + p->vx, game.map.width);
+		p->y = map_wrap(p->y + p->vy, game.map.height);
 		map_set(&game.map, p->x, p->y, TILE_GONE);
 		Player *hit = NULL;
 		while ((hit = player_at(p->x, p->y, hit))) {
@@ -35,19 +35,21 @@ static void asteroids_move() {
 }
 
 static void asteroids_place() {
-	struct Asteroid *p = asteroids, *e = asteroids + nasteroids;
+	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
 		do {
 			p->x = rand() % game.map.width;
 			p->y = rand() % game.map.height;
 		} while (player_at(p->x, p->y, NULL));
+		do {
+			p->vx = (rand() % 3) - 1;
+			p->vy = (rand() % 3) - 1;
+		} while (!p->vx && !p->vy);
 	}
 }
 
 static size_t asteroids_create(int amount) {
-	if (asteroids) {
-		free(asteroids);
-	}
+	free(asteroids);
 	if (amount < 2) {
 		amount = 2;
 	}
@@ -58,15 +60,22 @@ static size_t asteroids_create(int amount) {
 static void start() {
 	nasteroids = asteroids_create(round(game.map.size * .1));
 	asteroids_place();
-	do {
-		vx = (rand() % 3) - 1;
-		vy = (rand() % 3) - 1;
-	} while (!vx && !vy);
-	score = MAX_PLAYERS - game.nplayers;
+	score = MAX_PLAYERS - (game.nplayers - 1);
 }
 
 static void turn_start() {
 	asteroids_move();
+}
+
+static void end() {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd) {
+			p->score = score;
+		}
+	}
+	free(asteroids);
+	nasteroids = 0;
 }
 
 void avoid() {
@@ -75,4 +84,5 @@ void avoid() {
 
 	config.start = start;
 	config.turn_start = turn_start;
+	config.end = end;
 }

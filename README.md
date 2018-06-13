@@ -110,11 +110,11 @@ to control that).
 
 ### avoid
 
-Survive inside a moving asteroid shower.
-The asteroids `X` move in the same random direction, one field every turn.
+Survive inside an asteroid shower.
+All asteroids `X` move in random directions, one field per turn.
 If a bot gets hit, it's destroyed.
 The bots are randomly placed with a random orientation.
-The bot that survives the longest wins.
+The bot that survives the longest gets the most points.
 
 ### word
 
