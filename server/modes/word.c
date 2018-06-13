@@ -99,4 +99,5 @@ void word() {
 	config.start = start;
 	config.end = free_buffers;
 	config.word = config.word ?: generate_random_word();
+	config.obstacles = config.obstacles ?: "abcdefghijklmnopqrstuvwxyz";
 }
