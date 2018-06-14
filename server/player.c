@@ -187,8 +187,8 @@ void player_shoot(Player *p) {
 	p->attack_x = p->x;
 	p->attack_y = p->y;
 	while (range-- > 0) {
-		p->attack_x = (p->attack_x + vx + game.map.width) % game.map.width;
-		p->attack_y = (p->attack_y + vy + game.map.height) % game.map.height;
+		p->attack_x = map_wrap(p->attack_x + vx, game.map.width);
+		p->attack_y = map_wrap(p->attack_y + vy, game.map.height);
 		Player *enemy = NULL;
 		while ((enemy = player_at(p->attack_x, p->attack_y, enemy))) {
 			if (--enemy->life < 1) {
