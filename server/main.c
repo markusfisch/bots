@@ -89,7 +89,7 @@ static void usage() {
 			"see in every\n"\
 		"                              direction, default is 2\n"\
 		"  -G, --max-games N           maximum number of games, "\
-			"default is unlimited\n"\
+			"default is 1\n"\
 		"  -M, --max-turns N           maximum number of turns, "\
 			"default is 1024\n"\
 		"  -L, --max-lag N             number of turns a player can "\
@@ -421,6 +421,7 @@ int main(int argc, char **argv) {
 	config.multiplier = config.multiplier ?: 14;
 	config.placing = config.placing ?: PLACING_CIRCLE;
 	config.view_radius = config.view_radius ?: 2;
+	config.max_games = config.max_games ?: 1;
 	config.max_turns = config.max_turns ?: 1024;
 	config.max_lag = config.max_lag ?: config.max_turns;
 	config.shrink_after = config.shrink_after ?: config.max_turns;

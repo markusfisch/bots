@@ -208,12 +208,12 @@ OPTION can be any of:
                               "grid", default depends on mode
   -Z, --fuzzy N               maximum potential deviaton from calculated
                               position, default is 0
-  -A, --place-at X,Y[,D];...  manually place players at given coordinates and
+  -A, --place-at X,Y[,D]:...  manually place players at given coordinates and
                               in given direction, either '^', '>', 'v' or '<'
   -N, --non-exclusive         multiple players can occupy the same cell
   -v, --view-radius N         how many fields a player can see in every
                               direction, default is 2
-  -G, --max-games N           maximum number of games, default is unlimited
+  -G, --max-games N           maximum number of games, default is 1
   -M, --max-turns N           maximum number of turns, default is 1024
   -L, --max-lag N             number of turns a player can miss,
                               default is 1024
