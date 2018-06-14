@@ -115,7 +115,7 @@ static void usage() {
 			FORMAT_ARG_PLAIN"\"\n"\
 		"  -W, --wait-for-joins N      number of seconds to wait "\
 			"for joins,\n"\
-		"                              default is 10\n"\
+		"                              default is 1\n"\
 		"  -u, --usec-per-turn N       maximum number of milliseconds "\
 			"per turn,\n"\
 		"                              default is 1000000 (one second)\n"\
@@ -428,7 +428,7 @@ int main(int argc, char **argv) {
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;
 	config.gems = config.gems ?: config.map_width;
-	config.wait_for_joins = config.wait_for_joins ?: 10;
+	config.wait_for_joins = config.wait_for_joins ?: 1;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
 	config.impassable = config.impassable ?: map_impassable;

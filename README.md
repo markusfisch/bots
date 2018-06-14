@@ -227,7 +227,7 @@ OPTION can be any of:
   -F, --format TYPE           server output format, either "plain" or "json",
                               default is "plain"
   -W, --wait-for-joins N      number of seconds to wait for joins,
-                              default is 10
+                              default is 1
   -u, --usec-per-turn N       maximum number of milliseconds per turn,
                               default is 1000000 (one second)
   -d, --deterministic         don't seed the random number generator
