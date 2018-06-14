@@ -7,6 +7,8 @@
 #include "../player.h"
 #include "avoid.h"
 
+#define ASTEROID TILE_GONE
+
 extern struct Config config;
 extern struct Game game;
 
@@ -15,6 +17,7 @@ static struct Asteroid {
 	int y;
 	int vx;
 	int vy;
+	char tile;
 } *asteroids = NULL;
 size_t nasteroids;
 int score;
@@ -22,10 +25,12 @@ int score;
 static void asteroids_move() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
-		map_set(&game.map, p->x, p->y, *config.flatland);
+		map_set(&game.map, p->x, p->y, p->tile);
+	}
+	for (p = asteroids; p < e; ++p) {
 		p->x = map_wrap(p->x + p->vx, game.map.width);
 		p->y = map_wrap(p->y + p->vy, game.map.height);
-		map_set(&game.map, p->x, p->y, TILE_GONE);
+		map_set(&game.map, p->x, p->y, ASTEROID);
 		Player *hit = NULL;
 		while ((hit = player_at(p->x, p->y, hit))) {
 			hit->score = score++;
@@ -34,17 +39,34 @@ static void asteroids_move() {
 	}
 }
 
+static int player_near(int x, int y) {
+	int v;
+	int u;
+	for (v = -1; v < 2; ++v) {
+		for (u = -1; u < 2; ++u) {
+			if (player_at(map_wrap(x + v, game.map.width),
+					map_wrap(y + u, game.map.height), NULL)) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 static void asteroids_place() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
 		do {
 			p->x = rand() % game.map.width;
 			p->y = rand() % game.map.height;
-		} while (player_at(p->x, p->y, NULL));
+		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
+			player_near(p->x, p->y));
 		do {
 			p->vx = (rand() % 3) - 1;
 			p->vy = (rand() % 3) - 1;
 		} while (!p->vx && !p->vy);
+		p->tile = map_get(&game.map, p->x, p->y);
+		map_set(&game.map, p->x, p->y, ASTEROID);
 	}
 }
 
@@ -63,10 +85,6 @@ static void start() {
 	score = MAX_PLAYERS - (game.nplayers - 1);
 }
 
-static void turn_start() {
-	asteroids_move();
-}
-
 static void end() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -83,6 +101,6 @@ void avoid() {
 	config.view_radius = config.view_radius ?: 4;
 
 	config.start = start;
-	config.turn_start = turn_start;
+	config.turn_start = asteroids_move;
 	config.end = end;
 }
