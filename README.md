@@ -96,8 +96,7 @@ its own, it's destroyed. The bot with the most gems wins the game.
 
 Hunt down all other bots and be the last to survive. Send `f` to shoot.
 A bot can only shoot straight up.
-The bots are placed in a circle around a common center with a random
-orientation.
+The bots are placed at a regular interval.
 
 By default, a bot is killed on the first hit but you can use `--player-life`
 to change this (see below). If a bot is hit that has more than one hit point,
