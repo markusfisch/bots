@@ -103,9 +103,9 @@ to change this (see below). If a bot is hit that has more than one hit point,
 your name in the middle of the map, e.g. `A`, will change to a number showing
 your remaining hit points.
 
-After some time, a wall `X` will appear that shrinks the world to move
-the remaining bots closer together (use `--shrink-after` and `--shrink-step`
-to control that).
+After turn 64, a wall `X` will appear that shrinks the world to move the
+remaining bots closer together (use `--shrink-after` and `--shrink-step`
+to change that).
 
 ### avoid
 
