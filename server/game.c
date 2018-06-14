@@ -185,7 +185,6 @@ static void game_write_json(FILE *fp, char *buf) {
 		buf += game.map.width;
 	}
 	fprintf(fp, "\"}");
-	fflush(fp);
 }
 
 static void game_write_plain(FILE *fp, char *buf) {
@@ -218,7 +217,6 @@ static void game_write_plain(FILE *fp, char *buf) {
 		}
 		fprintf(fp, "\n");
 	}
-	fflush(fp);
 }
 
 static void game_write(FILE *fp) {
@@ -240,6 +238,7 @@ static void game_write(FILE *fp) {
 		game_write_json(fp, buf);
 		break;
 	}
+	fflush(fp);
 }
 
 static void game_send_spectators(void (*writer)(FILE *)) {
