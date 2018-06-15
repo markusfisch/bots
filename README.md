@@ -110,7 +110,8 @@ to change that).
 ### avoid
 
 Survive inside an asteroid shower.
-All asteroids `X` move in random directions, one field per turn.
+All asteroids `X` move in random but diagonal directions, one field per turn.
+Asteroids change direction every 10 to 20 turns.
 If a bot gets hit, it's destroyed.
 The bots are randomly placed with a random orientation.
 The bot that survives the longest gets the most points.

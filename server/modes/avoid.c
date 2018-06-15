@@ -17,10 +17,19 @@ static struct Asteroid {
 	int y;
 	int vx;
 	int vy;
+	int change;
 	char tile;
 } *asteroids = NULL;
 size_t nasteroids;
 int score;
+
+static void asteroid_new_direction(struct Asteroid *p) {
+	p->change = 10 + rand() % 10;
+	do {
+		p->vx = (rand() % 3) - 1;
+		p->vy = (rand() % 3) - 1;
+	} while (!p->vx || !p->vy);
+}
 
 static void asteroids_move() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
@@ -36,14 +45,17 @@ static void asteroids_move() {
 			hit->score = score++;
 			game_remove_player(hit);
 		}
+		if (--p->change < 1) {
+			asteroid_new_direction(p);
+		}
 	}
 }
 
 static int player_near(int x, int y) {
 	int v;
 	int u;
-	for (v = -1; v < 2; ++v) {
-		for (u = -1; u < 2; ++u) {
+	for (v = -2; v < 5; ++v) {
+		for (u = -2; u < 5; ++u) {
 			if (player_at(map_wrap(x + v, game.map.width),
 					map_wrap(y + u, game.map.height), NULL)) {
 				return 1;
@@ -61,10 +73,7 @@ static void asteroids_place() {
 			p->y = rand() % game.map.height;
 		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
 			player_near(p->x, p->y));
-		do {
-			p->vx = (rand() % 3) - 1;
-			p->vy = (rand() % 3) - 1;
-		} while (!p->vx && !p->vy);
+		asteroid_new_direction(p);
 		p->tile = map_get(&game.map, p->x, p->y);
 		map_set(&game.map, p->x, p->y, ASTEROID);
 	}
