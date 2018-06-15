@@ -32,7 +32,7 @@ def main(host='localhost', port=63187):
             print(view)
             print("Command (q<>^v): ")
             cmd = sys.stdin.readline()
-            if cmd == 'q':
+            if cmd[0] == 'q':
                 break
             else:
                 s.send(cmd[0] if cmd[0] != '\n' else '^')
