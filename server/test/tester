@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+tester_run_server() {
+	local BOTS=../bots
+	[ -x "$BOTS" ] || (cd "${BOTS%/*}" && make) || exit $?
+	"$BOTS" -d "$@" > "$0.log" &
+	# wait a second for the server to get ready
+	sleep 1
+}
+
+tester_connect() {
+	exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-63187}"
+}
+
+tester_read() {
+	local LINES=0
+	MAP=
+	WIDTH=
+	while read -r <&6 || return 1
+	do
+		((LINES < 1)) && {
+			# we know the map has as many lines as columns
+			LINES=${#REPLY}
+			WIDTH=$LINES
+			CENTER=$((WIDTH / 2))
+		}
+		MAP=$MAP$REPLY
+		((--LINES < 1)) && break
+	done
+	[ -z "$NAME" ] && {
+		NAME=${MAP:$((WIDTH * 2 + CENTER)):1}
+	}
+}
+
+tester_send() {
+	echo -n "${1:-^}" >&6
+}
+
+tester_read_send() {
+	local I
+	for ((I=${2:-1}; I--;))
+	do
+		tester_read
+		tester_send ${1:-^}
+	done
+}
+
+tester_close() {
+	exec 6<&-
+	exec 6>&-
+}
+
+tester_print_result() {
+	local TEST=${0##*/}
+	if diff "$0.ref" "$0.log"
+	then
+		echo "$TEST SUCCESSFUL"
+	else
+		echo "$TEST FAILED!" >&2
+		read -r -p 'Do you want to inspect the diff [y|n]?' -n 1
+		echo
+		case "$REPLY" in
+		y|Y)
+			diff -y "$0.ref" "$0.log" | less -S
+			;;
+		esac
+		exit 1
+	fi
+}
