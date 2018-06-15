@@ -5,22 +5,16 @@ import sys
 import socket
 
 
-def read_map(s):
+def read_map(f):
     view = ''
     total = 0
-    width = 0
+    width = -1
     while True:
-        data = s.recv(1024)
-        if not data:
-            # Server closed the connection, possibly end of game or
-            # exceptional situation
-            break
-        view += data
-        
+        view += f.readline()
         if width <= 0:
-            width = view.find('\n')
+            width = len(view)
             if width > 0:
-                total = (width + 1) * width
+                total = width * (width - 1)
         if len(view) == total:
             break
     return view
@@ -29,9 +23,10 @@ def read_map(s):
 def main(host='localhost', port=63187):
     s = socket.socket()
     s.connect((host, port))
+    f = s.makefile()
     while True:
         try:
-            view = read_map(s)
+            view = read_map(f)
             if not view:
                 break
             print(view)
