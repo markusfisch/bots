@@ -252,6 +252,7 @@ static void game_remove_defunkt_players() {
 
 void game_end() {
 	if (!game.stopped) {
+		++game.turn;
 		game_write(stdout);
 		game.stopped = time(NULL);
 	}
