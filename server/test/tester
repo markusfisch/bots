@@ -1,22 +1,35 @@
 #!/usr/bin/env bash
 
+# Make a test fail
+#
+# @param 1 - reason why tests failed
+tester_fail() {
+	echo "${0##*/} FAILED: $1" >&2
+	exit 1
+}
+
+# Run bots server
 tester_run_server() {
 	local BOTS=../bots
-	[ -x "$BOTS" ] || (cd "${BOTS%/*}" && make) || exit $?
-	"$BOTS" -d "$@" > "$0.log" &
+	[ -x "$BOTS" ] || (cd "${BOTS%/*}" && make) ||
+		tester_fail 'Cannot build server'
+	{ "$BOTS" -d "$@" > "$0.log" & } || tester_fail 'Server failed to run'
 	# wait a second for the server to get ready
 	sleep 1
 }
 
+# Connect to bots server
 tester_connect() {
-	exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-63187}"
+	exec 6<>/dev/tcp/localhost/63187 ||
+		tester_fail 'Cannot connect to server'
 }
 
+# Read a view from the server
 tester_read() {
 	local LINES=0
 	MAP=
 	WIDTH=
-	while read -r <&6 || return 1
+	while read -r <&6 || tester_fail 'Server closed unexpectedly'
 	do
 		((LINES < 1)) && {
 			# we know the map has as many lines as columns
@@ -27,36 +40,42 @@ tester_read() {
 		MAP=$MAP$REPLY
 		((--LINES < 1)) && break
 	done
-	[ -z "$NAME" ] && {
-		NAME=${MAP:$((WIDTH * 2 + CENTER)):1}
-	}
 }
 
+# Send a command to server
+#
+# @param 1 - command to send (optional)
 tester_send() {
-	echo -n "${1:-^}" >&6
+	echo -n "${1:-^}" >&6 || tester_fail 'Cannot send command'
 }
 
+# Read a view and send a command in response
+#
+# @param 1 - command to send (optional)
+# @param 2 - repetition count (optional, default is 1)
 tester_read_send() {
 	local I
 	for ((I=${2:-1}; I--;))
 	do
 		tester_read
-		tester_send ${1:-^}
+		tester_send "${1:-^}"
 	done
 }
 
+# Close connection to bots server
 tester_close() {
 	exec 6<&-
 	exec 6>&-
 }
 
+# Diff server output with expected output
 tester_print_result() {
 	local TEST=${0##*/}
 	if diff "$0.ref" "$0.log"
 	then
 		echo "$TEST SUCCESSFUL"
 	else
-		echo "$TEST FAILED!" >&2
+		echo "$TEST FAILED" >&2
 		read -r -p 'Do you want to inspect the diff [y|n]?' -n 1
 		echo
 		case "$REPLY" in

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+. tester
+tester_run_server -c test_collect_map -A '6,3,<' collect
+tester_connect
+tester_read_send '^' 4
+tester_close
+tester_print_result
