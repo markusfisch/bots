@@ -83,7 +83,7 @@ unsigned int map_count(Map *map, const char tile) {
 	size_t size = map->size;
 	char *p;
 	for (p = map->data; (p = memchr(p, tile, size)); ++count) {
-		size -= ++p - map->data;
+		size = map->size - (++p - map->data);
 	}
 	return count;
 }
