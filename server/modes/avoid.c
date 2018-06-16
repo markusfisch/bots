@@ -102,6 +102,7 @@ static void end() {
 		}
 	}
 	free(asteroids);
+	asteroids = NULL;
 	nasteroids = 0;
 }
 
