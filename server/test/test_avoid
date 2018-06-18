@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+. tester
+tester_run_server avoid
+tester_connect
+tester_read_send '^'
+tester_read_send 'v'
+tester_read_send '^'
+tester_read_send 'v'
+tester_read_send '^'
+tester_read_send 'v'
+tester_close
+tester_print_result

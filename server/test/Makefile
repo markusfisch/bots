@@ -1,10 +1,13 @@
-all: escape collect
+all: escape collect avoid
 
 escape:
 	./test_escape
 
 collect:
 	./test_collect
+
+avoid:
+	./test_avoid
 
 check:
 	shellcheck tester
