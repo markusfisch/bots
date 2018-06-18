@@ -51,20 +51,6 @@ static void asteroids_move() {
 	}
 }
 
-static int player_near(int x, int y) {
-	int v;
-	int u;
-	for (v = -2; v < 5; ++v) {
-		for (u = -2; u < 5; ++u) {
-			if (player_at(map_wrap(x + v, game.map.width),
-					map_wrap(y + u, game.map.height), NULL)) {
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
 static void asteroids_place() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
@@ -72,7 +58,7 @@ static void asteroids_place() {
 			p->x = rand() % game.map.width;
 			p->y = rand() % game.map.height;
 		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
-			player_near(p->x, p->y));
+			player_near(p->x, p->y, 5));
 		asteroid_new_direction(p);
 		p->tile = map_get(&game.map, p->x, p->y);
 		map_set(&game.map, p->x, p->y, ASTEROID);

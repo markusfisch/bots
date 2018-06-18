@@ -16,6 +16,21 @@ Player *player_at(const int x, const int y, Player *last) {
 	return NULL;
 }
 
+int player_near(const int x, const int y, const int size) {
+	int offset = size / 2;
+	int v;
+	int u;
+	for (v = -offset; v < size; ++v) {
+		for (u = -offset; u < size; ++u) {
+			if (player_at(map_wrap(x + v, game.map.width),
+					map_wrap(y + u, game.map.height), NULL)) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 int player_cannot_move_to(const int x, const int y) {
 	return config.impassable(&game.map, x, y) ||
 		(!config.non_exclusive && player_at(x, y, NULL));
