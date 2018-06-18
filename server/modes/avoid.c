@@ -24,7 +24,7 @@ size_t nasteroids;
 int score;
 
 static void asteroid_new_direction(struct Asteroid *p) {
-	p->change = 10 + rand() % 10;
+	p->change = 10;
 	do {
 		p->vx = (rand() % 3) - 1;
 		p->vy = (rand() % 3) - 1;
