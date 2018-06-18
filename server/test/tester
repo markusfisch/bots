@@ -11,8 +11,7 @@ tester_fail() {
 # Run bots server
 tester_run_server() {
 	local BOTS=../bots
-	[ -x "$BOTS" ] || (cd "${BOTS%/*}" && make) ||
-		tester_fail 'Cannot build server'
+	(cd "${BOTS%/*}" && make) || tester_fail 'Cannot build server'
 	{ "$BOTS" -d "$@" > "$0.log" & } || tester_fail 'Server failed to run'
 	# wait a second for the server to get ready
 	sleep 1
@@ -71,7 +70,14 @@ tester_close() {
 # Diff server output with expected output
 tester_print_result() {
 	local TEST=${0##*/}
-	if diff "$0.ref" "$0.log"
+	local REF="$0.ref"
+	local LOG="$0.log"
+	[ -r "$REF" ] || {
+		cp "$LOG" "$REF"
+		echo "$TEST ran successful, reference created."
+		exit 0
+	}
+	if diff "$REF" "$LOG"
 	then
 		echo "$TEST SUCCESSFUL"
 	else
