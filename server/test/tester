@@ -27,14 +27,11 @@ tester_connect() {
 tester_read() {
 	local LINES=0
 	MAP=
-	WIDTH=
 	while read -r <&6 || tester_fail 'Server closed unexpectedly'
 	do
 		((LINES < 1)) && {
 			# we know the map has as many lines as columns
 			LINES=${#REPLY}
-			WIDTH=$LINES
-			CENTER=$((WIDTH / 2))
 		}
 		MAP=$MAP$REPLY
 		((--LINES < 1)) && break
