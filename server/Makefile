@@ -25,5 +25,11 @@ CFLAGS = -O2 -Wall -Wextra
 $(BIN): $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS)
 
+test: $(BIN)
+	tests/test_escape
+	tests/test_collect
+	tests/test_avoid
+	tests/test_word
+
 clean:
 	rm -f *.o modes/*.o $(BIN)

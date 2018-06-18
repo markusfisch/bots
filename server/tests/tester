@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
+readonly NAME="${0##*/}"
+readonly LOG="$NAME.log"
+
 # Make a test fail
 #
-# @param 1 - reason why tests failed
+# @param 1 - reason why test failed
 tester_fail() {
-	echo "${0##*/} FAILED: $1" >&2
+	echo "$NAME FAILED: $1" >&2
 	exit 1
 }
 
 # Run bots server
 tester_run_server() {
-	local BOTS=../bots
-	(cd "${BOTS%/*}" && make) || tester_fail 'Cannot build server'
-	{ "$BOTS" -d "$@" > "$0.log" & } || tester_fail 'Server failed to run'
+	{ ../bots -d "$@" > "$LOG" & } || tester_fail 'Server failed to run'
 	# wait a second for the server to get ready
 	sleep 1
 }
@@ -66,19 +67,17 @@ tester_close() {
 
 # Diff server output with expected output
 tester_print_result() {
-	local TEST=${0##*/}
-	local REF="$0.ref"
-	local LOG="$0.log"
+	local REF="${LOG%.*}.ref"
 	[ -r "$REF" ] || {
 		cp "$LOG" "$REF"
-		echo "$TEST ran successful, reference created."
+		echo "$NAME ran successful, reference created."
 		exit 0
 	}
 	if diff "$REF" "$LOG"
 	then
-		echo "$TEST SUCCESSFUL"
+		echo "$NAME SUCCESSFUL"
 	else
-		echo "$TEST FAILED" >&2
+		echo "$NAME FAILED" >&2
 		read -r -p 'Do you want to inspect the diff [y|n]?' -n 1
 		echo
 		case "$REPLY" in

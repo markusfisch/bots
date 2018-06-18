@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. tester
+cd "${0%/*}" && . tester
 tester_run_server -s 32x32 -A '8,8,>' escape
 tester_connect
 tester_read_send '>'
