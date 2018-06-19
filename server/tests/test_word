@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 cd "${0%/*}" && . tester
-tester_run_server -R 'test' word
+tester_run_server -A '0,0,^' -R 'test' word
 tester_connect
 tester_read_send 't'
 tester_read_send 'e'

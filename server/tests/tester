@@ -82,7 +82,7 @@ tester_print_result() {
 		echo
 		case "$REPLY" in
 		y|Y)
-			diff -y "$0.ref" "$0.log" | less -S
+			diff -y "$REF" "$LOG" | less -S
 			;;
 		esac
 		exit 1

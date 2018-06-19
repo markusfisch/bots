@@ -28,7 +28,6 @@ $(BIN): $(OBJECTS)
 test: $(BIN)
 	tests/test_escape
 	tests/test_collect
-	tests/test_avoid
 	tests/test_word
 
 clean:
