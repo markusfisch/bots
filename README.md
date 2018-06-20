@@ -248,14 +248,14 @@ For example, on a Raspberry Pi you want to install `gcc` and `make`:
 
 ## Playing manually
 
-The repository contains a very simple bash client. Start it like this
-when in the repository's root directory:
+The repository contains a very simple bash bot. Start it like this when
+in the repository's root directory:
 
-	$ templates/bash/client
+	$ templates/bash/bot
 
 If `bots` is running on another machine, you'd do:
 
-	$ templates/bash/client HOSTNAME
+	$ templates/bash/bot HOSTNAME
 
 Where HOSTNAME is either the IP address or hostname of the machine the
 server is running on.
