@@ -4,8 +4,7 @@
 import sys
 import socket
 
-
-def read_map(f):
+def read_view(f):
     view = ''
     total = 0
     width = -1
@@ -19,14 +18,13 @@ def read_map(f):
             break
     return view
 
-
 def main(host='localhost', port=63187):
     s = socket.socket()
     s.connect((host, port))
     f = s.makefile()
     while True:
         try:
-            view = read_map(f)
+            view = read_view(f)
             if not view:
                 break
             print(view)

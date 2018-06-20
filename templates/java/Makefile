@@ -1,5 +1,5 @@
-OBJECTS = src/bots/client/*.java
-JAR = bots.jar
+OBJECTS = src/bots/*.java
+JAR = bot.jar
 BUILD = build
 
 all: $(JAR)
@@ -8,7 +8,7 @@ all: $(JAR)
 $(JAR): $(OBJECTS)
 	[ -d $(BUILD) ] || mkdir $(BUILD)
 	javac -d $(BUILD) $(OBJECTS)
-	echo 'Main-Class: bots.client.BotsClient' > $(BUILD)/manifest
+	echo 'Main-Class: bots.Bot' > $(BUILD)/manifest
 	(cd $(BUILD) && jar cfm ../$(JAR) manifest .)
 
 clean:

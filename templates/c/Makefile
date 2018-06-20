@@ -1,4 +1,4 @@
-BIN = client
+BIN = bot
 OBJECTS = main.o
 LIBS = -lm
 FLAGS = -O2 -Wall -Wextra

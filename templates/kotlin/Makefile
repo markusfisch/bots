@@ -1,5 +1,5 @@
 SOURCES = Main.kt
-JAR = client.jar
+JAR = bot.jar
 
 all: $(JAR)
 	java -jar $(JAR)

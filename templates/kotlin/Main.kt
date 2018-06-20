@@ -1,7 +1,17 @@
 import java.io.BufferedReader
 import java.net.Socket
 
-private fun readMap(input: BufferedReader) {
+private fun printView(view: View) {
+	var i = 0
+	while (i < view.view.length) {
+		println(view.view.substring(i, i + view.width))
+		i += view.width
+	}
+}
+
+private fun readView(input: BufferedReader): View {
+	var view = ""
+	var width = 0
 	var lines = 0
 	while (true) {
 		val line = input.readLine();
@@ -10,12 +20,14 @@ private fun readMap(input: BufferedReader) {
 		}
 		if (lines < 1) {
 			lines = line.length
+			width = lines
 		}
-		println(line)
+		view += line
 		if (--lines < 1) {
 			break
 		}
 	}
+	return View(view, width)
 }
 
 fun main(args: Array<String>) {
@@ -27,7 +39,8 @@ fun main(args: Array<String>) {
 		val output = socket.outputStream
 		val input = socket.inputStream.bufferedReader()
 		while (true) {
-			readMap(input)
+			val view = readView(input)
+			printView(view)
 			print("Command (q<>^v): ")
 			var ch: Int
 			do {
@@ -40,3 +53,5 @@ fun main(args: Array<String>) {
 		}
 	}
 }
+
+data class View(val view: String, val width: Int)

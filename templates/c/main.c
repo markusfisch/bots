@@ -5,6 +5,15 @@
 #include <string.h>
 #include <unistd.h>
 
+static void print_view(const int fd, char *view, size_t width) {
+	size_t y;
+	for (y = 0; y < width; ++y) {
+		write(fd, view, width);
+		write(fd, "\n", 1);
+		view += width;
+	}
+}
+
 static int read_line(const int fd, char *buf, size_t size) {
 	char *p = buf;
 	for (; --size > 0; ++p) {
@@ -20,29 +29,38 @@ static int read_line(const int fd, char *buf, size_t size) {
 	return -1;
 }
 
-static int read_map(const int fd) {
-	char line[4096];
+static int read_view(const int fd, size_t *width, char *view, size_t size) {
 	size_t lines = 0;
-	for (;;) {
-		if (read_line(fd, line, sizeof(line)) < 0) {
+	char *p = view;
+	do {
+		int bytes = read_line(fd, p, size);
+		if (bytes < 0) {
+			// the server has closed the socket
 			return 0;
 		}
+		size -= bytes;
+		if (size < 1) {
+			// view too big
+			return 0;
+		}
+		p += bytes;
 		if (!lines) {
-			lines = strlen(line);
+			// we know the view has as many rows as columns
+			*width = lines = strlen(view);
 		}
-		puts(line);
-		if (--lines < 1) {
-			break;
-		}
-	}
+	} while (--lines > 0);
 	return 1;
 }
 
 static int run(const int fd) {
+	char view[4096];
+	size_t width = 0;
+	// disable buffering on STDOUT
 	setbuf(stdout, NULL);
-	while (read_map(fd)) {
-		char cmd[2];
+	while (read_view(fd, &width, view, sizeof(view))) {
+		print_view(STDOUT_FILENO, view, width);
 		printf("Command (q<>^v): ");
+		char cmd[2];
 		read(STDIN_FILENO, cmd, sizeof(cmd));
 		if (*cmd == 'q') {
 			break;

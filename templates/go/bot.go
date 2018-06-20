@@ -23,7 +23,7 @@ func (sc *SocketClient) Write(command byte) error {
 	return err
 }
 
-// Open – Opens the socket connection 
+// Opens the socket connection
 func (sc *SocketClient) Open() error {
 	url := *host + ":" + strconv.Itoa(sc.Port)
 	log.Println("Connecting to " + url)
@@ -45,17 +45,17 @@ func (sc *SocketClient) Open() error {
 	return nil
 }
 
-// Read - Reads as long as a square map is returned by the connected server
+// Reads as long as a square map is returned by the connected server
 func (sc *SocketClient) Read() (string, error) {
-	var readMap string
-	readMap, err := sc.reader.ReadString('\n')
+	var view string
+	view, err := sc.reader.ReadString('\n')
 
 	if err != nil {
 		return "", err
 	}
 
 	// subtract 1 for newline and 1 for first line
-	mapDimension := len(readMap) - 2
+	mapDimension := len(view) - 2
 
 	for i := 0; i < mapDimension; i++ {
 		var newLine string
@@ -63,10 +63,10 @@ func (sc *SocketClient) Read() (string, error) {
 		if err != nil {
 			break
 		}
-		readMap += newLine
+		view += newLine
 	}
 
-	return readMap, err
+	return view, err
 }
 
 // Testcode
@@ -89,8 +89,8 @@ func main() {
 	}
 
 	for keepRunning {
-		gameMap, err := client.Read()
-		fmt.Println(gameMap)
+		view, err := client.Read()
+		fmt.Println(view)
 
 		var command string
 		fmt.Println("Command(^v<>)")

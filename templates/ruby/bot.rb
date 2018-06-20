@@ -3,24 +3,27 @@
 require 'io/console'
 require 'socket'
 
-def read_map()
+def read_view()
+	view = ""
 	lines = 0
 	while line = $socket.gets
 		if lines < 1
 			lines = line.length - 1
 		end
-		puts line
+		view += line
 		lines -= 1
 		if lines < 1
 			break
 		end
 	end
+	view
 end
 
 $socket = TCPSocket.open(ARGV[0] || 'localhost', ARGV[1] || 63187)
 
 while true
-	read_map
+	view = read_view
+	print view
 	print "Command (q<>^v): "
 	STDOUT.flush
 	cmd = STDIN.getch

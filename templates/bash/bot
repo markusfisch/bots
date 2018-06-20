@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 
-# read map line by line from file descriptor number 6
-read_map() {
-	LINES=0
+# print map view
+print_view() {
+	local Y OFFSET=0
+	for ((Y=0; Y < WIDTH; ++Y))
+	do
+		echo "${MAP:$OFFSET:$WIDTH}"
+		((OFFSET += WIDTH))
+	done
+}
+
+# read view line by line from file descriptor number 6
+read_view() {
+	local LINES=0
+	MAP=
 	while read -r <&6 || return 1
 	do
 		((LINES < 1)) && {
 			# we know the map has as many lines as columns
 			LINES=${#REPLY}
+			WIDTH=$LINES
 		}
-		echo "$REPLY"
+		MAP=$MAP$REPLY
 		((--LINES < 1)) && break
 	done
 }
@@ -17,8 +29,11 @@ read_map() {
 # open a socket to localhost:63187 on file descriptor number 6
 exec 6<>/dev/tcp/"${1:-localhost}"/"${2:-63187}" || exit 1
 
-read_map && while read -n 1 -r -p 'Command (q<>^v): '
+while true
 do
+	{
+		read_view && print_view && read -n 1 -r -p 'Command (q<>^v): '
+	} || break
 	echo
 	case "$REPLY" in
 	q)
@@ -26,7 +41,6 @@ do
 		;;
 	*)
 		echo -n "${REPLY:-^}" >&6
-		read_map || break
 		;;
 	esac
 done

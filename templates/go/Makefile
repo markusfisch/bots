@@ -1,3 +1,3 @@
 build:
-	go build main.go
+	go build bot.go
 
