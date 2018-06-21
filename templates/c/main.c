@@ -5,36 +5,15 @@
 #include <string.h>
 #include <unistd.h>
 
-static void print_view(const int fd, char *view, size_t width) {
-	size_t y;
-	for (y = 0; y < width; ++y) {
-		write(fd, view, width);
-		write(fd, "\n", 1);
-		view += width;
-	}
-}
-
-static int read_line(const int fd, char *buf, size_t size) {
-	char *p = buf;
-	for (; --size > 0; ++p) {
-		if (read(fd, p, 1) < 1) {
-			perror("read");
-			break;
-		}
-		if (*p == '\n') {
-			*p = 0;
-			return p - buf;
-		}
-	}
-	return -1;
-}
-
-static int read_view(const int fd, size_t *width, char *view, size_t size) {
+static int read_view(const int fd, size_t *bytes_per_line, char *view,
+		size_t size) {
 	size_t lines = 0;
+	size_t view_size = 0;
+	size_t available = 0;
 	char *p = view;
 	do {
-		int bytes = read_line(fd, p, size);
-		if (bytes < 0) {
+		int bytes = read(fd, p, size);
+		if (bytes < 1) {
 			// the server has closed the socket
 			return 0;
 		}
@@ -43,23 +22,30 @@ static int read_view(const int fd, size_t *width, char *view, size_t size) {
 			// view too big
 			return 0;
 		}
+		p[bytes] = 0;
 		p += bytes;
-		if (!lines) {
-			// we know the view has as many rows as columns
-			*width = lines = strlen(view);
+		available = p - view;
+		char *lf;
+		if (!lines && (lf = memchr(view, '\n', available))) {
+			// we know the view has as many lines as columns
+			lines = lf - view;
+			// each line is terminated by '\n' so plus 1
+			*bytes_per_line = lines + 1;
+			view_size = *bytes_per_line * lines;
 		}
-	} while (--lines > 0);
+	} while (lines < 1 || available < view_size);
 	return 1;
 }
 
 static int run(const int fd) {
 	char view[4096];
-	size_t width = 0;
-	// disable buffering on STDOUT
-	setbuf(stdout, NULL);
-	while (read_view(fd, &width, view, sizeof(view))) {
-		print_view(STDOUT_FILENO, view, width);
+	size_t bytes_per_line = 0;
+	while (read_view(fd, &bytes_per_line, view, sizeof(view))) {
+		printf("%s", view);
+		// instead of asking for a command, you should parse "view"
+		// here and calculate what command to send
 		printf("Command (q<>^v): ");
+		fflush(stdout);
 		char cmd[2];
 		read(STDIN_FILENO, cmd, sizeof(cmd));
 		if (*cmd == 'q') {
