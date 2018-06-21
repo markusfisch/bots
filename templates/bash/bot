@@ -17,7 +17,7 @@ read_view() {
 	while read -r <&6 || return 1
 	do
 		((LINES < 1)) && {
-			# we know the map has as many lines as columns
+			# we know the view has as many lines as columns
 			LINES=${#REPLY}
 			WIDTH=$LINES
 		}
