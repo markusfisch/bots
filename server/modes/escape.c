@@ -12,11 +12,17 @@ extern struct Game game;
 
 static int points;
 
+static int find_free_spot(int x, int y) {
+	return !config.impassable(&game.map, x, y);
+}
+
 static void start() {
 	points = MAX_PLAYERS;
 	if (!map_count(&game.map, TILE_EXIT)) {
-		map_set(&game.map, game.map.width / 2, game.map.height / 2,
-			TILE_EXIT);
+		int x = game.map.width / 2;
+		int y = game.map.height / 2;
+		map_find(&game.map, &x, &y, 5, find_free_spot);
+		map_set(&game.map, x, y, TILE_EXIT);
 	}
 }
 

@@ -87,3 +87,22 @@ unsigned int map_count(Map *map, const char tile) {
 	}
 	return count;
 }
+
+int map_find(Map *map, int *x, int *y, const int radius,
+		int (*compare)(int, int)) {
+	int i, sv, ev, v, eu, u, w, step;
+	for (i = 0; i < radius; ++i) {
+		for (sv = *y - i, v = sv, ev = *y + i; v <= ev; ++v) {
+			w = map_wrap(v, map->height);
+			step = v > sv && v < ev ? i << 1 : 1;
+			for (u = *x - i, eu = *x + i; u <= eu; u += step) {
+				if (compare(map_wrap(u, map->width), w)) {
+					*x = u;
+					*y = w;
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}

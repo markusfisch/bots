@@ -24,5 +24,6 @@ char map_get(Map *, int, int);
 void map_set(Map *, int, int, char);
 int map_impassable(Map *, int, int);
 unsigned int map_count(Map *, const char);
+int map_find(Map *, int *, int *, const int, int (*)(int, int));
 
 #endif
