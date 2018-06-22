@@ -9,7 +9,11 @@ after one second has passed and at least one player made a move.
 To play the game, a bot needs to connect a streaming socket to port 63187
 after the `bots` server has been started.
 
-Please find templates for such bots in the `templates` directory.
+Find templates for such bots in the `templates` directory.
+
+There is also a very useful
+[WebGL visualizer](https://github.com/ChristianNorbertBraun/bots_replay)
+to replay and inspect the games in a browser.
 
 ## What a bot receives from the server
 
