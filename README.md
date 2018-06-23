@@ -5,6 +5,7 @@ Terrain parsing game for bots.
 The game world is a two-dimensional orthogonal grid.
 The game is turn-based. A turn ends as soon as all players have moved *or*
 after one second has passed and at least one player made a move.
+All actions happen in sequence.
 
 To play the game, a bot needs to connect a streaming socket to port 63187
 after the `bots` server has been started.
@@ -62,7 +63,10 @@ The server will process _one_ command per turn only.
 
 Invalid commands are silently ignored but a map is still sent.
 Sending multiple command characters simply fills the network buffer and the
-server will process the accumulated commands in the following turns.
+server will process the accumulated commands in the following turns only.
+
+If a bot disconnects, it's immediately removed and all pending commands
+are discarded.
 
 ## Available games
 
@@ -99,7 +103,8 @@ its own, it's destroyed. The bot with the most gems wins the game.
 ### rumble
 
 Hunt down all other bots and be the last to survive. Send `f` to shoot.
-A bot can only shoot straight up.
+A bot can only shoot straight up and only as far as the view is.
+Shots don't go through blocking cells.
 The bots are placed at a regular interval.
 
 By default, a bot is killed on the first hit but you can use `--player-life`
@@ -115,7 +120,7 @@ to change that).
 
 Survive inside an asteroid shower.
 All asteroids `X` move in random but diagonal directions, one field per turn.
-Asteroids change direction every 10 to 20 turns.
+Asteroids change direction every 10 turns.
 If a bot gets hit, it's destroyed.
 The bots are randomly placed with a random orientation.
 The bot that survives the longest gets the most points.
