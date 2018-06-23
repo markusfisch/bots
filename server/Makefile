@@ -29,6 +29,7 @@ test: $(BIN)
 	tests/test_escape
 	tests/test_collect
 	tests/test_word
+	tests/test_rumble
 
 clean:
 	rm -f *.o modes/*.o $(BIN)
