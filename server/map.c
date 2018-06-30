@@ -3,11 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "game.h"
 #include "map.h"
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
 #endif
+
+extern struct Config config;
 
 void map_write(const int fd, char *data, const unsigned int width,
 		const unsigned int height) {
@@ -51,7 +54,7 @@ void map_init_random(Map *map, const unsigned int multiplier,
 	char *offset = map->data;
 	size_t i;
 	for (i = 0; i < map->size; ++i) {
-		*offset++ = tiles[rand() % ntiles];
+		*offset++ = tiles[config.rand() % ntiles];
 	}
 	map->obstacles = obstacles;
 }

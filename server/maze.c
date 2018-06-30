@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "game.h"
 #include "map.h"
 #include "maze.h"
+
+extern struct Config config;
 
 // depth-first search maze generator from
 // https://en.wikipedia.org/wiki/Maze_generation_algorithm
@@ -19,7 +22,7 @@ Node *nodes = NULL;
 
 static Node *maze_link(Node *n, const int width, const int height) {
 	while (n->dirs) {
-		char dir = 1 << (rand() % 4);
+		char dir = 1 << (config.rand() % 4);
 
 		if (~n->dirs & dir) {
 			continue;

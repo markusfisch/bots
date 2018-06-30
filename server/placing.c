@@ -11,7 +11,7 @@ extern struct Config config;
 extern struct Game game;
 
 static int fuzzy(const unsigned int max) {
-	return max < 1 ? 0 : (rand() % (max + 1)) - (max >> 1);
+	return max < 1 ? 0 : (config.rand() % (max + 1)) - (max >> 1);
 }
 
 static int find_free_spot(int x, int y) {
@@ -20,13 +20,13 @@ static int find_free_spot(int x, int y) {
 
 void placing_circle(const unsigned int fuzz) {
 	double between = 6.2831 / game.nplayers;
-	double angle = between * rand();
+	double angle = between * config.rand();
 	int cx = game.map.width / 2;
 	int cy = game.map.height / 2;
 	int radius = (cx < cy ? cx : cy) / 2;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		p->bearing = rand() % 4;
+		p->bearing = config.rand() % 4;
 		// don't assign to p->x/->y yet because of player_at()
 		int x = round(cx + cos(angle) * radius) + fuzzy(fuzz);
 		int y = round(cy + sin(angle) * radius) + fuzzy(fuzz);
@@ -47,11 +47,11 @@ void placing_random(const unsigned int fuzz) {
 		int px;
 		int py;
 		do {
-			px = (rand() % width) + fuzzy(fuzz);
-			py = (rand() % height) + fuzzy(fuzz);
+			px = (config.rand() % width) + fuzzy(fuzz);
+			py = (config.rand() % height) + fuzzy(fuzz);
 		} while (config.impassable(&game.map, px, py) ||
 			player_at(px, py, NULL));
-		p->bearing = rand() % 4;
+		p->bearing = config.rand() % 4;
 		p->x = px;
 		p->y = py;
 	}
@@ -65,7 +65,7 @@ void placing_grid(const unsigned int fuzz) {
 	int gy = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		p->bearing = rand() % 4;
+		p->bearing = config.rand() % 4;
 		// don't assign to p->x/->y yet because of player_at()
 		int x = map_wrap(gx + fuzzy(fuzz), game.map.width);
 		int y = map_wrap(gy + fuzzy(fuzz), game.map.height);
@@ -93,7 +93,8 @@ void placing_manual(Coords *coords, const unsigned int fuzz) {
 		}
 		p->x = x;
 		p->y = y;
-		p->bearing = coords->bearing < 4 ? coords->bearing : rand() % 4;
+		p->bearing = coords->bearing < 4 ? coords->bearing :
+			config.rand() % 4;
 		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
 	}
 }

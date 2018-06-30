@@ -82,13 +82,13 @@ static void start() {
 }
 
 static char *generate_random_word() {
-	size_t len = rand() % (sizeof(random_word) - 1);
+	size_t len = config.rand() % (sizeof(random_word) - 1);
 	if (len < 6) {
 		len = 6;
 	}
 	char *p = random_word, *e = p + len;
 	for (; p < e; ++p) {
-		*p = 97 + (rand() % 26);
+		*p = 97 + (config.rand() % 26);
 	}
 	*p = 0;
 	return random_word;

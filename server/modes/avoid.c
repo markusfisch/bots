@@ -26,8 +26,8 @@ int score;
 static void asteroid_new_direction(struct Asteroid *p) {
 	p->change = 10;
 	do {
-		p->vx = (rand() % 3) - 1;
-		p->vy = (rand() % 3) - 1;
+		p->vx = (config.rand() % 3) - 1;
+		p->vy = (config.rand() % 3) - 1;
 	} while (!p->vx || !p->vy);
 }
 
@@ -55,8 +55,8 @@ static void asteroids_place() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
 		do {
-			p->x = rand() % game.map.width;
-			p->y = rand() % game.map.height;
+			p->x = config.rand() % game.map.width;
+			p->y = config.rand() % game.map.height;
 		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
 			player_near(p->x, p->y, 5));
 		asteroid_new_direction(p);

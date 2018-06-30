@@ -43,6 +43,15 @@ static const struct Mode {
 	{ NULL, NULL, NULL }
 };
 
+// Park-Miller RNG
+// https://en.wikipedia.org/wiki/Lehmer_random_number_generator
+static uint32_t lcg_state = 1;
+static int repeatable_rand() {
+	lcg_state = ((uint64_t) lcg_state * 48271u) % 0x7fffffff;
+	// cast to int because it's a stand-in for rand()
+	return (int) lcg_state;
+}
+
 static void usage() {
 	printf("usage: bots [OPTION...] MODE\n");
 	printf("\nMODE must be one of:\n");
@@ -400,6 +409,9 @@ static void parse_arguments(int argc, char **argv) {
 
 	if (!deterministic) {
 		srand(time(NULL));
+		config.rand = rand;
+	} else {
+		config.rand = repeatable_rand;
 	}
 
 	init_mode();

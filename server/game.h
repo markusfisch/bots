@@ -96,6 +96,7 @@ struct Config {
 	int (*impassable)(Map *, int, int);
 	void (*move)(Player *, char);
 	void (*end)();
+	int (*rand)();
 };
 
 void game_remove_player(Player *);

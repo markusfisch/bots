@@ -19,8 +19,8 @@ void scatter_gems() {
 	for (i = 0; i < config.gems; ++i) {
 		int x, y;
 		do {
-			x = rand() % game.map.width;
-			y = rand() % game.map.height;
+			x = config.rand() % game.map.width;
+			y = config.rand() % game.map.height;
 		} while (map_get(&game.map, x, y) == TILE_GEM ||
 			config.impassable(&game.map, x, y) || player_at(x, y, NULL));
 		map_set(&game.map, x, y, TILE_GEM);

@@ -347,7 +347,7 @@ static void game_read_commands() {
 	}
 	int i;
 	for (i = game.nplayers; i-- > 1;) {
-		int j = rand() % i;
+		int j = config.rand() % i;
 		Player *tmp = queue[j];
 		queue[j] = queue[i];
 		queue[i] = tmp;
