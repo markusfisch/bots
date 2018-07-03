@@ -28,8 +28,10 @@ $(BIN): $(OBJECTS)
 test: $(BIN)
 	tests/test_escape
 	tests/test_collect
-	tests/test_word
+	tests/test_snakes
 	tests/test_rumble
+	tests/test_avoid
+	tests/test_word
 
 clean:
 	rm -f *.o modes/*.o $(BIN)
