@@ -18,20 +18,12 @@ connect(SOCKET, $paddr)
 	or die "Couldn't connect to $remote_host:$remote_port : $!\n";
 
 sub read_view {
-	my $view = '';
-	my $lines = 0;
-	my $line;
-	while ($line = <SOCKET>) {
-		$view .= $line;
-		if ($lines < 1) {
-			# we know the view has as many lines as columns
-			$lines = length $line;
-			# substract the trailing line feed
-			--$lines;
-		}
-		if (--$lines < 1) {
-			last;
-		}
+	my $view = <SOCKET>;
+	my $lines = length $view;
+	# we know the view has as many lines as columns minus
+	# the trailing line feed
+	while (--$lines > 1) {
+		$view .= <SOCKET>;
 	}
 	return $view;
 }
@@ -44,6 +36,8 @@ while (1) {
 	$cmd = substr($cmd, 0, 1);
 	if ($cmd eq 'q') {
 		last;
+	} elsif ($cmd eq "\n") {
+		$cmd = '^'
 	}
 	send(SOCKET, $cmd, 0);
 }

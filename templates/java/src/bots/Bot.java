@@ -37,15 +37,14 @@ public class Bot {
 
 		private void read(BufferedReader in) throws IOException {
 			StringBuilder sb = new StringBuilder();
-			int lines = 0;
-			for (String line; (line = in.readLine()) != null;) {
-				if (lines < 1) {
-					width = lines = line.length();
-				}
-				sb.append(line);
-				if (--lines < 1) {
-					break;
-				}
+			data = in.readLine();
+			if (data == null) {
+				return;
+			}
+			sb.append(data);
+			width = data.length();
+			for (int i = 1; i < width; ++i) {
+				sb.append(in.readLine());
 			}
 			data = sb.toString();
 		}

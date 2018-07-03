@@ -4,17 +4,11 @@ require 'io/console'
 require 'socket'
 
 def read_view()
-	view = ""
-	lines = 0
-	while line = $socket.gets
-		if lines < 1
-			lines = line.length - 1
-		end
-		view += line
-		lines -= 1
-		if lines < 1
-			break
-		end
+	view = $socket.gets
+	# we know the view has as many lines as columns minus
+	# the trailing line feed
+	for _ in 3..view.length do
+		view += $socket.gets
 	end
 	view
 end
@@ -31,9 +25,8 @@ while true
 	case cmd
 	when 'q'
 		break
-	else
-		$socket.putc cmd
 	end
+	$socket.putc cmd
 end
 
 $socket.close

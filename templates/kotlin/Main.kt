@@ -10,22 +10,10 @@ private fun printView(view: View) {
 }
 
 private fun readView(input: BufferedReader): View {
-	var view = ""
-	var width = 0
-	var lines = 0
-	while (true) {
-		val line = input.readLine();
-		if (line == null) {
-			break
-		}
-		if (lines < 1) {
-			lines = line.length
-			width = lines
-		}
-		view += line
-		if (--lines < 1) {
-			break
-		}
+	var view = input.readLine()
+	var width = view.length
+	for (i in 1 until width) {
+		view += input.readLine()
 	}
 	return View(view, width)
 }
