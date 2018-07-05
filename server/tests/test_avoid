@@ -6,5 +6,6 @@ tester_read_send '^'
 tester_read_send 'v'
 tester_read_send '^'
 tester_read_send 'v'
+tester_read
 tester_close
 tester_print_result

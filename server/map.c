@@ -5,24 +5,22 @@
 
 #include "game.h"
 #include "map.h"
-
-#ifndef MSG_NOSIGNAL
-#define MSG_NOSIGNAL 0
-#endif
+#include "nosignal.h"
 
 extern struct Config config;
 
-void map_write(const int fd, char *data, const unsigned int width,
+int map_write(const int fd, char *data, const unsigned int width,
 		const unsigned int height) {
 	char *d = data;
 	size_t y;
 	for (y = 0; y < height; ++y) {
 		if (send(fd, d, width, MSG_NOSIGNAL) < (ssize_t) width ||
 				send(fd, "\n", 1, MSG_NOSIGNAL) < 1) {
-			break;
+			return -1;
 		}
 		d += width;
 	}
+	return 0;
 }
 
 void map_free(Map *map) {

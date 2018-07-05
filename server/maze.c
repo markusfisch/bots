@@ -18,7 +18,7 @@ typedef struct {
 	char wall;
 	char dirs;
 } Node;
-Node *nodes = NULL;
+static Node *nodes = NULL;
 
 static Node *maze_link(Node *n, const int width, const int height) {
 	while (n->dirs) {

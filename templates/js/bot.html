@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width"/>
+<meta charset="utf-8"/>
+<title>Bots</title>
+</head>
+<body>
+<script>
+'use strict'
+
+var W = window,
+	D = document
+
+function append(text) {
+	var e = D.createElement('pre')
+	e.innerText = text
+	D.body.appendChild(e)
+	W.scrollTo(0, D.body.scrollHeight)
+}
+
+W.onload = function() {
+	if (!'WebSocket' in W) {
+		alert('Sorry, this browser cannot open a WebSocket.')
+		return
+	}
+	D.onkeyup = function(event) {
+		var cmd
+		switch (event.keyCode) {
+		case 190:
+			cmd = '>'
+			break
+		case 188:
+			cmd = '<'
+			break
+		case 192:
+			cmd = '^'
+			break
+		case 86:
+			cmd = 'v'
+			break
+		case 70:
+			cmd = 'f'
+			break
+		}
+		if (cmd) {
+			append('Sending ' + cmd)
+			ws.send(cmd)
+		}
+		event.preventDefault()
+		return false
+	}
+	var ws = new WebSocket('ws://127.0.0.1:63188/')
+	ws.onopen = function() {
+		append('Connected. Type a command (<>^v) to move.')
+	}
+	ws.onmessage = function (event) {
+		append(event.data)
+	}
+	ws.onclose = function (event) {
+		append('Connection closed.')
+	}
+}
+</script>
+</body>
+</html>

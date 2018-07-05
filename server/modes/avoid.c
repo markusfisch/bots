@@ -20,8 +20,8 @@ static struct Asteroid {
 	int change;
 	char tile;
 } *asteroids = NULL;
-size_t nasteroids;
-int score;
+static size_t nasteroids;
+static int score;
 
 static void asteroid_new_direction(struct Asteroid *p) {
 	p->change = 10;

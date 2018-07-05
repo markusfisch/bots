@@ -52,6 +52,33 @@ static int repeatable_rand() {
 	return (int) lcg_state;
 }
 
+static void complete_config() {
+	config.port = config.port ?: 63187;
+	config.port_websocket = config.port_websocket ?: 63188;
+	config.port_spectator = config.port_spectator ?: 63189;
+	config.min_players = config.min_players ?: 1;
+	config.min_starters = config.min_starters ?: config.min_players;
+	config.map_width = config.map_width ?: 32;
+	config.map_height = config.map_height ?: config.map_width;
+	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;
+	config.obstacles = config.obstacles ?: obstacles;
+	config.flatland = config.flatland ?: flatland;
+	config.multiplier = config.multiplier ?: 14;
+	config.placing = config.placing ?: PLACING_CIRCLE;
+	config.view_radius = config.view_radius ?: 2;
+	config.max_games = config.max_games ?: 1;
+	config.max_turns = config.max_turns ?: 1024;
+	config.max_lag = config.max_lag ?: config.max_turns;
+	config.shrink_after = config.shrink_after ?: config.max_turns;
+	config.shrink_step = config.shrink_step ?: 1;
+	config.player_life = config.player_life ?: 1;
+	config.gems = config.gems ?: config.map_width;
+	config.wait_for_joins = config.wait_for_joins ?: 1;
+	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
+	config.move = config.move ?: player_move;
+	config.impassable = config.impassable ?: map_impassable;
+}
+
 static void usage() {
 	printf("usage: bots [OPTION...] MODE\n");
 	printf("\nMODE must be one of:\n");
@@ -62,6 +89,12 @@ static void usage() {
 	printf("\nOPTION can be any of:\n"\
 		"  -P, --port N                port to listen for players, "\
 			"default is 63187\n"\
+		"  -W, --websocket-port N      port for WebSocket players, "\
+			"default is 63188\n"\
+		"  -O, --spectator-port N      port for WebSocket spectators, "\
+			"default is 63189\n"\
+		"  -V, --max-spectators N      maximum number of spectators, "\
+			"default is 0\n"\
 		"  -b, --min-starters N        minimum number of players to start "\
 			"a game,\n"\
 		"                              default is 1\n"\
@@ -122,7 +155,7 @@ static void usage() {
 			FORMAT_ARG_JSON"\",\n"\
 		"                              default is \""\
 			FORMAT_ARG_PLAIN"\"\n"\
-		"  -W, --wait-for-joins N      number of seconds to wait "\
+		"  -w, --wait-for-joins N      number of seconds to wait "\
 			"for joins,\n"\
 		"                              default is 1\n"\
 		"  -u, --usec-per-turn N       maximum number of milliseconds "\
@@ -267,6 +300,9 @@ static void parse_arguments(int argc, char **argv) {
 
 	struct option longopts[] = {
 		{ "port", required_argument, NULL, 'P' },
+		{ "websocket-port", required_argument, NULL, 'W' },
+		{ "spectator-port", required_argument, NULL, 'O' },
+		{ "max-spectators", required_argument, NULL, 'V' },
 		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
@@ -290,7 +326,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "gems", required_argument, NULL, 'g' },
 		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
-		{ "wait-for-joins", required_argument, NULL, 'W' },
+		{ "wait-for-joins", required_argument, NULL, 'w' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, &deterministic, 1 },
 		{ NULL, 0, NULL, 0 }
@@ -298,11 +334,20 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:W:u:d",
+			"P:W:O:V:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
-			config.port_player = atoi(optarg);
+			config.port = atoi(optarg);
+			break;
+		case 'W':
+			config.port_websocket = atoi(optarg);
+			break;
+		case 'O':
+			config.port_spectator = atoi(optarg);
+			break;
+		case 'V':
+			config.max_spectators = atoi(optarg);
 			break;
 		case 'b':
 			config.min_starters = atoi(optarg);
@@ -381,7 +426,7 @@ static void parse_arguments(int argc, char **argv) {
 		case 'F':
 			config.output_format = parse_format(optarg);
 			break;
-		case 'W':
+		case 'w':
 			config.wait_for_joins = atoi(optarg);
 			break;
 		case 'u':
@@ -389,10 +434,6 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'd':
 			deterministic = 1;
-			break;
-		case 'h':
-		case '?':
-			usage();
 			break;
 		default:
 			break;
@@ -419,32 +460,8 @@ static void parse_arguments(int argc, char **argv) {
 
 int main(int argc, char **argv) {
 	memset(&config, 0, sizeof(config));
-
 	parse_arguments(argc, argv);
-
-	config.port_player = config.port_player ?: 63187;
-	config.min_players = config.min_players ?: 1;
-	config.min_starters = config.min_starters ?: config.min_players;
-	config.map_width = config.map_width ?: 32;
-	config.map_height = config.map_height ?: config.map_width;
-	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;
-	config.obstacles = config.obstacles ?: obstacles;
-	config.flatland = config.flatland ?: flatland;
-	config.multiplier = config.multiplier ?: 14;
-	config.placing = config.placing ?: PLACING_CIRCLE;
-	config.view_radius = config.view_radius ?: 2;
-	config.max_games = config.max_games ?: 1;
-	config.max_turns = config.max_turns ?: 1024;
-	config.max_lag = config.max_lag ?: config.max_turns;
-	config.shrink_after = config.shrink_after ?: config.max_turns;
-	config.shrink_step = config.shrink_step ?: 1;
-	config.player_life = config.player_life ?: 1;
-	config.gems = config.gems ?: config.map_width;
-	config.wait_for_joins = config.wait_for_joins ?: 1;
-	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
-	config.move = config.move ?: player_move;
-	config.impassable = config.impassable ?: map_impassable;
-
+	complete_config();
 	int rv = game_serve();
 	free(config.custom_map);
 	return rv;

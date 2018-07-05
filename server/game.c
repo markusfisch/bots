@@ -28,6 +28,10 @@ unsigned int game_joined() {
 	return n;
 }
 
+char game_marker_show_life(struct Player *p) {
+	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
+}
+
 void game_remove_player(Player *p) {
 	if (p->fd > 0) {
 		FD_CLR(p->fd, &game.watch);
@@ -36,50 +40,87 @@ void game_remove_player(Player *p) {
 	}
 }
 
-char game_marker_show_life(struct Player *p) {
-	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
+static void game_remove_spectator(WebSocket *ws) {
+	if (ws->fd > 0) {
+		FD_CLR(ws->fd, &game.watch);
+		close(ws->fd);
+		ws->fd = 0;
+	}
+}
+
+static void game_send_spectators(const char *message) {
+	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && websocket_send_text_message(p, message,
+				strlen(message)) < 0) {
+			game_remove_spectator(p);
+		}
+	}
+}
+
+static void game_write_results_in_format(FILE *fp, int format,
+		int standalone) {
+	char *pfmt;
+	switch (format) {
+	default:
+	case FORMAT_PLAIN:
+		fprintf(fp, "================== RESULTS ==================\n");
+		fprintf(fp, "Place Address         Name Score Moves Killer\n");
+		pfmt = "% 4d. %-15s %c    % 5d % 5d %c\n";
+		break;
+	case FORMAT_JSON:
+		if (!standalone) {
+			// close turns array and open results
+			fprintf(fp, "],\n\"results\":[\n");
+		} else {
+			fprintf(fp, "{\"results\":[\n");
+		}
+		pfmt = "{\"place\":%d,\"addr\":\"%s\",\"name\":\"%c\","\
+			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"";
+		break;
+	}
+	int place = 1;
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p, ++place) {
+		if (format == FORMAT_JSON && p > game.players) {
+			fprintf(fp, ",\n");
+		}
+		fprintf(fp, pfmt, place, p->addr, p->name, p->score, p->moves,
+			p->killed_by ?: '-');
+	}
+	switch (format) {
+	case FORMAT_JSON:
+		// close results and root object
+		fprintf(fp, "\n]}\n");
+		break;
+	}
+	fflush(fp);
 }
 
 static int game_compare_player_score(const void *a, const void *b) {
 	return ((Player *) b)->score - ((Player *) a)->score;
 }
 
-static void game_print_results(FILE *fp) {
+static void game_write_results(FILE *fp) {
 	qsort(game.players, game.nplayers, sizeof(Player),
 		game_compare_player_score);
-	char *format;
-	switch (config.output_format) {
-	default:
-	case FORMAT_PLAIN:
-		fprintf(fp, "================== RESULTS ==================\n");
-		fprintf(fp, "Place Address         Name Score Moves Killer\n");
-		format = "% 4d. %-15s %c    % 5d % 5d %c\n";
-		break;
-	case FORMAT_JSON:
-		// close turns array and open results
-		fprintf(fp, "],\n\"results\":[\n");
-		format = "{\"place\":%d,\"addr\":\"%s\",\"name\":\"%c\","\
-			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
-		break;
+	game_write_results_in_format(fp, config.output_format, 0);
+	if (game.nspectators > 0) {
+		char buf[2048];
+		FILE *fp = fmemopen(buf, sizeof(buf), "w");
+		game_write_results_in_format(fp, FORMAT_JSON, 1);
+		fclose(fp);
+		game_send_spectators(buf);
 	}
-	int place = 1;
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p, ++place) {
-		if (config.output_format == FORMAT_JSON && p > game.players) {
-			fprintf(fp, ",\n");
+}
+
+static void game_remove_spectators() {
+	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	for (; p < e; ++p) {
+		if (p->fd > 0) {
+			game_remove_spectator(p);
 		}
-		fprintf(fp, format, place, p->addr, p->name, p->score, p->moves,
-			p->killed_by ?: '-');
 	}
-	switch (config.output_format) {
-	case FORMAT_JSON:
-		// close results
-		fprintf(fp, "\n]\n");
-		// close root object
-		fprintf(fp, "}\n");
-		break;
-	}
-	fflush(fp);
 }
 
 static void game_remove_players() {
@@ -149,8 +190,8 @@ static void game_shrink() {
 	++game.shrink_level;
 }
 
-static void game_write_json(FILE *fp, char *buf) {
-	if (game.turn > 1) {
+static void game_write_json(FILE *fp, const char *map, int standalone) {
+	if (!standalone && game.turn > 1) {
 		fprintf(fp, ",\n");
 	}
 	fprintf(fp, "{\"turn\":%d,\"players\":[\n", game.turn);
@@ -181,18 +222,18 @@ static void game_write_json(FILE *fp, char *buf) {
 	fprintf(fp, "\n],\"map\":\"");
 	unsigned int y;
 	for (y = 0; y < game.map.height; ++y) {
-		fwrite(buf, sizeof(char), game.map.width, fp);
-		buf += game.map.width;
+		fwrite(map, sizeof(char), game.map.width, fp);
+		map += game.map.width;
 	}
 	fprintf(fp, "\"}");
 }
 
-static void game_write_plain(FILE *fp, char *buf) {
+static void game_write_plain(FILE *fp, const char *map) {
 	unsigned int y;
 	for (y = 0; y < game.map.height; ++y) {
-		fwrite(buf, sizeof(char), game.map.width, fp);
+		fwrite(map, sizeof(char), game.map.width, fp);
 		fwrite("\n", sizeof(char),  1, fp);
-		buf += game.map.width;
+		map += game.map.width;
 	}
 	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
 		config.max_turns, game_joined(), game.nplayers);
@@ -221,24 +262,31 @@ static void game_write_plain(FILE *fp, char *buf) {
 
 static void game_write(FILE *fp) {
 	size_t size = game.map.size;
-	char buf[size];
-	memcpy(buf, game.map.data, size);
+	char map[size];
+	memcpy(map, game.map.data, size);
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0) {
-			buf[(p->y * game.map.width + p->x) % size] = p->name;
+			map[(p->y * game.map.width + p->x) % size] = p->name;
 		}
 	}
 	switch (config.output_format) {
 	default:
 	case FORMAT_PLAIN:
-		game_write_plain(fp, buf);
+		game_write_plain(fp, map);
 		break;
 	case FORMAT_JSON:
-		game_write_json(fp, buf);
+		game_write_json(fp, map, 0);
 		break;
 	}
 	fflush(fp);
+	if (game.nspectators > 0) {
+		char buf[game.map.width * game.map.height + 1024];
+		FILE *fp = fmemopen(buf, sizeof(buf), "w");
+		game_write_json(fp, map, 1);
+		fclose(fp);
+		game_send_spectators(buf);
+	}
 }
 
 static void game_remove_defunkt_players() {
@@ -270,7 +318,10 @@ static void game_send_players() {
 					continue;
 				}
 			}
-			player_send_view(p);
+			if (player_send_view(p) < 0) {
+				game_remove_player(p);
+				continue;
+			}
 			update = 1;
 			p->can_move = 1;
 			++p->moves;
@@ -324,6 +375,34 @@ static time_t game_next_turn() {
 	return delta;
 }
 
+static void game_read_spectators() {
+	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	for (; p < e; ++p) {
+		if (p->fd > 0 && FD_ISSET(p->fd, &game.ready)) {
+			if (websocket_read(p, NULL) < 0) {
+				game_remove_spectator(p);
+			}
+		}
+	}
+}
+
+static void game_do_command(Player *p, char cmd) {
+	if (game.started && p->can_move) {
+		p->can_move = 0;
+		config.move(p, cmd);
+	}
+}
+
+static void game_read_websocket_command(Player *p) {
+	char *message;
+	int len = websocket_read(&p->ws, &message);
+	if (len < 0) {
+		game_remove_player(p);
+	} else if (len > 0) {
+		game_do_command(p, *message);
+	}
+}
+
 static void game_read_command(Player *p) {
 	char cmd;
 	int b;
@@ -331,10 +410,7 @@ static void game_read_command(Player *p) {
 		game_remove_player(p);
 		return;
 	}
-	if (game.started && p->can_move) {
-		p->can_move = 0;
-		config.move(p, cmd);
-	}
+	game_do_command(p, cmd);
 }
 
 static void game_read_commands() {
@@ -354,7 +430,11 @@ static void game_read_commands() {
 	}
 	for (q = queue; q < e; ++q) {
 		if ((*q)->fd > 0 && FD_ISSET((*q)->fd, &game.ready)) {
-			game_read_command(*q);
+			if ((*q)->ws.fd > 0) {
+				game_read_websocket_command(*q);
+			} else {
+				game_read_command(*q);
+			}
 		}
 	}
 }
@@ -366,9 +446,21 @@ static void game_watch_fd(int fd) {
 	}
 }
 
-static int game_add_player(int fd, char *addr) {
-	if (game.nplayers >= MAX_PLAYERS) {
+static int game_add_spectator(int fd, __attribute__((unused)) char *addr) {
+	if (game.nplayers >= config.max_spectators ||
+			game.nplayers >= MAX_SPECTATORS) {
 		return 0;
+	}
+	WebSocket *ws = &game.spectators[game.nspectators];
+	ws->fd = fd;
+	game_watch_fd(fd);
+	++game.nspectators;
+	return 1;
+}
+
+static Player *game_add_player(int fd, char *addr) {
+	if (game.nplayers >= MAX_PLAYERS) {
+		return NULL;
 	}
 	Player *p = &game.players[game.nplayers];
 	strcpy(p->addr, addr);
@@ -378,10 +470,24 @@ static int game_add_player(int fd, char *addr) {
 	p->attack_x = p->attack_y = -1;
 	++game.nplayers;
 	game_watch_fd(fd);
+	return p;
+}
+
+static int game_add_player_socket(int fd, char *addr) {
+	return game_add_player(fd, addr) != NULL;
+}
+
+static int game_add_player_websocket(int fd, char *addr) {
+	Player *p = game_add_player(fd, addr);
+	if (!p) {
+		return 0;
+	}
+	p->ws.fd = fd;
 	return 1;
 }
 
-static void game_join(const int lfd, int (*add)(int, char *)) {
+static void game_join(const int lfd, int (*add)(int, char *),
+		const char *role) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 	int fd = accept(lfd, &addr, &len);
@@ -393,8 +499,12 @@ static void game_join(const int lfd, int (*add)(int, char *)) {
 	struct in_addr sin_addr = ipv4->sin_addr;
 	char ip_str[INET_ADDRSTRLEN] = { 0 };
 	inet_ntop(AF_INET, &sin_addr, ip_str, INET_ADDRSTRLEN);
-	if (add(fd, ip_str) && config.output_format == FORMAT_PLAIN) {
-		printf("%s joined\n", ip_str);
+	if (!add(fd, ip_str)) {
+		close(fd);
+		return;
+	}
+	if (config.output_format == FORMAT_PLAIN) {
+		printf("%s joined as %s\n", ip_str, role);
 		fflush(stdout);
 	}
 }
@@ -468,6 +578,40 @@ static void game_assign_player_names() {
 	}
 }
 
+static void game_write_header() {
+	if (config.output_format == FORMAT_JSON) {
+		printf("{\"max_turns\":%d,\n"\
+				"\"map_width\":%d,\n"\
+				"\"map_height\":%d,\n"\
+				"\"view_radius\":%d,\n"\
+				"\"obstacles\":\"%s\",\n"\
+				"\"flatland\":\"%s\",\n"\
+				"\"turns\":[\n",
+			config.max_turns,
+			config.map_width,
+			config.map_height,
+			config.view_radius,
+			config.obstacles,
+			config.flatland);
+	}
+	if (game.nspectators > 0) {
+		char buf[1024];
+		snprintf(buf, sizeof(buf), "{\"max_turns\":%d,\n"\
+				"\"map_width\":%d,\n"\
+				"\"map_height\":%d,\n"\
+				"\"view_radius\":%d,\n"\
+				"\"obstacles\":\"%s\",\n"\
+				"\"flatland\":\"%s\"}",
+			config.max_turns,
+			config.map_width,
+			config.map_height,
+			config.view_radius,
+			config.obstacles,
+			config.flatland);
+		game_send_spectators(buf);
+	}
+}
+
 static void game_start() {
 	game_assign_player_names();
 	if (config.prepare) {
@@ -484,42 +628,32 @@ static void game_start() {
 	if (config.start) {
 		config.start();
 	}
-	if (config.output_format == FORMAT_JSON) {
-		printf("{\n\"max_turns\":%d,\n"\
-				"\"map_width\":%d,\n"\
-				"\"map_height\":%d,\n"\
-				"\"view_radius\":%d,\n"\
-				"\"obstacles\":\"%s\",\n"\
-				"\"flatland\":\"%s\",\n"\
-				"\"turns\":[\n",
-			config.max_turns,
-			config.map_width,
-			config.map_height,
-			config.view_radius,
-			config.obstacles,
-			config.flatland);
-	}
+	game_write_header();
 }
 
-static void game_shutdown(const int fd_player) {
-	close(fd_player);
+static void game_shutdown() {
 	game_remove_players();
+	game_remove_spectators();
 	map_free(&game.map);
 }
 
-static void game_reset(const int fd_player) {
+static void game_reset(const int fd_listen, const int fd_listen_websocket,
+		const int fd_listen_spectator) {
 	memset(&game, 0, sizeof(Game));
-	game_watch_fd(fd_player);
+	game_watch_fd(fd_listen);
+	game_watch_fd(fd_listen_websocket);
+	game_watch_fd(fd_listen_spectator);
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
 			config.min_starters);
 	}
 }
 
-static int game_run(const int fd_player) {
+static int game_run(const int fd_listen, const int fd_listen_websocket,
+		const int fd_listen_spectator) {
 	struct timeval tv;
 
-	game_reset(fd_player);
+	game_reset(fd_listen, fd_listen_websocket, fd_listen_spectator);
 
 	while (!stop) {
 		if (game.started) {
@@ -538,10 +672,23 @@ static int game_run(const int fd_player) {
 			perror("select");
 			break;
 		} else if (ready > 0) {
-			if (FD_ISSET(fd_player, &game.ready)) {
-				game_join(fd_player, game_add_player);
+			if (FD_ISSET(fd_listen, &game.ready)) {
+				game_join(fd_listen,
+					game_add_player_socket,
+					"player");
+			}
+			if (FD_ISSET(fd_listen_websocket, &game.ready)) {
+				game_join(fd_listen_websocket,
+					game_add_player_websocket,
+					"player");
+			}
+			if (FD_ISSET(fd_listen_spectator, &game.ready)) {
+				game_join(fd_listen_spectator,
+					game_add_spectator,
+					"spectator");
 			}
 			game_read_commands();
+			game_read_spectators();
 		}
 
 		if (game.started) {
@@ -553,13 +700,13 @@ static int game_run(const int fd_player) {
 				if (config.end) {
 					config.end();
 				}
-				game_print_results(stdout);
+				game_write_results(stdout);
 				if (config.max_games > 0 && --config.max_games < 1) {
 					break;
 				} else {
-					game_remove_players();
-					map_free(&game.map);
-					game_reset(fd_player);
+					game_shutdown();
+					game_reset(fd_listen, fd_listen_websocket,
+						fd_listen_spectator);
 				}
 			}
 		} else if (game.nplayers == MAX_PLAYERS ||
@@ -568,7 +715,7 @@ static int game_run(const int fd_player) {
 		}
 	}
 
-	game_shutdown(fd_player);
+	game_shutdown();
 
 	return 0;
 }
@@ -582,7 +729,7 @@ static void game_handle_signal(const int id) {
 		break;
 #ifndef MSG_NOSIGNAL
 	case SIGPIPE:
-		// ignore; send when a socket is shut down for
+		// ignore; sent when a socket is shut down for
 		// writing what shouldn't terminate the server
 		break;
 #endif
@@ -638,8 +785,16 @@ int game_listen(const int port) {
 }
 
 int game_serve() {
-	int fd_player = game_listen(config.port_player);
-	if (fd_player < 0) {
+	int fd_listen = game_listen(config.port);
+	if (fd_listen < 0) {
+		return -1;
+	}
+	int fd_listen_websocket = game_listen(config.port_websocket);
+	if (fd_listen_websocket < 0) {
+		return -1;
+	}
+	int fd_listen_spectator = game_listen(config.port_spectator);
+	if (fd_listen_spectator < 0) {
 		return -1;
 	}
 
@@ -650,5 +805,11 @@ int game_serve() {
 	signal(SIGPIPE, game_handle_signal);
 #endif
 
-	return game_run(fd_player);
+	int rv = game_run(fd_listen, fd_listen_websocket, fd_listen_spectator);
+
+	close(fd_listen);
+	close(fd_listen_websocket);
+	close(fd_listen_spectator);
+
+	return rv;
 }

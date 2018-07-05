@@ -203,6 +203,9 @@ MODE must be one of:
 
 OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187
+  -W, --websocket-port N      port for WebSocket players, default is 63188
+  -O, --spectator-port N      port for WebSocket spectators, default is 63189
+  -V, --max-spectators N      maximum number of spectators, default is 0
   -b, --min-starters N        minimum number of players to start a game,
                               default is 1
   -m, --min-players N         minimum number of alive players, default depends
@@ -236,7 +239,7 @@ OPTION can be any of:
   -R, --word STRING           custom word for "word" mode, random by default
   -F, --format TYPE           server output format, either "plain" or "json",
                               default is "plain"
-  -W, --wait-for-joins N      number of seconds to wait for joins,
+  -w, --wait-for-joins N      number of seconds to wait for joins,
                               default is 1
   -u, --usec-per-turn N       maximum number of milliseconds per turn,
                               default is 1000000 (one second)

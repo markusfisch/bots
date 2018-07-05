@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
+#include "websocket.h"
 #include "map.h"
 
 #define USEC_PER_SEC 1000000L
@@ -37,6 +38,7 @@ struct Game {
 	unsigned int shrink_level;
 	unsigned int shrink_step;
 	unsigned int nplayers;
+	unsigned int nspectators;
 	Map map;
 	struct Player {
 		char addr[INET_ADDRSTRLEN];
@@ -54,11 +56,16 @@ struct Game {
 		char killed_by;
 		void *trunk;
 		unsigned int counter;
+		WebSocket ws;
 	} players[MAX_PLAYERS];
+	WebSocket spectators[MAX_SPECTATORS];
 };
 
 struct Config {
-	unsigned int port_player;
+	unsigned int port;
+	unsigned int port_websocket;
+	unsigned int port_spectator;
+	unsigned int max_spectators;
 	unsigned int min_players;
 	unsigned int min_starters;
 	unsigned int map_width;
@@ -99,9 +106,9 @@ struct Config {
 	int (*rand)();
 };
 
-void game_remove_player(Player *);
 unsigned int game_joined();
 char game_marker_show_life(Player *);
+void game_remove_player(Player *);
 void game_end();
 int game_serve();
 

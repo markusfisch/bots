@@ -1,5 +1,7 @@
 #include <unistd.h>
+#include <string.h>
 
+#include "websocket.h"
 #include "game.h"
 #include "player.h"
 
@@ -62,10 +64,26 @@ static char player_view_at(Player *p, const int x, const int y) {
 	return tile;
 }
 
-void player_send_view(Player *player) {
+static int player_send_view_websocket(WebSocket *ws, const char *view,
+		size_t width, size_t height) {
+	size_t size = (width + 1) * height;
+	char buf[size];
+	char *e = buf + size;
+	char *p = buf;
+	while (p < e) {
+		strncpy(p, view, width);
+		p += width;
+		*p++ = '\n';
+		view += width;
+	}
+	return websocket_send_text_message(ws, buf, size);
+}
+
+int player_send_view(Player *player) {
 	int radius = config.view_radius;
 	size_t len = radius * 2 + 1;
-	char view[len * len];
+	size_t size = len * len;
+	char view[size];
 	int left;
 	int top;
 	int xx;
@@ -125,7 +143,9 @@ void player_send_view(Player *player) {
 	}
 	view[radius * len + radius] = config.marker ?
 		config.marker(player) : player->name;
-	map_write(player->fd, view, len, len);
+	return player->ws.fd > 0 ?
+		player_send_view_websocket(&player->ws, view, len, len) :
+		map_write(player->fd, view, len, len);
 }
 
 static void player_move_by(Player *p, int x, int y) {

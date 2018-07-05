@@ -15,7 +15,7 @@ typedef struct {
 	size_t size;
 } Map;
 
-void map_write(int, char *, unsigned int, unsigned int);
+int map_write(int, char *, unsigned int, unsigned int);
 void map_free(Map *);
 void map_create(Map *, unsigned int, unsigned int);
 void map_init_random(Map *, unsigned int, const char *, const char *);
