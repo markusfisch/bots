@@ -8,7 +8,7 @@ after one second has passed and at least one player made a move.
 All actions happen in sequence.
 
 To play the game, a bot needs to connect a streaming socket to port 63187
-after the `bots` server has been started.
+(or a WebSocket to port 63188) after the `bots` server has been started.
 
 Find templates for such bots in the `templates` directory.
 
