@@ -95,6 +95,8 @@ static void usage() {
 			"default is 63189\n"\
 		"  -V, --max-spectators N      maximum number of spectators, "\
 			"default is 0\n"\
+		"  -r, --remote-spectators     allow remote spectators for "\
+			"multiplayer games\n"\
 		"  -b, --min-starters N        minimum number of players to start "\
 			"a game,\n"\
 		"                              default is 1\n"\
@@ -303,6 +305,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "websocket-port", required_argument, NULL, 'W' },
 		{ "spectator-port", required_argument, NULL, 'O' },
 		{ "max-spectators", required_argument, NULL, 'V' },
+		{ "remote-spectators", no_argument, &config.remote_spectators, 1 },
 		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "map-size", required_argument, NULL, 's' },
@@ -314,7 +317,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "placing", required_argument, NULL, 'p' },
 		{ "fuzzy", required_argument, NULL, 'Z' },
 		{ "place-at", required_argument, NULL, 'A' },
-		{ "non-exclusive", required_argument, &config.non_exclusive, 1 },
+		{ "non-exclusive", no_argument, &config.non_exclusive, 1 },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-games", required_argument, NULL, 'G' },
 		{ "max-turns", required_argument, NULL, 'M' },
@@ -334,7 +337,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:b:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:w:u:d",
+			"P:W:O:V:rb:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -348,6 +351,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'V':
 			config.max_spectators = atoi(optarg);
+			break;
+		case 'r':
+			config.remote_spectators = 1;
 			break;
 		case 'b':
 			config.min_starters = atoi(optarg);

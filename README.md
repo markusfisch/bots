@@ -206,6 +206,7 @@ OPTION can be any of:
   -W, --websocket-port N      port for WebSocket players, default is 63188
   -O, --spectator-port N      port for WebSocket spectators, default is 63189
   -V, --max-spectators N      maximum number of spectators, default is 0
+  -r, --remote-spectators     allow remote spectators for multiplayer games
   -b, --min-starters N        minimum number of players to start a game,
                               default is 1
   -m, --min-players N         minimum number of alive players, default depends

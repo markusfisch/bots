@@ -40,18 +40,18 @@ void game_remove_player(Player *p) {
 	}
 }
 
-static void game_remove_spectator(WebSocket *ws) {
-	if (ws->fd > 0) {
-		FD_CLR(ws->fd, &game.watch);
-		close(ws->fd);
-		ws->fd = 0;
+static void game_remove_spectator(Spectator *s) {
+	if (s->ws.fd > 0) {
+		FD_CLR(s->ws.fd, &game.watch);
+		close(s->ws.fd);
+		s->ws.fd = 0;
 	}
 }
 
 static void game_send_spectators(const char *message) {
-	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
-		if (p->fd > 0 && websocket_send_text_message(p, message,
+		if (p->ws.fd > 0 && websocket_send_text_message(&p->ws, message,
 				strlen(message)) < 0) {
 			game_remove_spectator(p);
 		}
@@ -115,9 +115,9 @@ static void game_write_results(FILE *fp) {
 }
 
 static void game_remove_spectators() {
-	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
-		if (p->fd > 0) {
+		if (p->ws.fd > 0) {
 			game_remove_spectator(p);
 		}
 	}
@@ -376,10 +376,10 @@ static time_t game_next_turn() {
 }
 
 static void game_read_spectators() {
-	WebSocket *p = game.spectators, *e = p + game.nspectators;
+	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
-		if (p->fd > 0 && FD_ISSET(p->fd, &game.ready)) {
-			if (websocket_read(p, NULL) < 0) {
+		if (p->ws.fd > 0 && FD_ISSET(p->ws.fd, &game.ready)) {
+			if (websocket_read(&p->ws, NULL) < 0) {
 				game_remove_spectator(p);
 			}
 		}
@@ -446,13 +446,14 @@ static void game_watch_fd(int fd) {
 	}
 }
 
-static int game_add_spectator(int fd, __attribute__((unused)) char *addr) {
+static int game_add_spectator(int fd, char *addr) {
 	if (game.nplayers >= config.max_spectators ||
 			game.nplayers >= MAX_SPECTATORS) {
 		return 0;
 	}
-	WebSocket *ws = &game.spectators[game.nspectators];
-	ws->fd = fd;
+	Spectator *s = &game.spectators[game.nspectators];
+	strcpy(s->addr, addr);
+	s->ws.fd = fd;
 	game_watch_fd(fd);
 	++game.nspectators;
 	return 1;
@@ -612,7 +613,31 @@ static void game_write_header() {
 	}
 }
 
+static void game_restrict_spectators() {
+	if (config.remote_spectators || game.nplayers < 2 ||
+			game.nspectators < 1) {
+		// no restrictions for single player games
+		return;
+	}
+	// remove all but exactly one spectator that must be on localhost
+	// if there are multiple players to prevent players from stealing
+	// the whole map by sniffing network traffic or providing a fake
+	// spectator
+	int count = 0;
+	Spectator *p = game.spectators, *e = p + game.nspectators;
+	for (; p < e; ++p) {
+		if (p->ws.fd > 0) {
+			if (count > 0 || strcmp(p->addr, "127.0.0.1")) {
+				game_remove_spectator(p);
+			} else {
+				++count;
+			}
+		}
+	}
+}
+
 static void game_start() {
+	game_restrict_spectators();
 	game_assign_player_names();
 	if (config.prepare) {
 		config.prepare();

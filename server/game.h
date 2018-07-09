@@ -58,7 +58,10 @@ struct Game {
 		unsigned int counter;
 		WebSocket ws;
 	} players[MAX_PLAYERS];
-	WebSocket spectators[MAX_SPECTATORS];
+	struct Spectator {
+		char addr[INET_ADDRSTRLEN];
+		WebSocket ws;
+	} spectators[MAX_SPECTATORS];
 };
 
 struct Config {
@@ -66,6 +69,7 @@ struct Config {
 	unsigned int port_websocket;
 	unsigned int port_spectator;
 	unsigned int max_spectators;
+	int remote_spectators;
 	unsigned int min_players;
 	unsigned int min_starters;
 	unsigned int map_width;
