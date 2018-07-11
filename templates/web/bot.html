@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width"/>
+<meta charset="utf-8"/>
+<title>Bots</title>
+<style>
+html {
+	margin: 2em; padding: 0;
+	background: #114; color: #77f;
+	font: 120% sans-serif;
+	line-height: 130%;
+	letter-spacing: .05em;
+}
+
+body, form {
+	margin: 0; padding: 0;
+}
+
+*:focus {
+	outline: none;
+}
+
+input, textarea {
+	margin: 0 .5em 1em 0; padding: .75em 1em;
+	background: #18184f; color: #88f;
+	font: 110% monospace;
+	line-height: 130%;
+	border: .1em solid #226;
+	border-radius: .2em;
+}
+
+input::placeholder, textarea::placeholder {
+	color: #559;
+}
+
+.Button {
+	padding: .5em 1em;
+	background: #f69; color: #903;
+	font: 110% sans-serif;
+	border: 0;
+	border-radius: .3em;
+	border-bottom: .15em solid #c36;
+}
+.Button:active {
+	background: #e58; color: #802;
+}
+.Button:disabled {
+	background: #c36; color: #600;
+	border-color: #b25;
+}
+
+.Main {
+	display: flex;
+	height: calc(100vh - 7em);
+}
+
+.Col {
+	flex: 1;
+}
+
+.Col:last-child {
+	margin-right: 0;
+}
+
+@media screen and (max-width: 640px) {
+	html {
+		margin: 1em;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	html {
+		margin: .5em;
+	}
+
+	input, textarea {
+		margin: 0 .25em .5em 0; padding: .25em .5em;
+	}
+
+	.Main {
+		height: calc(100vh - 4em);
+	}
+}
+</style>
+</head>
+<body>
+<form>
+<div class="Bar">
+<input
+	type="button" id ="Start" class="Button" value="Start"
+	placeholder="hostname" onclick="start()"/><input
+	type="button" id="Stop" class="Button" value="Stop"
+	placeholder="port number" onclick="stop()" disabled="disabled"/><input
+	type="text" name="host" id="Host" value="127.0.0.1" size="16"
+	placeholder="host[:port]"/>
+</div>
+<div class="Main">
+<textarea class="Col" id="Code" placeholder="Enter code here." wrap="off">
+print(map)
+// replace prompt() with something clever
+return prompt('What direction? (&lt;&gt;^v)')
+</textarea>
+<textarea class="Col" id="Console" readonly="true"
+	placeholder="Server output will be here."></textarea>
+</div>
+</form>
+<script>
+'use strict'
+
+const W = window,
+	D = document,
+	startButton = D.getElementById('Start'),
+	stopButton = D.getElementById('Stop'),
+	hostInput = D.getElementById('Host'),
+	console = D.getElementById('Console'),
+	code = D.getElementById('Code')
+
+var ws
+
+function disableElements() {
+	for (var i = arguments.length; i--;) {
+		arguments[i].setAttribute('disabled', 'disabled')
+	}
+}
+
+function enableElements() {
+	for (var i = arguments.length; i--;) {
+		arguments[i].removeAttribute('disabled')
+	}
+}
+
+function print(text) {
+	console.value += text + '\n'
+	console.scrollTop = console.scrollHeight;
+}
+
+function clear() {
+	console.value = ''
+}
+
+function reset() {
+	enableElements(hostInput, startButton)
+	disableElements(stopButton)
+}
+
+function start() {
+	clear()
+	if (!'WebSocket' in W) {
+		alert('Sorry, this browser cannot open a WebSocket.')
+		return false
+	}
+	var process;
+	try {
+		process = new Function('map', code.value)
+	} catch (error) {
+		print(error)
+		return false
+	}
+	disableElements(hostInput, startButton)
+	enableElements(stopButton)
+	var host = hostInput.value
+	if (host.indexOf(':') < 0) {
+		host += ':63188'
+	}
+	ws = new WebSocket('ws://' + host)
+	ws.onopen = function() {
+		print('Connected.')
+	}
+	ws.onmessage = function (event) {
+		ws.send(process(event.data))
+	}
+	ws.onclose = function (event) {
+		print('Connection closed.')
+		reset()
+	}
+	return true
+}
+
+function stop() {
+	ws && ws.readyState == WebSocket.OPEN && ws.close(1000)
+	reset()
+}
+</script>
+</body>
+</html>
