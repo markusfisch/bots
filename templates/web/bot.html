@@ -50,26 +50,41 @@ input::placeholder, textarea::placeholder {
 	border-color: #b25;
 }
 
-.Main {
+.View {
 	display: flex;
-	height: calc(100vh - 7em);
+	flex-flow: column wrap;
+	height: calc(100vh - 4em);
+}
+
+.Bar {
+	white-space: nowrap;
+}
+
+.Main {
+	flex: 1;
+	display: flex;
 }
 
 .Col {
 	flex: 1;
+	margin-bottom: 0;
 }
 
 .Col:last-child {
 	margin-right: 0;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 1280px) {
 	html {
 		margin: 1em;
 	}
+
+	.View {
+		height: calc(100vh - 2em);
+	}
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 640px) {
 	html {
 		margin: .5em;
 	}
@@ -78,14 +93,28 @@ input::placeholder, textarea::placeholder {
 		margin: 0 .25em .5em 0; padding: .25em .5em;
 	}
 
+	.View {
+		height: calc(100vh - 1em);
+	}
+
 	.Main {
+		flex-wrap: wrap;
 		height: calc(100vh - 4em);
+	}
+
+	.Col {
+		flex: 50%;
+		margin-right: 0;
+	}
+
+	.Col:first-child {
+		margin-bottom: .5em;
 	}
 }
 </style>
 </head>
 <body>
-<form>
+<form class="View">
 <div class="Bar">
 <input
 	type="button" id ="Start" class="Button" value="Start"
@@ -168,7 +197,12 @@ function start() {
 		print('Connected.')
 	}
 	ws.onmessage = function (event) {
-		ws.send(process(event.data))
+		const message = process(event.data)
+		if (!message) {
+			stop();
+			return;
+		}
+		ws.send(message)
 	}
 	ws.onclose = function (event) {
 		print('Connection closed.')
