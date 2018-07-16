@@ -8,6 +8,7 @@ typedef struct {
 	int handshaked;
 } WebSocket;
 
+void websocket_close(WebSocket *);
 int websocket_send_text_message(WebSocket *, const char *, unsigned int);
 int websocket_read(WebSocket *, char **);
 

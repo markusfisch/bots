@@ -97,6 +97,12 @@ int websocket_send_text_message(WebSocket *ws, const char *data,
 	return websocket_send_message(ws, 1, data, len);
 }
 
+void websocket_close(WebSocket *ws) {
+	websocket_send_message(ws, 8, NULL, 0);
+	close(ws->fd);
+	ws->fd = 0;
+}
+
 static int websocket_read_message(WebSocket *ws, char **message) {
 	unsigned int hlen = 2;
 	if (ws->available < hlen) {
@@ -143,6 +149,10 @@ static int websocket_read_message(WebSocket *ws, char **message) {
 		}
 	} else {
 		// messages from the client to the server must be masked
+		return -1;
+	}
+	if ((*ws->buffer & 15) == 8) {
+		// got close frame
 		return -1;
 	}
 	if ((*ws->buffer & 15) == 9) {

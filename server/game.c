@@ -35,7 +35,11 @@ char game_marker_show_life(struct Player *p) {
 void game_remove_player(Player *p) {
 	if (p->fd > 0) {
 		FD_CLR(p->fd, &game.watch);
-		close(p->fd);
+		if (p->ws.fd > 0) {
+			websocket_close(&p->ws);
+		} else {
+			close(p->fd);
+		}
 		p->fd = 0;
 	}
 }
@@ -43,7 +47,7 @@ void game_remove_player(Player *p) {
 static void game_remove_spectator(Spectator *s) {
 	if (s->ws.fd > 0) {
 		FD_CLR(s->ws.fd, &game.watch);
-		close(s->ws.fd);
+		websocket_close(&s->ws);
 		s->ws.fd = 0;
 	}
 }
