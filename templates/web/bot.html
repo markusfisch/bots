@@ -161,7 +161,7 @@ function enableElements() {
 
 function print(text) {
 	console.value += text + '\n'
-	console.scrollTop = console.scrollHeight;
+	console.scrollTop = console.scrollHeight
 }
 
 function clear() {
@@ -179,7 +179,7 @@ function start() {
 		alert('Sorry, this browser cannot open a WebSocket.')
 		return false
 	}
-	var process;
+	var process
 	try {
 		process = new Function('map', code.value)
 	} catch (error) {
@@ -197,12 +197,12 @@ function start() {
 		print('Connected.')
 	}
 	ws.onmessage = function (event) {
-		const message = process(event.data)
-		if (!message) {
-			stop();
-			return;
+		const cmd = process(event.data)
+		if (!cmd) {
+			stop()
+			return
 		}
-		ws.send(message)
+		ws.send(cmd)
 	}
 	ws.onclose = function (event) {
 		print('Connection closed.')
