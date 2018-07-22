@@ -3,7 +3,7 @@
 
 #define TILE_GEM '@'
 
-void scatter_gems();
+unsigned int scatter(char, unsigned int);
 void collect();
 
 #endif

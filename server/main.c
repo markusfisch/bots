@@ -7,6 +7,7 @@
 #include "game.h"
 #include "player.h"
 #include "modes/avoid.h"
+#include "modes/boom.h"
 #include "modes/collect.h"
 #include "modes/escape.h"
 #include "modes/rumble.h"
@@ -40,6 +41,7 @@ static const struct Mode {
 	{ "rumble", "last man standing, shoot with 'f'", rumble },
 	{ "avoid", "survive an asteroid shower of 'X'", avoid },
 	{ "word", "find a word somewhere on the map", word },
+	{ "boom", "last man standing, place bomb with '1' to '9'", boom },
 	{ NULL, NULL, NULL }
 };
 

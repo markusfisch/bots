@@ -81,12 +81,7 @@ static void start() {
 }
 
 static void end() {
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (p->fd) {
-			p->score = score;
-		}
-	}
+	game_set_players_score(score);
 	free(asteroids);
 	asteroids = NULL;
 	nasteroids = 0;

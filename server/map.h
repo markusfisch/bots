@@ -20,6 +20,7 @@ void map_free(Map *);
 void map_create(Map *, unsigned int, unsigned int);
 void map_init_random(Map *, unsigned int, const char *, const char *);
 int map_wrap(int, unsigned int);
+size_t map_offset(Map *, const int x, const int y);
 char map_get(Map *, int, int);
 void map_set(Map *, int, int, char);
 int map_impassable(Map *, int, int);

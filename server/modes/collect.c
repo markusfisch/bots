@@ -9,27 +9,27 @@ extern struct Game game;
 
 static unsigned int collected;
 
-void scatter_gems() {
-	unsigned int gems = map_count(&game.map, TILE_GEM);
-	if (gems > 0) {
-		config.gems = gems;
-		return;
+unsigned int scatter(char tile, unsigned int amount) {
+	unsigned int already = map_count(&game.map, tile);
+	if (already > 0) {
+		return already;
 	}
 	unsigned int i;
-	for (i = 0; i < config.gems; ++i) {
+	for (i = 0; i < amount; ++i) {
 		int x, y;
 		do {
 			x = config.rand() % game.map.width;
 			y = config.rand() % game.map.height;
-		} while (map_get(&game.map, x, y) == TILE_GEM ||
+		} while (map_get(&game.map, x, y) == tile ||
 			config.impassable(&game.map, x, y) || player_at(x, y, NULL));
-		map_set(&game.map, x, y, TILE_GEM);
+		map_set(&game.map, x, y, tile);
 	}
+	return amount;
 }
 
 static void start() {
 	collected = 0;
-	scatter_gems();
+	config.gems = scatter(TILE_GEM, config.gems);
 }
 
 static void move(Player *p, char cmd) {

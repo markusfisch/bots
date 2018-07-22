@@ -132,6 +132,14 @@ back to the server.
 The bots are placed in a circle around the word with a random orientation.
 Use `--word` to set a custom word.
 
+### boom
+
+Place bombs and blow up all other players. Send a single digit from `1` to
+`9` to place a bomb. The digit gives the number of turns until the bomb
+detonates. Bombs blast orthogonal only.
+
+Pick up power-ups `+` to increase the detonation radius of your bombs.
+
 ## Available maps
 
 Use `--map-size` to set a custom map size and `--view-radius` to control
@@ -200,6 +208,7 @@ MODE must be one of:
   rumble - last man standing, shoot with 'f'
   avoid - survive an asteroid shower of 'X'
   word - find a word somewhere on the map
+  boom - last man standing, place bomb with '1' to '9'
 
 OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187

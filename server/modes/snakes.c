@@ -24,7 +24,7 @@ struct Tail {
 
 static void start() {
 	collected = 0;
-	scatter_gems();
+	config.gems = scatter(TILE_GEM, config.gems);
 }
 
 static void free_tail(Tail *first) {

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+cd "${0%/*}" && . tester
+tester_run_server -s 16x16 -m 1 -A '12,10,<' boom
+tester_connect
+tester_read_send '3'
+tester_read_send '^' 3
+tester_read_send '6'
+tester_read_send '^'
+tester_read_send '3'
+tester_read_send '^' 3
+tester_read
+tester_close
+tester_print_result

@@ -61,7 +61,7 @@ int map_wrap(const int pos, const unsigned int max) {
 	return (pos + max) % max;
 }
 
-static size_t map_offset(Map *map, const int x, const int y) {
+size_t map_offset(Map *map, const int x, const int y) {
 	return map_wrap(y, map->height) * map->width + map_wrap(x, map->width);
 }
 
