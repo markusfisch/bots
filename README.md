@@ -286,7 +286,9 @@ Where HOSTNAME is either the IP address or hostname of the machine the
 server is running on.
 
 If you don't have access to a shell, you can still play the game from any
-device with a web browser. Just open `templates/web/bot.html` and write a bot.
+device with a web browser. Just open the file `templates/web/bot.html` or
+simply click [here](https://markusfisch.github.io/bots/) and write a bot
+in JavaScript.
 
 ## Playing automatically
 
