@@ -22,7 +22,7 @@ body, form {
 }
 
 input, textarea {
-	margin: 0 .5em 1em 0; padding: .75em 1em;
+	margin: 0 .5em .5em 0; padding: .75em 1em;
 	background: #18184f; color: #88f;
 	font: 110% monospace;
 	line-height: 130%;
@@ -57,7 +57,13 @@ input::placeholder, textarea::placeholder {
 }
 
 .Bar {
+	display: flex;
 	white-space: nowrap;
+}
+
+#Host {
+	margin-right: 0;
+	flex: 1;
 }
 
 .Main {
