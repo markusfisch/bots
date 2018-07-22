@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-cd "${0%/*}" && . tester
-tester_run_server -c test_collect_map -A '6,3,<' snakes
-tester_connect
-tester_read_send '^' 4
-tester_close
-tester_print_result
