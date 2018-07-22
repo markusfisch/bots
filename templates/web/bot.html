@@ -34,6 +34,11 @@ input::placeholder, textarea::placeholder {
 	color: #559;
 }
 
+input:disabled {
+	background: #114; color: #77f;
+	border-color: transparent;
+}
+
 .Button {
 	padding: .5em 1em;
 	background: #f69; color: #903;
@@ -139,14 +144,24 @@ input::placeholder, textarea::placeholder {
 	type="button" id="Stop" class="Button" value="Stop"
 	placeholder="port number" onclick="stop()" disabled="disabled"/><input
 	type="text" name="host" id="Host" value="127.0.0.1" size="16"
-	placeholder="host[:port]"/>
+	placeholder="host[:port]" oninput="save()"/>
 </div>
 <div class="Main">
-<textarea class="Col" id="Code" placeholder="Enter code here." wrap="off"
-	onblur="saveCode()">
+<textarea class="Col" id="Code" wrap="off" oninput="save()"
+	placeholder="Enter code here. Reload this page to reset to default.">
+// This JavaScript runs for every map
+// section from the server.
+
+// "map" is a string that contains the
+// multiline map section
 print(map)
-// instead of ask(), you should use send('^')
+
+// now, instead of ask()'ing yourself for
+// a command, you should parse "map" and
+// send a command back to the server with
+// send(command)
 ask('What direction? (&lt;&gt;^v)')
+
 // return false if you want to disconnect
 return true
 </textarea>
@@ -159,15 +174,16 @@ return true
 'use strict'
 
 const CODE = 'code',
+	HOST = 'host',
 	W = window,
 	D = document,
 	storage = W.localStorage,
 	startButton = D.getElementById('Start'),
 	stopButton = D.getElementById('Stop'),
 	hostInput = D.getElementById('Host'),
-	monitor = D.getElementById('Monitor'),
-	code = D.getElementById('Code'),
-	command = D.getElementById('Command')
+	monitorView = D.getElementById('Monitor'),
+	codeEditor = D.getElementById('Code'),
+	commandInput = D.getElementById('Command')
 
 let ws
 
@@ -184,20 +200,20 @@ function enableElements() {
 }
 
 function print(text) {
-	monitor.value += text + '\n'
-	monitor.scrollTop = monitor.scrollHeight
+	monitorView.value += text + '\n'
+	monitorView.scrollTop = monitorView.scrollHeight
 }
 
 function ask(question) {
-	command.placeholder = question
-	command.oninput = function(event) {
-		const cmd = command.value
+	commandInput.placeholder = question
+	commandInput.oninput = function(event) {
+		const cmd = commandInput.value
 		print('Sending [' + cmd + ']')
 		send(cmd)
-		command.value = ''
+		commandInput.value = ''
 	}
-	command.style.display = 'block'
-	command.focus()
+	commandInput.style.display = 'block'
+	commandInput.focus()
 }
 
 function send(cmd) {
@@ -205,11 +221,11 @@ function send(cmd) {
 }
 
 function clear() {
-	monitor.value = ''
+	monitorView.value = ''
 }
 
 function reset() {
-	command.style.display = 'none'
+	commandInput.style.display = 'none'
 	enableElements(hostInput, startButton)
 	disableElements(stopButton)
 }
@@ -222,7 +238,7 @@ function start() {
 	}
 	let process
 	try {
-		process = new Function('map', code.value)
+		process = new Function('map', codeEditor.value)
 	} catch (error) {
 		print(error)
 		return false
@@ -255,17 +271,24 @@ function stop() {
 	reset()
 }
 
-function saveCode() {
-	storage && storage.setItem(CODE, code.value)
+function save() {
+	if (storage) {
+		storage.setItem(HOST, hostInput.value)
+		storage.setItem(CODE, codeEditor.value)
+	}
 }
 
 W.onload = function() {
 	if (!storage) {
 		return
 	}
+	const savedHost = storage.getItem(HOST)
+	if (savedHost) {
+		hostInput.value = savedHost
+	}
 	const savedCode = storage.getItem(CODE)
 	if (savedCode) {
-		code.value = savedCode
+		codeEditor.value = savedCode
 	}
 }
 </script>
