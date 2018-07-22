@@ -33,9 +33,9 @@ would look like this:
 First line is in front of you, the last one is behind you.
 
 `.` is flatland, `~` is water, `#` is wood and `X` is a wall or a rock.
-You can't walk through water or wood or other players.
+You can't walk through water, wood, stone or other players.
 
-`^`, `<`, `>` and `v` is another player. The character points in the
+`^`, `<`, `>` and `v` is another player. The letter points in the
 direction the other player is looking. For example, here, a player is
 right in the front of you, looking at you:
 
@@ -73,7 +73,8 @@ are discarded.
 ### training
 
 Just learn to move around and to parse the map. Upon start, every player
-gets the same section so it's easy to introduce a group of people:
+gets the same section so it's easy to introduce a group of people to the
+game:
 
 	..#..
 	.....
@@ -270,17 +271,22 @@ For example, on a Raspberry Pi you want to install `gcc` and `make`:
 
 ## Playing manually
 
-The repository contains a very simple bash bot. Start it like this when
-in the repository's root directory:
+The `templates` directory contains a number of simple bots in different
+languages. All these bots ask you for a command when a section is received.
+
+To try the bash bot for example, type:
 
 	$ templates/bash/bot
 
-If `bots` is running on another machine, you'd do:
+If the server is running on another machine, you'd do:
 
 	$ templates/bash/bot HOSTNAME
 
 Where HOSTNAME is either the IP address or hostname of the machine the
 server is running on.
+
+If you don't have access to a shell, you can still play the game from any
+device with a web browser. Just open `templates/web/bot.html` and write a bot.
 
 ## Playing automatically
 
