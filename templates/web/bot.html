@@ -80,6 +80,17 @@ input::placeholder, textarea::placeholder {
 	margin-right: 0;
 }
 
+#Command {
+	margin: .5em 0 0 0;
+	background: #f69; color: #903;
+	border-color: #f7a;
+	display: none;
+}
+
+#Command::placeholder {
+	color: #a04;
+}
+
 @media screen and (max-width: 1280px) {
 	html {
 		margin: 1em;
@@ -134,12 +145,15 @@ input::placeholder, textarea::placeholder {
 <textarea class="Col" id="Code" placeholder="Enter code here." wrap="off"
 	onblur="saveCode()">
 print(map)
-// replace prompt() with something clever
-return prompt('What direction? (&lt;&gt;^v)')
+// instead of ask(), you should use send('^')
+ask('What direction? (&lt;&gt;^v)')
+// return false if you want to disconnect
+return true
 </textarea>
 <textarea class="Col" id="Monitor" readonly="true"
 	placeholder="Server output will be here."></textarea>
 </div>
+<input id="Command" type="text"/>
 </form>
 <script>
 'use strict'
@@ -152,18 +166,19 @@ const CODE = 'code',
 	stopButton = D.getElementById('Stop'),
 	hostInput = D.getElementById('Host'),
 	monitor = D.getElementById('Monitor'),
-	code = D.getElementById('Code')
+	code = D.getElementById('Code'),
+	command = D.getElementById('Command')
 
-var ws
+let ws
 
 function disableElements() {
-	for (var i = arguments.length; i--;) {
+	for (let i = arguments.length; i--;) {
 		arguments[i].setAttribute('disabled', 'disabled')
 	}
 }
 
 function enableElements() {
-	for (var i = arguments.length; i--;) {
+	for (let i = arguments.length; i--;) {
 		arguments[i].removeAttribute('disabled')
 	}
 }
@@ -173,11 +188,28 @@ function print(text) {
 	monitor.scrollTop = monitor.scrollHeight
 }
 
+function ask(question) {
+	command.placeholder = question
+	command.oninput = function(event) {
+		const cmd = command.value
+		print('Sending [' + cmd + ']')
+		send(cmd)
+		command.value = ''
+	}
+	command.style.display = 'block'
+	command.focus()
+}
+
+function send(cmd) {
+	ws.send(cmd)
+}
+
 function clear() {
 	monitor.value = ''
 }
 
 function reset() {
+	command.style.display = 'none'
 	enableElements(hostInput, startButton)
 	disableElements(stopButton)
 }
@@ -188,7 +220,7 @@ function start() {
 		alert('Sorry, this browser cannot open a WebSocket.')
 		return false
 	}
-	var process
+	let process
 	try {
 		process = new Function('map', code.value)
 	} catch (error) {
@@ -197,7 +229,7 @@ function start() {
 	}
 	disableElements(hostInput, startButton)
 	enableElements(stopButton)
-	var host = hostInput.value
+	let host = hostInput.value
 	if (host.indexOf(':') < 0) {
 		host += ':63188'
 	}
@@ -206,12 +238,10 @@ function start() {
 		print('Connected.')
 	}
 	ws.onmessage = function (event) {
-		const cmd = process(event.data)
-		if (!cmd) {
+		if (!process(event.data)) {
 			stop()
 			return
 		}
-		ws.send(cmd)
 	}
 	ws.onclose = function (event) {
 		print('Connection closed.')
