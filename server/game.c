@@ -820,10 +820,13 @@ int game_serve() {
 	}
 	int fd_listen_websocket = game_listen(config.port_websocket);
 	if (fd_listen_websocket < 0) {
+		close(fd_listen);
 		return -1;
 	}
 	int fd_listen_spectator = game_listen(config.port_spectator);
 	if (fd_listen_spectator < 0) {
+		close(fd_listen);
+		close(fd_listen_websocket);
 		return -1;
 	}
 
