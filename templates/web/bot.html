@@ -125,24 +125,27 @@ input::placeholder, textarea::placeholder {
 	placeholder="host[:port]"/>
 </div>
 <div class="Main">
-<textarea class="Col" id="Code" placeholder="Enter code here." wrap="off">
+<textarea class="Col" id="Code" placeholder="Enter code here." wrap="off"
+	onblur="saveCode()">
 print(map)
 // replace prompt() with something clever
 return prompt('What direction? (&lt;&gt;^v)')
 </textarea>
-<textarea class="Col" id="Console" readonly="true"
+<textarea class="Col" id="Monitor" readonly="true"
 	placeholder="Server output will be here."></textarea>
 </div>
 </form>
 <script>
 'use strict'
 
-const W = window,
+const CODE = 'code',
+	W = window,
 	D = document,
+	storage = W.localStorage,
 	startButton = D.getElementById('Start'),
 	stopButton = D.getElementById('Stop'),
 	hostInput = D.getElementById('Host'),
-	console = D.getElementById('Console'),
+	monitor = D.getElementById('Monitor'),
 	code = D.getElementById('Code')
 
 var ws
@@ -160,12 +163,12 @@ function enableElements() {
 }
 
 function print(text) {
-	console.value += text + '\n'
-	console.scrollTop = console.scrollHeight
+	monitor.value += text + '\n'
+	monitor.scrollTop = monitor.scrollHeight
 }
 
 function clear() {
-	console.value = ''
+	monitor.value = ''
 }
 
 function reset() {
@@ -214,6 +217,20 @@ function start() {
 function stop() {
 	ws && ws.readyState == WebSocket.OPEN && ws.close(1000)
 	reset()
+}
+
+function saveCode() {
+	storage && storage.setItem(CODE, code.value)
+}
+
+W.onload = function() {
+	if (!storage) {
+		return
+	}
+	const savedCode = storage.getItem(CODE)
+	if (savedCode) {
+		code.value = savedCode
+	}
 }
 </script>
 </body>
