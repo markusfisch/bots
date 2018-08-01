@@ -32,7 +32,7 @@ static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
 static const struct Mode {
 	char *name;
 	char *description;
-	void *init;
+	void (*init)();
 } modes[] = {
 	{ "training", "just learn to see and move", training },
 	{ "escape", "find the exit field 'o'", escape },
@@ -169,7 +169,7 @@ static void usage() {
 			"generator\n");
 }
 
-static void *pick_mode(const char *name) {
+static void (*pick_mode(const char *name))() {
 	const struct Mode *m;
 	for (m = modes; m->name; ++m) {
 		if (!strcmp(m->name, name)) {
