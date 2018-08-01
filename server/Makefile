@@ -12,22 +12,10 @@ OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/word.o \
 	modes/boom.o \
 	main.o
-DEPS = map.h maze.h placing.h player.h game.h \
-	base64.h \
-	sha1.h \
-	websocket.h \
-	modes/avoid.h \
-	modes/collect.h \
-	modes/escape.h \
-	modes/rumble.h \
-	modes/snakes.h \
-	modes/training.h \
-	modes/word.h \
-	modes/boom.h
 LIBS = -lm
 CFLAGS = -O2 -Wall -Wextra
 
-%.o: %.c $(DEPS)
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BIN): $(OBJECTS)
