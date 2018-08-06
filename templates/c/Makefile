@@ -1,10 +1,10 @@
 BIN = bot
 OBJECTS = main.o
 LIBS = -lm
-FLAGS = -O2 -Wall -Wextra
+CFLAGS = -O2 -std=c99 -pedantic -Wall -Wextra
 
-.c.o: $(OBJECTS)
-	$(CC) -c $< -o $@ $(FLAGS)
+%.o: %.c %.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BIN): $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS)

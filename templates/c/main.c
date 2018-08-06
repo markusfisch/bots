@@ -69,7 +69,7 @@ static int connect_to(const char *host, const int port) {
 
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
-	memcpy(&(addr.sin_addr), he->h_addr, he->h_length);
+	memcpy(&(addr.sin_addr), he->h_addr_list[0], he->h_length);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 
