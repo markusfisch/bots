@@ -209,7 +209,7 @@ static void game_write_json(FILE *fp, const char *map, int standalone) {
 	}
 	fprintf(fp, "{\"turn\":%d,\"players\":[\n", game.turn);
 	Player *p = game.players, *e = p + game.nplayers;
-	for (p = game.players; p < e; ++p) {
+	for (; p < e; ++p) {
 		if (p > game.players) {
 			fprintf(fp, ",");
 		}
@@ -253,7 +253,7 @@ static void game_write_plain(FILE *fp, const char *map) {
 	fprintf(fp, "Address          Name    X       Y ° "\
 		"Life Moves Score Attacks\n");
 	Player *p = game.players, *e = p + game.nplayers;
-	for (p = game.players; p < e; ++p) {
+	for (; p < e; ++p) {
 		fprintf(fp, "%-16s %c % 7d % 7d %c ",
 			p->addr,
 			p->name,
