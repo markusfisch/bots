@@ -28,7 +28,7 @@ void main(List<String> args) {
         print(view);
         print('Command (q<>^v): ');
         var cmd = stdin.readLineSync();
-        if (cmd === 'q') {
+        if (cmd == 'q') {
           socket.destroy();
           exit(0);
         } else {
