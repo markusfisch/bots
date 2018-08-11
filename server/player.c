@@ -5,6 +5,11 @@
 #include "game.h"
 #include "player.h"
 
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
+
 extern struct Config config;
 extern struct Game game;
 
@@ -41,13 +46,13 @@ int player_cannot_move_to(const int x, const int y) {
 char player_bearing(const int bearing) {
 	switch (bearing % 4) {
 	default:
-	case 0:
+	case NORTH:
 		return '^';
-	case 1:
+	case EAST:
 		return '>';
-	case 2:
+	case SOUTH:
 		return 'v';
-	case 3:
+	case WEST:
 		return '<';
 	}
 }
@@ -92,7 +97,7 @@ int player_send_view(Player *player) {
 	int yy;
 	switch (player->bearing) {
 	default:
-	case 0:
+	case NORTH:
 		left = -radius;
 		top = -radius;
 		xx = 1;
@@ -100,7 +105,7 @@ int player_send_view(Player *player) {
 		yx = 0;
 		yy = 1;
 		break;
-	case 1:
+	case EAST:
 		left = radius;
 		top = -radius;
 		xx = 0;
@@ -108,7 +113,7 @@ int player_send_view(Player *player) {
 		yx = -1;
 		yy = 0;
 		break;
-	case 2:
+	case SOUTH:
 		left = radius;
 		top = radius;
 		xx = -1;
@@ -116,7 +121,7 @@ int player_send_view(Player *player) {
 		yx = 0;
 		yy = -1;
 		break;
-	case 3:
+	case WEST:
 		left = -radius;
 		top = radius;
 		xx = 0;
@@ -160,16 +165,16 @@ static void player_move_by(Player *p, int x, int y) {
 
 static void player_step(Player *p, const int steps) {
 	switch (p->bearing % 4) {
-	case 0: // north
+	case NORTH:
 		player_move_by(p, 0, -steps);
 		break;
-	case 1: // east
+	case EAST:
 		player_move_by(p, steps, 0);
 		break;
-	case 2: // south
+	case SOUTH:
 		player_move_by(p, 0, steps);
 		break;
-	case 3: // west
+	case WEST:
 		player_move_by(p, -steps, 0);
 		break;
 	}
@@ -205,16 +210,16 @@ void player_shoot(Player *p) {
 	int vx = 0;
 	int vy = 0;
 	switch (p->bearing % 4) {
-	case 0:
+	case NORTH:
 		vy = -1;
 		break;
-	case 1:
+	case EAST:
 		vx = 1;
 		break;
-	case 2:
+	case SOUTH:
 		vy = 1;
 		break;
-	case 3:
+	case WEST:
 		vx = -1;
 		break;
 	}
