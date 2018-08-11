@@ -65,6 +65,13 @@ static char player_view_at(Player *p, const int x, const int y) {
 		NULL);
 	if (enemy) {
 		tile = player_bearing(enemy->bearing + 4 - p->bearing);
+	} else if (config.translate_walls &&
+			(p->bearing == EAST || p->bearing == WEST)) {
+		if (tile == '-') {
+			tile = '|';
+		} else if (tile == '|') {
+			tile = '-';
+		}
 	}
 	return tile;
 }

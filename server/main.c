@@ -131,6 +131,8 @@ static void usage() {
 			"'^', '>', 'v' or '<'\n"
 		"  -N, --non-exclusive         multiple players can occupy "\
 			"the same cell\n"\
+		"  -Y, --translate-walls       translate '-' and '|' according "\
+			"to orientation\n"\
 		"  -v, --view-radius N         how many fields a player can "\
 			"see in every\n"\
 		"                              direction, default is 2\n"\
@@ -320,6 +322,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "fuzzy", required_argument, NULL, 'Z' },
 		{ "place-at", required_argument, NULL, 'A' },
 		{ "non-exclusive", no_argument, &config.non_exclusive, 1 },
+		{ "translate-walls", no_argument, &config.translate_walls, 1 },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-games", required_argument, NULL, 'G' },
 		{ "max-turns", required_argument, NULL, 'M' },
@@ -339,7 +342,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:s:t:c:o:f:x:p:Z:A:Nv:G:M:L:S:T:l:Xg:R:F:w:u:d",
+			"P:W:O:V:rb:m:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:Xg:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -400,6 +403,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'N':
 			config.non_exclusive = 1;
+			break;
+		case 'Y':
+			config.translate_walls = 1;
 			break;
 		case 'v':
 			config.view_radius = atoi(optarg);

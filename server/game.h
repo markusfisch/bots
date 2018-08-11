@@ -87,6 +87,7 @@ struct Config {
 		int bearing;
 	} coords[MAX_PLAYERS];
 	int non_exclusive;
+	int translate_walls;
 	unsigned int view_radius;
 	unsigned int max_games;
 	unsigned int max_turns;
