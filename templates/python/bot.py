@@ -23,7 +23,8 @@ def main(host = 'localhost', port = 63187):
             sys.stdout.write(view + "Command (q<>^v): ")
             cmd = sys.stdin.readline()[0]
             if cmd == 'q': break
-            s.send(cmd if cmd != '\n' else '^')
+            if cmd == '\n': cmd = '^'
+            s.send(cmd if sys.version_info[0] < 3 else str.encoded(cmd))
         except Exception as e:
             print(e)
             break
