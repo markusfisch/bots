@@ -191,7 +191,7 @@ static void start() {
 void boom() {
 	config.min_players = config.min_players ?: 2;
 	config.view_radius = config.view_radius ?: 4;
-	const char obstacles[] = { TILE_HIDDEN_POWER_UP };
+	static const char obstacles[] = { TILE_HIDDEN_POWER_UP };
 	config.obstacles = config.obstacles ?: obstacles;
 
 	config.start = start;
