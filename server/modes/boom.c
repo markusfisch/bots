@@ -25,10 +25,10 @@ static int score;
 
 static int burn(int, int);
 
-static void set_effect(struct Bomb *b, int (*mod)(int, int)) {
+static void set_effect(struct Bomb *b, int (*apply)(int, int)) {
 	int x = b->x;
 	int y = b->y;
-	mod(x, y);
+	apply(x, y);
 	int left = 1;
 	int right = 1;
 	int top = 1;
@@ -39,16 +39,16 @@ static void set_effect(struct Bomb *b, int (*mod)(int, int)) {
 	unsigned int i;
 	for (i = 1; i <= r; ++i) {
 		if (left) {
-			left = mod(x - i, y);
+			left = apply(x - i, y);
 		}
 		if (right) {
-			right = mod(x + i, y);
+			right = apply(x + i, y);
 		}
 		if (top) {
-			top = mod(x, y - i);
+			top = apply(x, y - i);
 		}
 		if (bottom) {
-			bottom = mod(x, y + i);
+			bottom = apply(x, y + i);
 		}
 	}
 }
@@ -122,7 +122,7 @@ static void turn_start() {
 static int plant_bomb(int x, int y, unsigned int timer, unsigned int power) {
 	struct Bomb *b = bombs, *e = b + MAX_BOMBS;
 	for (; b < e; ++b) {
-		if (b->timer < 1) {
+		if (b->timer < 0) {
 			b->x = map_wrap(x, game.map.width);
 			b->y = map_wrap(y, game.map.height);
 			b->timer = timer > 0 ? timer : 1;
