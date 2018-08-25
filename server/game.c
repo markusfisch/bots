@@ -90,7 +90,7 @@ static void game_write_results_in_format(FILE *fp, int format,
 			fprintf(fp, "{\"results\":[\n");
 		}
 		pfmt = "{\"place\":%d,\"addr\":\"%s\",\"name\":\"%c\","\
-			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"";
+			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
 		break;
 	}
 	int place = 1;
