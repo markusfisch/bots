@@ -312,21 +312,31 @@ static void game_remove_defunkt_players() {
 	}
 }
 
-void game_end() {
+static void game_stop() {
+	game.stopped = time(NULL);
+}
+
+void game_terminate() {
 	if (!game.stopped) {
+		if (config.turn_start) {
+			config.turn_start();
+		}
 		++game.turn;
 		game_write(stdout);
-		game.stopped = time(NULL);
+		game_stop();
 	}
 }
 
 static void game_send_players() {
+	int turn_started = 0;
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && !p->can_move) {
-			if (!update && config.turn_start) {
+			update = 1;
+			if (!turn_started && config.turn_start) {
 				config.turn_start();
+				turn_started = 1;
 				// check again if this player got removed
 				if (p->fd < 1) {
 					continue;
@@ -336,7 +346,6 @@ static void game_send_players() {
 				game_remove_player(p);
 				continue;
 			}
-			update = 1;
 			p->can_move = 1;
 			++p->moves;
 		}
@@ -344,7 +353,7 @@ static void game_send_players() {
 	if (update) {
 		++game.turn;
 		if (game.turn >= config.max_turns) {
-			game_end();
+			game_stop();
 		} else if (game.turn > config.shrink_after) {
 			if (game.shrink_step > 0) {
 				--game.shrink_step;
@@ -734,7 +743,7 @@ static int game_run(const int fd_listen, const int fd_listen_websocket,
 			game_remove_defunkt_players();
 			if (game.stopped || game_joined() < config.min_players) {
 				if (!game.stopped) {
-					game_end();
+					game_terminate();
 				}
 				if (config.end) {
 					config.end();

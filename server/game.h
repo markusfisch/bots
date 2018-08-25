@@ -115,7 +115,7 @@ void game_set_players_score(int);
 unsigned int game_joined();
 char game_marker_show_life(Player *);
 void game_remove_player(Player *);
-void game_end();
+void game_terminate();
 int game_serve();
 
 #endif

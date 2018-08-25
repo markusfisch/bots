@@ -71,7 +71,7 @@ static void move(Player *p, char cmd) {
 	case TILE_GEM:
 		++p->score;
 		if (++collected >= config.gems) {
-			game_end();
+			game_terminate();
 		}
 		tile = *config.flatland;
 		break;

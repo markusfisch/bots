@@ -38,7 +38,7 @@ static void move(Player *p, char cmd) {
 		++p->score;
 		map_set(&game.map, p->x, p->y, *config.flatland);
 		if (++collected >= config.gems) {
-			game_end();
+			game_terminate();
 		}
 	}
 }
