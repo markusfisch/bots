@@ -13,8 +13,10 @@
 extern struct Config config;
 extern struct Game game;
 
-Player *player_at(const int x, const int y, Player *last) {
+Player *player_at(int x, int y, Player *last) {
 	Player *p = last ?: game.players, *e = game.players + game.nplayers;
+	x = map_wrap(x, game.map.width);
+	y = map_wrap(y, game.map.height);
 	for (; p < e; ++p) {
 		if (p->fd > 0 && p->x == x && p->y == y) {
 			return p;
@@ -29,8 +31,7 @@ int player_near(const int x, const int y, const int size) {
 	int u;
 	for (v = -offset; v < size; ++v) {
 		for (u = -offset; u < size; ++u) {
-			if (player_at(map_wrap(x + v, game.map.width),
-					map_wrap(y + u, game.map.height), NULL)) {
+			if (player_at(x + v, y + u, NULL)) {
 				return 1;
 			}
 		}
@@ -59,10 +60,7 @@ char player_bearing(const int bearing) {
 
 static char player_view_at(Player *p, const int x, const int y) {
 	char tile = map_get(&game.map, x, y);
-	Player *enemy = player_at(
-		map_wrap(x, game.map.width),
-		map_wrap(y, game.map.height),
-		NULL);
+	Player *enemy = player_at(x, y, NULL);
 	if (enemy) {
 		tile = player_bearing(enemy->bearing + 4 - p->bearing);
 	} else if (config.translate_walls &&
