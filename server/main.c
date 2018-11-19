@@ -353,6 +353,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'O':
 			config.port_spectator = atoi(optarg);
+			if (config.max_spectators < 1) {
+				config.max_spectators = 1;
+			}
 			break;
 		case 'V':
 			config.max_spectators = atoi(optarg);
