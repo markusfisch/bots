@@ -31,7 +31,7 @@ def main(host='localhost', port=63187):
                 break
             if cmd == '\n':
                 cmd = '^'
-            s.send(cmd if sys.version_info[0] < 3 else str.encoded(cmd))
+            s.send(cmd if sys.version_info[0] < 3 else str.encode(cmd))
         except Exception as e:
             print(e)
             break
