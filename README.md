@@ -221,6 +221,7 @@ OPTION can be any of:
                               default is 1
   -m, --min-players N         minimum number of alive players, default depends
                               on mode
+  -n, --name-file FILE        list of IP addresses with player names
   -s, --map-size N[xN]        map size, default is 32x32
   -t, --map-type TYPE         map type, either "plain", "random" or "maze",
                               default is "plain"

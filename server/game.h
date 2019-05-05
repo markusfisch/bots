@@ -9,6 +9,7 @@
 #include "map.h"
 
 #define USEC_PER_SEC 1000000L
+#define MAX_NAMES 256
 #define MAX_PLAYERS 16
 #define MAX_SPECTATORS 16
 #define MAP_TYPE_PLAIN 1
@@ -26,6 +27,7 @@ typedef struct Player Player;
 typedef struct Spectator Spectator;
 typedef struct Config Config;
 typedef struct Coords Coords;
+typedef struct Names Names;
 
 struct Game {
 	struct timeval tick;
@@ -81,6 +83,10 @@ struct Config {
 	unsigned int multiplier;
 	unsigned int placing;
 	unsigned int placing_fuzz;
+	struct Names {
+		char *address;
+		char name;
+	} names[MAX_NAMES];
 	struct Coords {
 		int x;
 		int y;

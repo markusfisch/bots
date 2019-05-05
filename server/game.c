@@ -13,6 +13,9 @@
 #include "placing.h"
 #include "player.h"
 
+#define ROLE_PLAYER "player"
+#define ROLE_SPECTATOR "spectator"
+
 struct Config config;
 struct Game game;
 
@@ -588,6 +591,58 @@ static void game_init_map() {
 	}
 }
 
+static char game_find_free_name(char *taken, int *last) {
+	int i;
+	for (i = *last; i < MAX_PLAYERS; ++i) {
+		if (!taken[i]) {
+			*last = i + 1;
+			return 'A' + i;
+		}
+	}
+	return 0;
+}
+
+static void game_assign_unnamed_players(char *taken) {
+	int last = 0;
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (!p->name) {
+			p->name = game_find_free_name(taken, &last);
+		}
+	}
+}
+
+static Player *game_find_unnamed_player_for_address(const char *addr) {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (!p->name && !strcmp(p->addr, addr)) {
+			return p;
+		}
+	}
+	return NULL;
+}
+
+static void game_assign_mapped_names(char *taken) {
+	int i;
+	for (i = 0; i < MAX_NAMES; ++i) {
+		Names *n = &config.names[i];
+		if (!n->address) {
+			break;
+		}
+		Player *p = game_find_unnamed_player_for_address(n->address);
+		if (!p || p->name) {
+			continue;
+		}
+		char name = n->name;
+		int i = name - 'A';
+		if (i < 0 || i >= MAX_PLAYERS || taken[i]) {
+			continue;
+		}
+		p->name = name;
+		taken[i] = 1;
+	}
+}
+
 static int game_compare_player_address(const void *a, const void *b) {
 	return strcmp(((Player *) b)->addr, ((Player *) a)->addr);
 }
@@ -595,11 +650,10 @@ static int game_compare_player_address(const void *a, const void *b) {
 static void game_assign_player_names() {
 	qsort(game.players, game.nplayers, sizeof(Player),
 		game_compare_player_address);
-	Player *p = game.players, *e = p + game.nplayers;
-	char name = 'A';
-	for (; p < e; ++p) {
-		p->name = name++;
-	}
+	char taken[MAX_PLAYERS];
+	memset(taken, 0, sizeof(taken));
+	game_assign_mapped_names(taken);
+	game_assign_unnamed_players(taken);
 }
 
 static void game_write_header() {
@@ -723,17 +777,17 @@ static int game_run(const int fd_listen, const int fd_listen_websocket,
 			if (FD_ISSET(fd_listen, &game.ready)) {
 				game_join(fd_listen,
 					game_add_player_socket,
-					"player");
+					ROLE_PLAYER);
 			}
 			if (FD_ISSET(fd_listen_websocket, &game.ready)) {
 				game_join(fd_listen_websocket,
 					game_add_player_websocket,
-					"player");
+					ROLE_PLAYER);
 			}
 			if (FD_ISSET(fd_listen_spectator, &game.ready)) {
 				game_join(fd_listen_spectator,
 					game_add_spectator,
-					"spectator");
+					ROLE_SPECTATOR);
 			}
 			game_read_commands();
 			game_read_spectators();

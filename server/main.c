@@ -24,6 +24,7 @@
 #define FORMAT_ARG_PLAIN "plain"
 #define FORMAT_ARG_JSON "json"
 #define PLACING_SEPARATOR ":"
+#define MAX_LINE 4096
 
 extern struct Config config;
 
@@ -52,6 +53,14 @@ static int repeatable_rand() {
 	lcg_state = ((uint64_t) lcg_state * 48271u) % 0x7fffffff;
 	// cast to int because it's a stand-in for rand()
 	return (int) lcg_state;
+}
+
+static void free_resources() {
+	free(config.custom_map);
+	int i;
+	for (i = 0; i < MAX_PLAYERS; ++i) {
+		free(config.names[i].address);
+	}
 }
 
 static void complete_config() {
@@ -105,6 +114,8 @@ static void usage() {
 		"  -m, --min-players N         minimum number of alive players, "\
 			"default depends\n"\
 		"                              on mode\n"\
+		"  -n, --name-file FILE        list of IP addresses with player "
+			"names\n"\
 		"  -s, --map-size N[xN]        map size, default is 32x32\n"\
 		"  -t, --map-type TYPE         map type, either \""\
 			MAP_TYPE_ARG_PLAIN"\", \""\
@@ -171,6 +182,35 @@ static void usage() {
 			"generator\n");
 }
 
+static void load_name_file(Names *names, const char *file) {
+	FILE *fp = fopen(file, "r");
+	if (fp == NULL) {
+		perror("fopen");
+		exit(1);
+	}
+	#define SEPERATOR " "
+	char line[MAX_LINE];
+	Names *e = names + MAX_NAMES;
+	while (fgets(line, MAX_LINE, fp)) {
+		char *address = strtok(line, SEPERATOR);
+		char *name = strtok(NULL, SEPERATOR);
+		if (!address || !name) {
+			continue;
+		}
+		if (*name < 'A' || *name >= 'A' + MAX_PLAYERS) {
+			fprintf(stderr, "error: invalid name for %s\n", address);
+			continue;
+		}
+		names->address = strdup(address);
+		names->name = *name;
+		if (++names >= e) {
+			fprintf(stderr, "warning: too many entries in name file\n");
+			break;
+		}
+	}
+	fclose(fp);
+}
+
 static void (*pick_mode(const char *name))() {
 	const struct Mode *m;
 	for (m = modes; m->name; ++m) {
@@ -194,7 +234,6 @@ static char *load_map(const char *file) {
 		exit(1);
 	}
 	char *buf = NULL, *p;
-	#define MAX_LINE 4096
 	char line[MAX_LINE];
 	size_t width = 0;
 	size_t height = 0;
@@ -312,6 +351,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "remote-spectators", no_argument, &config.remote_spectators, 1 },
 		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
+		{ "name-file", required_argument, NULL, 'n' },
 		{ "map-size", required_argument, NULL, 's' },
 		{ "map-type", required_argument, NULL, 't' },
 		{ "custom-map", required_argument, NULL, 'c' },
@@ -342,7 +382,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:Xg:R:F:w:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:Xg:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -368,6 +408,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'm':
 			config.min_players = atoi(optarg);
+			break;
+		case 'n':
+			load_name_file(config.names, optarg);
 			break;
 		case 's': {
 			if (config.map_width || config.map_height) {
@@ -480,6 +523,6 @@ int main(int argc, char **argv) {
 	parse_arguments(argc, argv);
 	complete_config();
 	int rv = game_serve();
-	free(config.custom_map);
+	free_resources();
 	return rv;
 }
