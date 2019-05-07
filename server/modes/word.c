@@ -6,6 +6,8 @@
 #include "../player.h"
 #include "word.h"
 
+#define CHARS "abcdefghijklmnopqrstuwxyz"
+
 extern struct Config config;
 extern struct Game game;
 
@@ -86,9 +88,11 @@ static char *generate_random_word() {
 	if (len < 6) {
 		len = 6;
 	}
+	char *chars = CHARS;
+	int max = strlen(chars);
 	char *p = random_word, *e = p + len;
 	for (; p < e; ++p) {
-		*p = 97 + (config.rand() % 26);
+		*p = chars[config.rand() % max];
 	}
 	*p = 0;
 	return random_word;
@@ -96,8 +100,7 @@ static char *generate_random_word() {
 
 int impassable(Map *map, const int x, const int y) {
 	char tile = map_get(map, x, y);
-	return map_impassable(map, x, y) ||
-		strchr("abcdefghijklmnopqrstuvwxyz", tile);
+	return map_impassable(map, x, y) || strchr(CHARS, tile);
 }
 
 void word() {
