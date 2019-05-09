@@ -148,7 +148,8 @@ static void usage() {
 			"see in every\n"\
 		"                              direction, default is 2\n"\
 		"  -G, --max-games N           maximum number of games, "\
-			"default is 1\n"\
+			"default is 1,\n"\
+		"                              use -1 for unlimited games\n"\
 		"  -M, --max-turns N           maximum number of turns, "\
 			"default is 1024\n"\
 		"  -L, --max-lag N             number of turns a player can "\
