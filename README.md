@@ -62,11 +62,13 @@ Basic commands are:
 The server will process _one_ command per turn only.
 
 Invalid commands are silently ignored but a map is still sent.
-Sending multiple command characters simply fills the network buffer and the
-server will process the accumulated commands in the following turns only.
 
-If a bot disconnects, it's immediately removed and all pending commands
-are discarded.
+Sending multiple command characters simply fills the network buffer and the
+server will _either_ discard the collected commands _or_ process them in the
+following turns.
+
+If a bot disconnects, it's immediately removed from the game and all pending
+commands are discarded.
 
 ## Available games
 
