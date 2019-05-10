@@ -166,9 +166,6 @@ ask(function(cmd) {
 	send(cmd)
 })
 
-// return false if you want to disconnect
-return true
-
 // Your changes are saved automatically
 // in your browser. To revert everything,
 // simply remove all text and reload this
@@ -260,10 +257,7 @@ function start() {
 		print('Connected.')
 	}
 	ws.onmessage = function (event) {
-		if (!process(event.data)) {
-			stop()
-			return
-		}
+		process(event.data)
 	}
 	ws.onclose = function (event) {
 		print('Connection closed.')
