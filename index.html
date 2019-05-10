@@ -28,6 +28,7 @@ input, textarea {
 	line-height: 130%;
 	border: .1em solid #226;
 	border-radius: .2em;
+	-webkit-appearance: none;
 }
 
 input::placeholder, textarea::placeholder {
@@ -153,27 +154,26 @@ input:disabled {
 // section from the server.
 
 // "map" is a string that contains the
-// multiline map section
+// section around your bot.
 print(map)
 
-// now, instead of ask()'ing yourself for
-// a command, you should parse "map" and
-// send a command back to the server with
-// send(command)
-ask('What direction? (&lt;&gt;^v)')
+// Here, you're "ask()"ing yourself for
+// a command. Instead, write code that
+// parses "map" and "send()" an appropriate
+// command.
+ask(function(cmd) {
+	print('Sending [' + cmd + ']')
+	send(cmd)
+})
 
-// return false if you want to disconnect
-return true
-
-// Your changes are saved automatically
-// in your browser. To revert everything,
-// simply remove all text and reload this
-// page.
+// Your changes are saved automatically.
+// To revert everything, simply remove all
+// text and reload this page.
 </textarea>
 <textarea class="Col" id="Monitor" readonly="true"
 	placeholder="Server output will be here."></textarea>
 </div>
-<input id="Command" type="text"/>
+<input id="Command" type="text" placeholder="Your command? (&lt;&gt;^v)"/>
 </form>
 <script>
 'use strict'
@@ -209,12 +209,9 @@ function print(text) {
 	monitorView.scrollTop = monitorView.scrollHeight
 }
 
-function ask(question) {
-	commandInput.placeholder = question
+function ask(oninput) {
 	commandInput.oninput = function(event) {
-		const cmd = commandInput.value
-		print('Sending [' + cmd + ']')
-		send(cmd)
+		oninput(commandInput.value)
 		commandInput.value = ''
 	}
 	commandInput.style.display = 'block'
@@ -259,10 +256,7 @@ function start() {
 		print('Connected.')
 	}
 	ws.onmessage = function (event) {
-		if (!process(event.data)) {
-			stop()
-			return
-		}
+		process(event.data)
 	}
 	ws.onclose = function (event) {
 		print('Connection closed.')
