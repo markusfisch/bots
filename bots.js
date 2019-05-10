@@ -9,13 +9,14 @@ function bots(host, process) {
 		host += ':63188'
 	}
 	const ws = new WebSocket('ws://' + host)
+	function send(cmd) {
+		ws.send(cmd)
+	}
+	function close() {
+		ws.close(1000)
+	}
 	ws.onmessage = function (event) {
-		const cmd = process(event.data)
-		if (cmd) {
-			ws.send(cmd)
-		} else {
-			ws.close(1000)
-		}
+		process(event.data, send, close)
 	}
 	return true
 }
