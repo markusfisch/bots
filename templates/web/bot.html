@@ -160,8 +160,11 @@ print(map)
 // now, instead of ask()'ing yourself for
 // a command, you should parse "map" and
 // send a command back to the server with
-// send(command)
-ask('What direction? (&lt;&gt;^v)')
+// send(cmd)
+ask(function(cmd) {
+	print('Sending [' + cmd + ']')
+	send(cmd)
+})
 
 // return false if you want to disconnect
 return true
@@ -174,7 +177,7 @@ return true
 <textarea class="Col" id="Monitor" readonly="true"
 	placeholder="Server output will be here."></textarea>
 </div>
-<input id="Command" type="text"/>
+<input id="Command" type="text" placeholder="Your command? (&lt;&gt;^v)"/>
 </form>
 <script>
 'use strict'
@@ -210,12 +213,9 @@ function print(text) {
 	monitorView.scrollTop = monitorView.scrollHeight
 }
 
-function ask(question) {
-	commandInput.placeholder = question
+function ask(oninput) {
 	commandInput.oninput = function(event) {
-		const cmd = commandInput.value
-		print('Sending [' + cmd + ']')
-		send(cmd)
+		oninput(commandInput.value)
 		commandInput.value = ''
 	}
 	commandInput.style.display = 'block'
