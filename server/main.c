@@ -163,6 +163,10 @@ static void usage() {
 			"default is 1\n"\
 		"  -X, --shoot                 players can shoot, "\
 			"default depends on mode\n"\
+		"  -D, --diagonal-interval N   players can move diagonally every "\
+			"N turns,\n"\
+		"                              default is 0 for no diagonal "\
+			"movement\n"\
 		"  -g, --gems N                number of gems if there are "\
 			"gems, default equals\n"\
 		"                              map width\n"\
@@ -372,6 +376,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "shoot", no_argument, &config.can_shoot, 1 },
+		{ "diagonal-move", required_argument, NULL, 'D' },
 		{ "gems", required_argument, NULL, 'g' },
 		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
@@ -383,7 +388,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:Xg:R:F:w:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -477,6 +482,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'X':
 			config.can_shoot = 1;
+			break;
+		case 'D':
+			config.diagonal_interval = atoi(optarg);
 			break;
 		case 'g':
 			config.gems = atoi(optarg);

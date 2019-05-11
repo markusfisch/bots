@@ -168,25 +168,53 @@ static void player_move_by(Player *p, int x, int y) {
 	p->y = y;
 }
 
-static void player_step(Player *p, const int steps) {
+static void player_step(Player *p, const int steps, const int side) {
 	switch (p->bearing % 4) {
 	case NORTH:
-		player_move_by(p, 0, -steps);
+		player_move_by(p, side, -steps);
 		break;
 	case EAST:
-		player_move_by(p, steps, 0);
+		player_move_by(p, steps, side);
 		break;
 	case SOUTH:
-		player_move_by(p, 0, steps);
+		player_move_by(p, -side, steps);
 		break;
 	case WEST:
-		player_move_by(p, -steps, 0);
+		player_move_by(p, -steps, -side);
 		break;
 	}
 }
 
 static void player_turn(Player *p, const int direction) {
 	p->bearing = (p->bearing + direction + 4) % 4;
+}
+
+static void player_move_diagonal(Player *p, const char cmd) {
+	if (config.diagonal_interval < 1 || (p->last_diagonal > 0 &&
+			game.turn - p->last_diagonal < config.diagonal_interval)) {
+		return;
+	}
+	p->last_diagonal = game.turn;
+	switch (cmd) {
+	case '(':
+		player_step(p, 1, -1);
+		break;
+	case ')':
+		player_step(p, 1, 1);
+		break;
+	case '{':
+		player_step(p, 0, -1);
+		break;
+	case '}':
+		player_step(p, 0, 1);
+		break;
+	case '[':
+		player_step(p, -1, -1);
+		break;
+	case ']':
+		player_step(p, -1, 1);
+		break;
+	}
 }
 
 void player_move(Player *p, const char cmd) {
@@ -196,8 +224,16 @@ void player_move(Player *p, const char cmd) {
 			player_shoot(p);
 		}
 		break;
+	case '(':
+	case ')':
+	case '{':
+	case '}':
+	case '[':
+	case ']':
+		player_move_diagonal(p, cmd);
+		break;
 	case '^':
-		player_step(p, 1);
+		player_step(p, 1, 0);
 		break;
 	case '<':
 		player_turn(p, -1);
@@ -206,7 +242,7 @@ void player_move(Player *p, const char cmd) {
 		player_turn(p, 1);
 		break;
 	case 'v':
-		player_step(p, -1);
+		player_step(p, -1, 0);
 		break;
 	}
 }

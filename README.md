@@ -47,10 +47,20 @@ right in the front of you, looking at you:
 
 ## What a bot can send to the server
 
-A bot _should_ respond to a map with exactly _one_ command character.
+A bot _should_ respond to every map with exactly _one_ command character.
 
 A bot _needs_ to send a command to get a new map. As long as your bot fails
 to send a command, things go on without your bot knowing.
+
+The server will process _one_ command per turn only.
+Sending multiple characters simply fills the network buffer and the server
+will _either_ discard the collected commands _or_ process them in the
+following turns.
+
+Invalid commands are silently ignored but a map is still sent.
+
+If a bot disconnects, it's immediately removed from the game and all pending
+commands are discarded.
 
 Basic commands are:
 
@@ -59,18 +69,19 @@ Basic commands are:
 	> - turn right
 	v - go one step backward
 
-The server will process _one_ command per turn only.
+If `--diagonal-interval` is set, a bot may also move with the following
+commands:
 
-Invalid commands are silently ignored but a map is still sent.
+	( - move top left
+	) - move top right
+	} - move left
+	{ - move right
+	[ - move bottom left
+	] - move bottom right
 
-Sending multiple command characters simply fills the network buffer and the
-server will _either_ discard the collected commands _or_ process them in the
-following turns.
+Depending on the selected game mode, additional commands may be available.
 
-If a bot disconnects, it's immediately removed from the game and all pending
-commands are discarded.
-
-## Available games
+## Available modes
 
 ### training
 
@@ -238,6 +249,7 @@ OPTION can be any of:
   -A, --place-at X,Y[,D]:...  manually place players at given coordinates and
                               in given direction, either '^', '>', 'v' or '<'
   -N, --non-exclusive         multiple players can occupy the same cell
+  -Y, --translate-walls       translate '-' and '|' according to orientation
   -v, --view-radius N         how many fields a player can see in every
                               direction, default is 2
   -G, --max-games N           maximum number of games, default is 1,
@@ -249,6 +261,8 @@ OPTION can be any of:
   -T, --shrink-step N         amount of turns until next shrink, default is 1
   -l, --player-life N         life value of players, default is 1
   -X, --shoot                 players can shoot, default depends on mode
+  -D, --diagonal-interval N   players can move diagonally every N turns,
+                              default is 0 for no diagonal movement
   -g, --gems N                number of gems if there are gems, default equals
                               map width
   -R, --word STRING           custom word for "word" mode, random by default

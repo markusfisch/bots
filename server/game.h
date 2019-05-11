@@ -58,6 +58,7 @@ struct Game {
 		char killed_by;
 		void *trunk;
 		unsigned int counter;
+		unsigned int last_diagonal;
 		WebSocket ws;
 	} players[MAX_PLAYERS];
 	struct Spectator {
@@ -102,6 +103,7 @@ struct Config {
 	unsigned int shrink_step;
 	unsigned int player_life;
 	int can_shoot;
+	unsigned int diagonal_interval;
 	unsigned int gems;
 	unsigned int output_format;
 	time_t wait_for_joins;
