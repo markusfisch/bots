@@ -296,8 +296,8 @@ in JavaScript.
 
 It's even possible to use
 [JS Bin](http://jsbin.com/ninemajabu/edit?js,output),
-[JSFiddle](http://jsfiddle.net/16gqbLth/) or any other source code
-playground runs JavaScript to write and run a bot.
+[JSFiddle](http://jsfiddle.net/16gqbLth/)
+or any other source code playground that runs JavaScript.
 
 Please note that since the server does not implement Secure Web Sockets,
 it is necessary to be on HTTP because HTTPS only allows Secure Web Sockets.
