@@ -294,6 +294,11 @@ device with a web browser. Just open the file `templates/web/bot.html` or
 simply click [here](https://markusfisch.github.io/bots/) and write a bot
 in JavaScript.
 
+It's even possible to use
+[JS Bin](https://jsbin.com/ninemajabu/edit?js,output),
+[JSFiddle](https://jsfiddle.net/16gqbLth/) or any other source code
+playground that runs JavaScript to write and run a bot.
+
 ## Playing automatically
 
 Of course, the challenge is to write a program that plays the game.
