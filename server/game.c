@@ -473,8 +473,8 @@ static void game_watch_fd(int fd) {
 }
 
 static int game_add_spectator(int fd, char *addr) {
-	if (game.nplayers >= config.max_spectators ||
-			game.nplayers >= MAX_SPECTATORS) {
+	if (game.nspectators >= config.max_spectators ||
+			game.nspectators >= MAX_SPECTATORS) {
 		return 0;
 	}
 	Spectator *s = &game.spectators[game.nspectators];
