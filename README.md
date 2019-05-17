@@ -325,7 +325,7 @@ server is running on.
 
 If you don't have access to a shell, you can still play the game from any
 device with a web browser. Just open the file `templates/web/bot.html` or
-simply click [here](https://markusfisch.github.io/bots/) and write a bot
+simply click [here](http://bots.markusfisch.de/) and write a bot
 in JavaScript.
 
 It's even possible to use
