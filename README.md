@@ -139,6 +139,9 @@ If a bot gets hit, it's destroyed.
 The bots are randomly placed with a random orientation.
 The bot that survives the longest gets the most points.
 
+`--diagonal-interval` is set by default for this mode to give you
+additional options to move.
+
 ### word
 
 Find a random word of random length at the middle of the map and send it

@@ -90,6 +90,7 @@ static void end() {
 void avoid() {
 	config.placing = config.placing ?: PLACING_RANDOM;
 	config.view_radius = config.view_radius ?: 4;
+	config.diagonal_interval = config.diagonal_interval ?: 1;
 
 	config.start = start;
 	config.turn_start = asteroids_move;
