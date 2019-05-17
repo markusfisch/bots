@@ -154,6 +154,22 @@ detonates. Bombs blast orthogonal only.
 
 Pick up power-ups `+` to increase the detonation radius of your bombs.
 
+### horde
+
+Team up with other players to survive an endless horde of enemies `e`
+for as long as you can.
+
+Every turn, a new enemy appears at one of the four portals `&`.
+The bots are placed in a circle in random orientation.
+
+Send `f` to shoot an enemy that's right in front of you.
+A dead enemy will turn into an extra life `+`.
+Picking it up will increase your life points by one.
+If an enemy touches you, you'll loose one life point per turn.
+
+`--diagonal-interval` is set by default for this mode to give you
+additional options to move.
+
 ## Available maps
 
 Use `--map-size` to set a custom map size and `--view-radius` to control
@@ -223,6 +239,7 @@ MODE must be one of:
   avoid - survive an asteroid shower of 'X'
   word - find a word somewhere on the map
   boom - last man standing, place bomb with '1' to '9'
+  horde - survive hordes of enemies
 
 OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187

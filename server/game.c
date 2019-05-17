@@ -25,7 +25,7 @@ void game_set_players_score(int score) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->score == 0) {
-			p->score = score;
+			p->score += score;
 		}
 	}
 }

@@ -10,6 +10,7 @@
 #include "modes/boom.h"
 #include "modes/collect.h"
 #include "modes/escape.h"
+#include "modes/horde.h"
 #include "modes/rumble.h"
 #include "modes/snakes.h"
 #include "modes/training.h"
@@ -43,6 +44,7 @@ static const struct Mode {
 	{ "avoid", "survive an asteroid shower of 'X'", avoid },
 	{ "word", "find a word somewhere on the map", word },
 	{ "boom", "last man standing, place bomb with '1' to '9'", boom },
+	{ "horde", "survive hordes of enemies", horde },
 	{ NULL, NULL, NULL }
 };
 

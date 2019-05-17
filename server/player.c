@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 
 #include "websocket.h"
 #include "game.h"
@@ -14,7 +15,8 @@ extern struct Config config;
 extern struct Game game;
 
 Player *player_at(int x, int y, Player *last) {
-	Player *p = last ?: game.players, *e = game.players + game.nplayers;
+	Player *p = last ? ++last : game.players,
+		*e = game.players + game.nplayers;
 	x = map_wrap(x, game.map.width);
 	y = map_wrap(y, game.map.height);
 	for (; p < e; ++p) {
@@ -25,18 +27,28 @@ Player *player_at(int x, int y, Player *last) {
 	return NULL;
 }
 
-int player_near(const int x, const int y, const int size) {
-	int offset = size / 2;
-	int v;
-	int u;
-	for (v = -offset; v < size; ++v) {
-		for (u = -offset; u < size; ++u) {
-			if (player_at(x + v, y + u, NULL)) {
-				return 1;
+Player *player_near(int x, int y, const int radius, Player *last,
+		double *dist) {
+	Player *p = last ? ++last : game.players,
+		*e = game.players + game.nplayers;
+	x = map_wrap(x, game.map.width);
+	y = map_wrap(y, game.map.height);
+	int r2 = radius * radius;
+	for (; p < e; ++p) {
+		if (p->fd < 1) {
+			continue;
+		}
+		int dx = x - p->x;
+		int dy = y - p->y;
+		int d = dx*dx + dy*dy;
+		if (d < r2) {
+			if (dist) {
+				*dist = sqrt(d);
 			}
+			return p;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 int player_cannot_move_to(const int x, const int y) {
@@ -280,6 +292,9 @@ void player_shoot(Player *p) {
 				enemy->killed_by = p->name;
 				game_remove_player(enemy);
 			}
+		}
+		if (config.attacking && config.attacking(p)) {
+			break;
 		}
 	}
 }

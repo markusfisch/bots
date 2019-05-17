@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+cd "${0%/*}" && . tester
+tester_run_server horde
+tester_connect
+COMMANDS='^^))<f<f^^^vvv))}vv{<<'
+for ((I=0, L=${#COMMANDS}; I < L; ++I))
+do
+	tester_read_send ${COMMANDS:$I:1}
+done
+tester_read
+tester_close
+tester_print_result

@@ -27,7 +27,6 @@ void placing_circle(const unsigned int fuzz) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		p->bearing = config.rand() % 4;
-		// don't assign to p->x/->y yet because of player_at()
 		int x = round(cx + cos(angle) * radius) + fuzzy(fuzz);
 		int y = round(cy + sin(angle) * radius) + fuzzy(fuzz);
 		if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {
@@ -66,7 +65,6 @@ void placing_grid(const unsigned int fuzz) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		p->bearing = config.rand() % 4;
-		// don't assign to p->x/->y yet because of player_at()
 		int x = map_wrap(gx + fuzzy(fuzz), game.map.width);
 		int y = map_wrap(gy + fuzzy(fuzz), game.map.height);
 		if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {
@@ -85,7 +83,6 @@ void placing_grid(const unsigned int fuzz) {
 void placing_manual(Coords *coords, const unsigned int fuzz) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++coords) {
-		// don't assign to p->x/->y yet because of player_at()
 		int x = map_wrap(coords->x + fuzzy(fuzz), game.map.width);
 		int y = map_wrap(coords->y + fuzzy(fuzz), game.map.height);
 		if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {

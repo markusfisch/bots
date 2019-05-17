@@ -58,7 +58,7 @@ static void asteroids_place() {
 			p->x = config.rand() % game.map.width;
 			p->y = config.rand() % game.map.height;
 		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
-			player_near(p->x, p->y, 5));
+			player_near(p->x, p->y, 5, NULL, NULL));
 		asteroid_new_direction(p);
 		p->tile = map_get(&game.map, p->x, p->y);
 		map_set(&game.map, p->x, p->y, ASTEROID);

@@ -115,6 +115,7 @@ struct Config {
 	char (*marker)(Player *);
 	int (*impassable)(Map *, int, int);
 	void (*move)(Player *, char);
+	int (*attacking)(Player *);
 	void (*end)();
 	int (*rand)();
 };

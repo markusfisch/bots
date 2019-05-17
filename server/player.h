@@ -4,7 +4,7 @@
 struct Player;
 
 Player *player_at(int, int, Player *);
-int player_near(int, int, int);
+Player *player_near(int, int, int, Player *, double *);
 int player_cannot_move_to(int, int);
 char player_bearing(const int);
 int player_send_view(Player *);
