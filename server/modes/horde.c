@@ -175,7 +175,7 @@ static void enemies_move() {
 		Player *hit = NULL;
 		while ((hit = player_at(x, y, hit))) {
 			if (--hit->life < 1) {
-				hit->score = score++;
+				hit->score += score++;
 				hit->killed_by = ENEMY;
 				game_remove_player(hit);
 			}
@@ -257,8 +257,17 @@ static void start() {
 	}
 }
 
+static void add_scores_for_survival(score) {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->life > 0) {
+			p->score += score;
+		}
+	}
+}
+
 static void end() {
-	game_set_players_score(score);
+	add_scores_for_survival(score);
 	free(enemies);
 	enemies = NULL;
 	nenemies = 0;
