@@ -115,6 +115,7 @@ struct Config {
 	void (*turn_start)();
 	char (*marker)(Player *);
 	int (*impassable)(Map *, int, int);
+	void (*move_blocked_at)(Player *, int, int);
 	void (*move)(Player *, char);
 	int (*attacking)(Player *);
 	void (*end)();

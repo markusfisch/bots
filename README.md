@@ -159,13 +159,15 @@ Pick up power-ups `+` to increase the detonation radius of your bombs.
 
 ### horde
 
-Team up with other players to survive an endless horde of enemies `e`
-for as long as you can.
+Team up to survive an endless horde of enemies `e` for as long as you can.
 
-Every turn a new enemy appears at a portal `&`.
+Every second turn a new enemy appears at a portal `&`.
+There is one more portal than there are bots.
 The bots are placed in a circle in random orientation.
+The portals are placed in a circle around the bots.
 
 Send `f` to shoot an enemy that's right in front of you.
+You can also kill enemies that are next to you by bumping into them.
 A dead enemy will turn into an extra life `+`.
 Picking it up will increase your life points by one.
 If an enemy touches you, you'll loose one life point per turn.

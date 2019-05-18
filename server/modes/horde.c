@@ -33,6 +33,9 @@ static size_t nenemies;
 static int score;
 
 static int attacking(Player *player) {
+	if (map_get(&game.map, player->attack_x, player->attack_y) != ENEMY) {
+		return 0;
+	}
 	struct Enemy *p = enemies, *e = p + nenemies;
 	for (; p < e; ++p) {
 		if (p->life > 0 &&
@@ -47,7 +50,7 @@ static int attacking(Player *player) {
 	return 0;
 }
 
-static void move(Player *player, char cmd) {
+static void move(Player *player, const char cmd) {
 	player_move(player, cmd);
 	if (map_get(&game.map, player->x, player->y) == LIFE) {
 		++player->life;
@@ -55,9 +58,16 @@ static void move(Player *player, char cmd) {
 	}
 }
 
-static int impassable(Map *map, int x, int y) {
-	return (!config.non_exclusive && map_get(map, x, y) == ENEMY) ||
-		map_impassable(map, x, y);
+static void move_blocked_at(Player *player, const int x, const int y) {
+	if (map_get(&game.map, x, y) == ENEMY) {
+		player->attack_x = x;
+		player->attack_y = y;
+		attacking(player);
+	}
+}
+
+static int impassable(Map *map, const int x, const int y) {
+	return map_impassable(map, x, y) || map_get(map, x, y) == ENEMY;
 }
 
 static Player *find_closest_player(const int x, const int y) {
@@ -285,6 +295,7 @@ void horde() {
 	config.start = start;
 	config.turn_start = enemies_move;
 	config.impassable = impassable;
+	config.move_blocked_at = move_blocked_at;
 	config.move = move;
 	config.attacking = attacking;
 	config.end = end;

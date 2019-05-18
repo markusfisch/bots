@@ -174,6 +174,9 @@ static void player_move_by(Player *p, int x, int y) {
 	x = map_wrap(p->x + x, game.map.width);
 	y = map_wrap(p->y + y, game.map.height);
 	if (player_cannot_move_to(x, y)) {
+		if (config.move_blocked_at) {
+			config.move_blocked_at(p, x, y);
+		}
 		return;
 	}
 	p->x = x;
@@ -282,6 +285,9 @@ void player_shoot(Player *p) {
 	while (range-- > 0) {
 		p->attack_x = map_wrap(p->attack_x + vx, game.map.width);
 		p->attack_y = map_wrap(p->attack_y + vy, game.map.height);
+		if (config.attacking && config.attacking(p)) {
+			break;
+		}
 		if (config.impassable(&game.map, p->attack_x, p->attack_y)) {
 			break;
 		}
@@ -292,9 +298,6 @@ void player_shoot(Player *p) {
 				enemy->killed_by = p->name;
 				game_remove_player(enemy);
 			}
-		}
-		if (config.attacking && config.attacking(p)) {
-			break;
 		}
 	}
 }
