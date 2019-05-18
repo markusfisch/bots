@@ -86,6 +86,7 @@ static void complete_config() {
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;
 	config.gems = config.gems ?: config.map_width;
+	config.spawn_frequency = config.spawn_frequency ?: 2;
 	config.wait_for_joins = config.wait_for_joins ?: 1;
 	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
 	config.move = config.move ?: player_move;
@@ -172,6 +173,9 @@ static void usage() {
 		"  -g, --gems N                number of gems if there are "\
 			"gems, default equals\n"\
 		"                              map width\n"\
+		"  -Q, --spawn-frequency N     spawn a new enemy every N turns, "\
+			"for modes with\n"\
+		"                              enemies, default is 2\n"\
 		"  -R, --word STRING           custom word for \"word\" mode, "\
 			"random by default\n"\
 		"  -F, --format TYPE           server output format, either \""\
@@ -380,6 +384,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shoot", no_argument, &config.can_shoot, 1 },
 		{ "diagonal-move", required_argument, NULL, 'D' },
 		{ "gems", required_argument, NULL, 'g' },
+		{ "spawn-frequency", required_argument, NULL, 'Q' },
 		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
 		{ "wait-for-joins", required_argument, NULL, 'w' },
@@ -390,7 +395,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:R:F:w:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:Q:R:F:w:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -490,6 +495,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'g':
 			config.gems = atoi(optarg);
+			break;
+		case 'Q':
+			config.spawn_frequency = atoi(optarg);
 			break;
 		case 'R':
 			config.word = optarg;

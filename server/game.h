@@ -105,6 +105,7 @@ struct Config {
 	int can_shoot;
 	unsigned int diagonal_interval;
 	unsigned int gems;
+	unsigned int spawn_frequency;
 	unsigned int output_format;
 	time_t wait_for_joins;
 	time_t usec_per_turn;

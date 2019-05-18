@@ -141,7 +141,9 @@ static void enemies_move() {
 			map_set(&game.map, p->x, p->y, p->tile);
 		}
 	}
-	enemy_spawn();
+	if (game.turn % config.spawn_frequency == 0) {
+		enemy_spawn();
+	}
 	for (p = enemies; p < e; ++p) {
 		if (p->life < 1) {
 			continue;

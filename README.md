@@ -285,6 +285,8 @@ OPTION can be any of:
                               default is 0 for no diagonal movement
   -g, --gems N                number of gems if there are gems, default equals
                               map width
+  -Q, --spawn-frequency N     spawn a new enemy every N turns, for modes with
+                              enemies, default is 2
   -R, --word STRING           custom word for "word" mode, random by default
   -F, --format TYPE           server output format, either "plain" or "json",
                               default is "plain"
