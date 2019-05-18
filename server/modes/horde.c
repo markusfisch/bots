@@ -136,9 +136,19 @@ static void enemy_spawn_at(const int x, const int y) {
 	}
 }
 
-static void enemy_spawn() {
-	struct Portal *p = portals + (config.rand() % nportals);
-	enemy_spawn_at(p->x, p->y);
+static int enemy_spawn() {
+	size_t offset = config.rand();
+	size_t i;
+	for (i = 0; i < nportals; ++i, ++offset) {
+		struct Portal *p = portals + (offset % nportals);
+		if (!config.non_exclusive && (player_at(p->x, p->y, NULL) ||
+				map_get(&game.map, p->x, p->y) == ENEMY)) {
+			continue;
+		}
+		enemy_spawn_at(p->x, p->y);
+		return 1;
+	}
+	return 0;
 }
 
 static void enemies_move() {
