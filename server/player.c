@@ -208,16 +208,16 @@ static void player_move_diagonal(Player *p, const char cmd) {
 	}
 	p->last_diagonal = game.turn;
 	switch (cmd) {
-	case '(':
+	case '{':
 		player_step(p, 1, -1);
 		break;
-	case ')':
+	case '}':
 		player_step(p, 1, 1);
 		break;
-	case '{':
+	case '(':
 		player_step(p, 0, -1);
 		break;
-	case '}':
+	case ')':
 		player_step(p, 0, 1);
 		break;
 	case '[':

@@ -72,10 +72,10 @@ Basic commands are:
 If `--diagonal-interval` is set, a bot may also move with the following
 commands:
 
-	( - move top left
-	) - move top right
-	} - move left
-	{ - move right
+	{ - move top left
+	} - move top right
+	( - move left
+	) - move right
 	[ - move bottom left
 	] - move bottom right
 
