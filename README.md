@@ -162,7 +162,7 @@ Pick up power-ups `+` to increase the detonation radius of your bombs.
 Team up with other players to survive an endless horde of enemies `e`
 for as long as you can.
 
-Every turn, a new enemy appears at one of the four portals `&`.
+Every turn a new enemy appears at a portal `&`.
 The bots are placed in a circle in random orientation.
 
 Send `f` to shoot an enemy that's right in front of you.

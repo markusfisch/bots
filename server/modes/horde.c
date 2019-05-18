@@ -234,7 +234,7 @@ static void start() {
 		nportals = portals_create(nportals);
 		portals_find();
 	} else {
-		nportals = portals_create(4);
+		nportals = portals_create(game.nplayers + 1);
 		portals_place();
 	}
 }
