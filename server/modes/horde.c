@@ -55,6 +55,11 @@ static void move(Player *player, char cmd) {
 	}
 }
 
+static int impassable(Map *map, int x, int y) {
+	return (!config.non_exclusive && map_get(map, x, y) == ENEMY) ||
+		map_impassable(map, x, y);
+}
+
 static Player *find_closest_player(const int x, const int y) {
 	double min = config.map_width * config.map_height;
 	double dist;
@@ -164,7 +169,8 @@ static void enemies_move() {
 			}
 			strike = 1;
 		}
-		if (!strike) {
+		if (!strike && (config.non_exclusive ||
+				!config.impassable(&game.map, x, y))) {
 			p->x = x;
 			p->y = y;
 		}
@@ -257,6 +263,7 @@ void horde() {
 
 	config.start = start;
 	config.turn_start = enemies_move;
+	config.impassable = impassable;
 	config.move = move;
 	config.attacking = attacking;
 	config.end = end;
