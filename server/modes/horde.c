@@ -128,7 +128,9 @@ static void enemy_spawn_at(const int x, const int y) {
 			p->life = 1;
 			p->x = x;
 			p->y = y;
-			enemy_new_direction(p);
+			p->vx = 0;
+			p->vy = 0;
+			p->change = 0;
 			break;
 		}
 	}
