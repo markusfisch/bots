@@ -17,5 +17,5 @@ void rumble() {
 	config.can_shoot = config.can_shoot ?: 1;
 
 	config.move = player_move;
-	config.marker = game_marker_show_life;
+	config.marker = player_marker_show_life;
 }

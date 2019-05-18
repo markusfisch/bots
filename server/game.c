@@ -32,10 +32,6 @@ unsigned int game_joined() {
 	return n;
 }
 
-char game_marker_show_life(struct Player *p) {
-	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
-}
-
 void game_remove_player(Player *p) {
 	if (p->fd > 0) {
 		FD_CLR(p->fd, &game.watch);

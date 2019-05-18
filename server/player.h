@@ -4,6 +4,7 @@
 struct Player;
 
 void players_set_remaining_scores(int);
+char player_marker_show_life(Player *);
 Player *player_at(int, int, Player *);
 Player *player_near(int, int, int, Player *, double *);
 int player_cannot_move_to(int, int);

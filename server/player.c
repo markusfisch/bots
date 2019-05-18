@@ -23,6 +23,10 @@ void players_set_remaining_scores(int score) {
 	}
 }
 
+char player_marker_show_life(struct Player *p) {
+	return p->life < config.player_life ? (char) (48 + p->life) : p->name;
+}
+
 Player *player_at(int x, int y, Player *last) {
 	Player *p = last ? ++last : game.players,
 		*e = game.players + game.nplayers;
