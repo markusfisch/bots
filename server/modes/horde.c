@@ -289,7 +289,6 @@ static void end() {
 void horde() {
 	config.placing = config.placing ?: PLACING_CIRCLE;
 	config.view_radius = config.view_radius ?: 8;
-	config.can_shoot = config.can_shoot ?: 1;
 	config.diagonal_interval = config.diagonal_interval ?: 1;
 
 	config.start = start;
