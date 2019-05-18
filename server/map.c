@@ -65,6 +65,10 @@ size_t map_offset(Map *map, const int x, const int y) {
 	return map_wrap(y, map->height) * map->width + map_wrap(x, map->width);
 }
 
+void map_restore_at(Map *map, char *backup, const int x, const int y) {
+	map_set(map, x, y, backup[map_offset(map, x, y)]);
+}
+
 char map_get(Map *map, const int x, const int y) {
 	return map->data[map_offset(map, x, y)];
 }

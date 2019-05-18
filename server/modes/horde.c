@@ -27,9 +27,9 @@ static struct Enemy {
 	int vy;
 	int life;
 	int change;
-	char tile;
 } *enemies = NULL;
 static size_t nenemies;
+static char *backup_map_data = NULL;
 static int score;
 
 static int attacking(Player *player) {
@@ -164,8 +164,8 @@ static int enemy_spawn() {
 static void enemies_move() {
 	struct Enemy *p = enemies, *e = p + nenemies;
 	for (; p < e; ++p) {
-		if (p->life > 0) {
-			map_set(&game.map, p->x, p->y, p->tile);
+		if (p->life) {
+			map_restore_at(&game.map, backup_map_data, p->x, p->y);
 		}
 	}
 	if (game.turn % config.spawn_frequency == 0) {
@@ -199,7 +199,6 @@ static void enemies_move() {
 		if (--p->change < 1) {
 			enemy_new_direction(p);
 		}
-		p->tile = map_get(&game.map, p->x, p->y);
 		map_set(&game.map, p->x, p->y, ENEMY);
 	}
 }
@@ -256,7 +255,6 @@ static size_t portals_create(int amount) {
 }
 
 static void start() {
-	score = MAX_PLAYERS - (game.nplayers - 1);
 	nenemies = enemies_create(round(game.map.size * .5));
 	if ((nportals = map_count(&game.map, TILE_PORTAL)) > 0) {
 		nportals = portals_create(nportals);
@@ -265,6 +263,9 @@ static void start() {
 		nportals = portals_create(game.nplayers + 1);
 		portals_place();
 	}
+	backup_map_data = calloc(game.map.size, sizeof(char));
+	memcpy(backup_map_data, game.map.data, game.map.size);
+	score = MAX_PLAYERS - (game.nplayers - 1);
 }
 
 static void add_scores_for_survival(score) {
@@ -284,6 +285,8 @@ static void end() {
 	free(portals);
 	portals = NULL;
 	nportals = 0;
+	free(backup_map_data);
+	backup_map_data = NULL;
 }
 
 void horde() {

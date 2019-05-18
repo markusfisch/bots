@@ -18,9 +18,9 @@ static struct Asteroid {
 	int vx;
 	int vy;
 	int change;
-	char tile;
 } *asteroids = NULL;
 static size_t nasteroids;
+static char *backup_map_data = NULL;
 static int score;
 
 static void asteroid_new_direction(struct Asteroid *p) {
@@ -34,7 +34,7 @@ static void asteroid_new_direction(struct Asteroid *p) {
 static void asteroids_move() {
 	struct Asteroid *p = asteroids, *e = p + nasteroids;
 	for (; p < e; ++p) {
-		map_set(&game.map, p->x, p->y, p->tile);
+		map_restore_at(&game.map, backup_map_data, p->x, p->y);
 	}
 	for (p = asteroids; p < e; ++p) {
 		p->x = map_wrap(p->x + p->vx, game.map.width);
@@ -60,7 +60,6 @@ static void asteroids_place() {
 		} while (map_get(&game.map, p->x, p->y) == ASTEROID ||
 			player_near(p->x, p->y, 5, NULL, NULL));
 		asteroid_new_direction(p);
-		p->tile = map_get(&game.map, p->x, p->y);
 		map_set(&game.map, p->x, p->y, ASTEROID);
 	}
 }
@@ -75,6 +74,8 @@ static size_t asteroids_create(int amount) {
 }
 
 static void start() {
+	backup_map_data = calloc(game.map.size, sizeof(char));
+	memcpy(backup_map_data, game.map.data, game.map.size);
 	nasteroids = asteroids_create(round(game.map.size * .1));
 	asteroids_place();
 	score = MAX_PLAYERS - (game.nplayers - 1);
@@ -82,6 +83,8 @@ static void start() {
 
 static void end() {
 	game_set_players_score(score);
+	free(backup_map_data);
+	backup_map_data = NULL;
 	free(asteroids);
 	asteroids = NULL;
 	nasteroids = 0;
