@@ -25,7 +25,7 @@ static struct Enemy {
 	int y;
 	int vx;
 	int vy;
-	int life;
+	int life; // it's an extra life if negative
 	int change;
 } *enemies = NULL;
 static size_t nenemies;
@@ -40,21 +40,31 @@ static int attacking(Player *player) {
 	for (; p < e; ++p) {
 		if (p->life > 0 &&
 				p->x == player->attack_x &&
-				p->y == player->attack_y) {
+				p->y == player->attack_y &&
+				--p->life < 1) {
 			++player->score;
-			p->life = 0;
-			map_set(&game.map, p->x, p->y, LIFE);
+			p->life = -10;
 			return 1;
 		}
 	}
 	return 0;
 }
 
+static void lives_pick_up(Player *player) {
+	struct Enemy *p = enemies, *e = p + nenemies;
+	for (; p < e; ++p) {
+		if (p->life < 0 && p->x == player->x && p->y == player->y) {
+			++player->life;
+			p->life = 0;
+		}
+	}
+	map_restore_at(&game.map, backup_map_data, player->x, player->y);
+}
+
 static void move(Player *player, const char cmd) {
 	player_move(player, cmd);
 	if (map_get(&game.map, player->x, player->y) == LIFE) {
-		++player->life;
-		map_set(&game.map, player->x, player->y, *config.flatland);
+		lives_pick_up(player);
 	}
 }
 
@@ -134,7 +144,7 @@ static void enemy_new_direction(struct Enemy *p) {
 static void enemy_spawn_at(const int x, const int y) {
 	struct Enemy *p = enemies, *e = p + nenemies;
 	for (; p < e; ++p) {
-		if (p->life < 1) {
+		if (!p->life) {
 			p->life = 1;
 			p->x = x;
 			p->y = y;
@@ -161,6 +171,29 @@ static int enemy_spawn() {
 	return 0;
 }
 
+static int hit_players(const int x, const int y) {
+	Player *hit = NULL;
+	while ((hit = player_at(x, y, hit))) {
+		if (--hit->life < 1) {
+			hit->score += score++;
+			hit->killed_by = ENEMY;
+			game_remove_player(hit);
+		}
+		return 1;
+	}
+	return 0;
+}
+
+static void life_degrade(struct Enemy *e) {
+	if (e->life > -1) {
+		return;
+	}
+	if (map_get(&game.map, e->x, e->y) != ENEMY) {
+		map_set(&game.map, e->x, e->y, LIFE);
+	}
+	++e->life;
+}
+
 static void enemies_move() {
 	struct Enemy *p = enemies, *e = p + nenemies;
 	for (; p < e; ++p) {
@@ -173,6 +206,7 @@ static void enemies_move() {
 	}
 	for (p = enemies; p < e; ++p) {
 		if (p->life < 1) {
+			life_degrade(p);
 			continue;
 		}
 		Player *closest = find_closest_player(p->x, p->y);
@@ -181,17 +215,7 @@ static void enemies_move() {
 		}
 		int x = map_wrap(p->x + p->vx, game.map.width);
 		int y = map_wrap(p->y + p->vy, game.map.height);
-		int strike = 0;
-		Player *hit = NULL;
-		while ((hit = player_at(x, y, hit))) {
-			if (--hit->life < 1) {
-				hit->score += score++;
-				hit->killed_by = ENEMY;
-				game_remove_player(hit);
-			}
-			strike = 1;
-		}
-		if (!strike && (config.non_exclusive ||
+		if (!hit_players(x, y) && (config.non_exclusive ||
 				!config.impassable(&game.map, x, y))) {
 			p->x = x;
 			p->y = y;
