@@ -164,7 +164,7 @@ static void free_bombs() {
 
 static void end() {
 	free_bombs();
-	game_set_players_score(score);
+	players_set_remaining_scores(score);
 }
 
 static void init_bombs() {

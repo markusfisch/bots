@@ -14,6 +14,15 @@
 extern struct Config config;
 extern struct Game game;
 
+void players_set_remaining_scores(int score) {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (!p->score) {
+			p->score = score;
+		}
+	}
+}
+
 Player *player_at(int x, int y, Player *last) {
 	Player *p = last ? ++last : game.players,
 		*e = game.players + game.nplayers;

@@ -82,7 +82,7 @@ static void start() {
 }
 
 static void end() {
-	game_set_players_score(score);
+	players_set_remaining_scores(score);
 	free(backup_map_data);
 	backup_map_data = NULL;
 	free(asteroids);

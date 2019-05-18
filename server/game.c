@@ -21,15 +21,6 @@ struct Game game;
 
 static int stop = 0;
 
-void game_set_players_score(int score) {
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (p->score == 0) {
-			p->score = score;
-		}
-	}
-}
-
 unsigned int game_joined() {
 	size_t n = 0;
 	Player *p = game.players, *e = p + game.nplayers;
