@@ -94,14 +94,60 @@ static Player *find_closest_player(const int x, const int y) {
 	return closest;
 }
 
-static int normalize(int v) {
-	if (v > 1) {
-		return 1;
-	} else if (v < -1) {
-		return -1;
+static struct Direction {
+	int x;
+	int y;
+} diagonal_directions[] = {
+	{-1, -1},
+	{0, -1},
+	{1, -1},
+	{-1, 0},
+	{1, 0},
+	{-1, 1},
+	{0, 1},
+	{1, 1}
+}, orthogonal_directions[] = {
+	{-1, 0},
+	{1, 0},
+	{0, -1},
+	{0, 1}
+};
+static void enemy_new_direction(struct Enemy *p) {
+	p->change = 4 + (config.rand() % 16);
+	struct Direction *directions;
+	int ndirections;
+	if (config.diagonal_interval) {
+		directions = diagonal_directions;
+		ndirections = 8;
 	} else {
-		return v;
+		directions = orthogonal_directions;
+		ndirections = 4;
 	}
+	int offset = config.rand();
+	int i;
+	for (i = 0; i < ndirections; ++i, ++offset) {
+		struct Direction *d = directions + (offset % ndirections);
+		if (!config.impassable(&game.map, p->x + d->x, p->y + d->y)) {
+			p->vx = d->x;
+			p->vy = d->y;
+			return;
+		}
+	}
+	p->vx = p->vy = 0;
+}
+
+static int clamp(int min, int max, int value) {
+	if (value > max) {
+		return max;
+	} else if (value < min) {
+		return min;
+	} else {
+		return value;
+	}
+}
+
+static int clamp_uniform(int value) {
+	return clamp(-1, 1, value);
 }
 
 static void enemy_turn_to(struct Enemy *e, const int x, const int y) {
@@ -110,35 +156,20 @@ static void enemy_turn_to(struct Enemy *e, const int x, const int y) {
 	int adx = abs(dx);
 	int ady = abs(dy);
 	if (config.diagonal_interval) {
-		e->vx = normalize(dx);
-		e->vy = normalize(dy);
+		e->vx = clamp_uniform(dx);
+		e->vy = clamp_uniform(dy);
 	} else if (adx > ady) {
-		e->vx = normalize(dx);
+		e->vx = clamp_uniform(dx);
 		e->vy = 0;
 	} else {
 		e->vx = 0;
-		e->vy = normalize(dy);
+		e->vy = clamp_uniform(dy);
+	}
+	if (config.impassable(&game.map, e->x + e->vx, e->y + e->vy)) {
+		enemy_new_direction(e);
+		return;
 	}
 	e->change = adx + ady;
-}
-
-static void enemy_new_direction(struct Enemy *p) {
-	p->change = 10;
-	do {
-		if (config.diagonal_interval) {
-			p->vx = (config.rand() % 3) - 1;
-			p->vy = (config.rand() % 3) - 1;
-		} else {
-			int v = (config.rand() % 3) - 1;
-			if (config.rand() % 2) {
-				p->vx = v;
-				p->vy = 0;
-			} else {
-				p->vx = 0;
-				p->vy = v;
-			}
-		}
-	} while (!p->vx && !p->vy);
 }
 
 static void enemy_spawn_at(const int x, const int y) {
@@ -161,8 +192,8 @@ static int enemy_spawn() {
 	size_t i;
 	for (i = 0; i < nportals; ++i, ++offset) {
 		struct Portal *p = portals + (offset % nportals);
-		if (!config.non_exclusive && (player_at(p->x, p->y, NULL) ||
-				map_get(&game.map, p->x, p->y) == ENEMY)) {
+		if (player_at(p->x, p->y, NULL) ||
+				map_get(&game.map, p->x, p->y) == ENEMY) {
 			continue;
 		}
 		enemy_spawn_at(p->x, p->y);
@@ -194,15 +225,25 @@ static void life_degrade(struct Enemy *e) {
 	++e->life;
 }
 
+static struct Enemy *enemy_at(const int x, const int y) {
+	struct Enemy *p = enemies, *e = p + nenemies;
+	for (; p < e; ++p) {
+		if (p->life > 0 && p->x == x && p->y == y) {
+			return p;
+		}
+	}
+	return NULL;
+}
+
 static void enemies_move() {
 	struct Enemy *p = enemies, *e = p + nenemies;
+	if (game.turn % config.spawn_frequency == 0) {
+		enemy_spawn();
+	}
 	for (; p < e; ++p) {
 		if (p->life) {
 			map_restore_at(&game.map, backup_map_data, p->x, p->y);
 		}
-	}
-	if (game.turn % config.spawn_frequency == 0) {
-		enemy_spawn();
 	}
 	for (p = enemies; p < e; ++p) {
 		if (p->life < 1) {
@@ -215,15 +256,18 @@ static void enemies_move() {
 		}
 		int x = map_wrap(p->x + p->vx, game.map.width);
 		int y = map_wrap(p->y + p->vy, game.map.height);
-		if (!hit_players(x, y) && (config.non_exclusive ||
-				!config.impassable(&game.map, x, y))) {
-			p->x = x;
-			p->y = y;
+		if (!hit_players(x, y)) {
+			if (config.impassable(&game.map, x, y) || enemy_at(x, y)) {
+				p->change = 0;
+			} else {
+				p->x = x;
+				p->y = y;
+			}
 		}
+		map_set(&game.map, p->x, p->y, ENEMY);
 		if (--p->change < 1) {
 			enemy_new_direction(p);
 		}
-		map_set(&game.map, p->x, p->y, ENEMY);
 	}
 }
 
