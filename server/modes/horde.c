@@ -336,7 +336,7 @@ static void start() {
 	score = MAX_PLAYERS - (game.nplayers - 1);
 }
 
-static void add_scores_for_survival(score) {
+static void add_scores_for_survival(int score) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->life > 0) {
