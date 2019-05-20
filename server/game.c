@@ -645,13 +645,15 @@ static void game_assign_player_names() {
 
 static void game_write_header() {
 	if (config.output_format == FORMAT_JSON) {
-		printf("{\"max_turns\":%d,\n"\
+		printf("{\"mode\":\"%s\",\n"\
+				"\"max_turns\":%d,\n"\
 				"\"map_width\":%d,\n"\
 				"\"map_height\":%d,\n"\
 				"\"view_radius\":%d,\n"\
 				"\"obstacles\":\"%s\",\n"\
 				"\"flatland\":\"%s\",\n"\
 				"\"turns\":[\n",
+			config.mode_name,
 			config.max_turns,
 			config.map_width,
 			config.map_height,

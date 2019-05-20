@@ -68,6 +68,7 @@ struct Game {
 };
 
 struct Config {
+	const char *mode_name;
 	unsigned int port;
 	unsigned int port_websocket;
 	unsigned int port_spectator;

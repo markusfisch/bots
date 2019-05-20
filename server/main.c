@@ -526,6 +526,7 @@ static void parse_arguments(int argc, char **argv) {
 		usage();
 		exit(0);
 	}
+	config.mode_name = *argv;
 
 	if (!deterministic) {
 		srand(time(NULL));
