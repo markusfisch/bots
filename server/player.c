@@ -306,8 +306,8 @@ void player_shoot(Player *p) {
 		}
 		Player *enemy = NULL;
 		while ((enemy = player_at(p->attack_x, p->attack_y, enemy))) {
+			++p->score;
 			if (--enemy->life < 1) {
-				++p->score;
 				enemy->killed_by = p->name;
 				game_remove_player(enemy);
 			}
