@@ -733,7 +733,9 @@ static void game_reset(const int fd_listen, const int fd_listen_websocket,
 	memset(&game, 0, sizeof(Game));
 	game_watch_fd(fd_listen);
 	game_watch_fd(fd_listen_websocket);
-	game_watch_fd(fd_listen_spectator);
+	if (fd_listen_spectator > -1) {
+		game_watch_fd(fd_listen_spectator);
+	}
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("waiting for players (at least %d) to join ...\n",
 			config.min_starters);
@@ -773,7 +775,8 @@ static int game_run(const int fd_listen, const int fd_listen_websocket,
 					game_add_player_websocket,
 					ROLE_PLAYER);
 			}
-			if (FD_ISSET(fd_listen_spectator, &game.ready)) {
+			if (fd_listen_spectator > -1 &&
+					FD_ISSET(fd_listen_spectator, &game.ready)) {
 				game_join(fd_listen_spectator,
 					game_add_spectator,
 					ROLE_SPECTATOR);
@@ -885,11 +888,14 @@ int game_serve() {
 		close(fd_listen);
 		return -1;
 	}
-	int fd_listen_spectator = game_listen(config.port_spectator);
-	if (fd_listen_spectator < 0) {
-		close(fd_listen);
-		close(fd_listen_websocket);
-		return -1;
+	int fd_listen_spectator = -1;
+	if (config.max_spectators > 0) {
+		fd_listen_spectator = game_listen(config.port_spectator);
+		if (fd_listen_spectator < 0) {
+			close(fd_listen);
+			close(fd_listen_websocket);
+			return -1;
+		}
 	}
 
 	signal(SIGHUP, game_handle_signal);
@@ -903,7 +909,9 @@ int game_serve() {
 
 	close(fd_listen);
 	close(fd_listen_websocket);
-	close(fd_listen_spectator);
+	if (fd_listen_spectator > -1) {
+		close(fd_listen_spectator);
+	}
 
 	return rv;
 }
