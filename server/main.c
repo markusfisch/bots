@@ -415,6 +415,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'r':
 			config.remote_spectators = 1;
+			if (config.max_spectators < 1) {
+				config.max_spectators = 1;
+			}
 			break;
 		case 'b':
 			config.min_starters = atoi(optarg);
