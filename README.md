@@ -278,7 +278,7 @@ OPTION can be any of:
                               use -1 for unlimited games
   -M, --max-turns N           maximum number of turns, default is 1024
   -L, --max-lag N             number of turns a player can miss,
-                              default is 1024
+                              default is 3
   -S, --shrink-after N        shrink map after that many turns, default is 1024
   -T, --shrink-step N         amount of turns until next shrink, default is 1
   -l, --player-life N         life value of players, default is 1
