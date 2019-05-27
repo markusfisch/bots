@@ -151,15 +151,15 @@ input:disabled {
 <textarea class="Col" id="Code" wrap="off" oninput="save()"
 	placeholder="Enter code or reload this page to reset.">
 // This JavaScript runs for every map
-// section from the server.
+// section the server sends.
 
-// "map" is a string that contains the
+// "view" is a string that contains the
 // section around your bot.
-print(map)
+print(view)
 
 // Here, you're "ask()"ing yourself for
 // a command. Instead, write code that
-// parses "map" and "send()" an appropriate
+// parses "view" and "send()" an appropriate
 // command.
 ask(function(cmd) {
 	print('Sending [' + cmd + ']')
@@ -240,7 +240,7 @@ function start() {
 	}
 	let process
 	try {
-		process = new Function('map', codeEditor.value)
+		process = new Function('view', codeEditor.value)
 	} catch (error) {
 		print(error)
 		return false

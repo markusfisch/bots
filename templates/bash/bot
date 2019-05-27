@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# print map view
+# print view
 print_view() {
 	local Y OFFSET=0
 	for ((Y=0; Y < WIDTH; ++Y))
 	do
-		echo "${MAP:$OFFSET:$WIDTH}"
+		echo "${VIEW:$OFFSET:$WIDTH}"
 		((OFFSET += WIDTH))
 	done
 }
@@ -13,7 +13,7 @@ print_view() {
 # read view line by line from file descriptor number 6
 read_view() {
 	local LINES=0
-	MAP=
+	VIEW=
 	while read -r <&6 || return 1
 	do
 		((LINES < 1)) && {
@@ -21,7 +21,7 @@ read_view() {
 			LINES=${#REPLY}
 			WIDTH=$LINES
 		}
-		MAP=$MAP$REPLY
+		VIEW=$VIEW$REPLY
 		((--LINES < 1)) && break
 	done
 }
