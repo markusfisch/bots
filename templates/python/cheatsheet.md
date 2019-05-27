@@ -42,9 +42,9 @@ for i in range(0, 10):
 
 ## Boolean and Null
 
-true in python is `True`
-false in python is `False`
-null in python is `None`
+* true in python is `True`
+* false in python is `False`
+* null in python is `None`
 
 ## Using the index operator
 
