@@ -57,7 +57,7 @@ a
 b
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## len
+## Length
 Getting the length of an array or string.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 print(len("abc")
@@ -197,7 +197,7 @@ alphabet = "abc"
 randomLetter = random.choice(alphabet)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-### Find a character in a string
+## Find a character in a string
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 content = "Hello"
 pos = content.find("e")
