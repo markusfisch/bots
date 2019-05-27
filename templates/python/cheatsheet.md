@@ -1,5 +1,4 @@
-Bots Python Cheatsheet
-======================
+# Bots Python Cheatsheet
 
 ## Indentation
 Python groups statements through indentation.
@@ -17,8 +16,8 @@ if name == "John":
     print("Hello")
 print("John")
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Will print the same for `name=="John"` but will always print `John` regardless
-of the value of `name`.
+Will print only "Hello" if `name` equals `John` but will always print `John`
+regardless of the value of `name`.
 
 ## The mighty :
 Place a colon almost everywhere where you would normally usa a curly bracket.
@@ -29,7 +28,7 @@ for (int i = 0; i < 10; ++i) {
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Looks like this in python:
+Looks like this in Python:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 for i in range(0, 10):
     print("Hello World")
@@ -37,9 +36,9 @@ for i in range(0, 10):
 
 ## Boolean and Null
 
-* true in python is `True`
-* false in python is `False`
-* null in python is `None`
+* true is `True`
+* false is `False`
+* null is `None`
 
 ## Using the index operator
 
@@ -53,20 +52,20 @@ print(alphabetList[1])
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 a
 b
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## len
-Getting the length from an array or string.
+Getting the length of an array or string.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 print(len("abc")
 print(len(["a", "b"])
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3
 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,6 +89,27 @@ x = "hello"                 # string
 x = [0,1,2]                 # list
 x = (0,1,2)                 # tuple
 x = open(‘hello.py’, ‘r’)   # file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Please bear in mind to use floats when you expect a float. Dividing two
+integers may not be what you want:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+x = 1 / 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Output:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead do:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+x = 1.0 / 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Output:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0.5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## If-Statement
@@ -123,7 +143,7 @@ for letter in alphabet:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 a
 b
 c
@@ -136,7 +156,7 @@ for letter in "abc":
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 a
 b
 c
@@ -149,7 +169,7 @@ for index, letter in enumerate("abc"):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 a
 1 b
 2 c
@@ -158,7 +178,7 @@ Output:
 Of course there are also `while`-Loops:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 while True:
-    print("Hallo Welt")
+    print("And running")
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Random
@@ -177,7 +197,20 @@ alphabet = "abc"
 randomLetter = random.choice(alphabet)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## Regex
+### Find a character in a string
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+content = "Hello"
+pos = content.find("e")
+if pos > -1:
+    print(pos)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Output:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Regular Expressions
 Getting all letters from a given string:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 import re
@@ -188,7 +221,7 @@ print(letters)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 abc
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -199,6 +232,11 @@ def call_me(name):
     return name
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+## More
+
+For more detailed examples of the Python language see
+[here](https://learnxinyminutes.com/docs/python3/).
+
 ## Useful snippets
 
 ### Read one character from a terminal without waiting for Enter
@@ -206,7 +244,7 @@ def call_me(name):
 #### On Linux/BSD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 def read_char():
-    import tty, termios
+    import sys, termios, tty
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
