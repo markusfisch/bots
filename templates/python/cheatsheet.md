@@ -120,7 +120,7 @@ There may be times when you want to specify a type on a variable.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 x = 1.0 / 2
 print(x)
-print(int(x)
+print(int(x))
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Output:
