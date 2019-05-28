@@ -20,7 +20,7 @@ Will print only "Hello" if `name` equals `John` but will always print `John`
 regardless of the value of `name`.
 
 ## The mighty :
-Place a colon almost everywhere where you would normally usa a curly bracket.
+Place a colon almost anywhere where you would normally usa a curly bracket.
 So this:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 for (int i = 0; i < 10; ++i) {
@@ -115,7 +115,7 @@ Output:
 ## If-Statement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 if i < 3:
-    print("Smaller then 3")
+    print("Smaller than 3")
 elif i == 3:
     print("Equals 3")
 else:
@@ -125,7 +125,7 @@ else:
 Combining statements:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.python .numberLines}
 if i < 3 and j > 5:
-    print("Smaller then 3 and larger then 5")
+    print("Smaller than 3 and larger than 5")
 elif i == 3 or j == 3:
     print("One of i or j equals 3")
 else:
