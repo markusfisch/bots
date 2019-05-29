@@ -285,20 +285,27 @@ static int find_free_spot(int x, int y) {
 }
 
 static void portals_place() {
-	double between = 6.2831 / nportals;
-	double angle = 0;
-	int cx = game.map.width / 2;
-	int cy = game.map.height / 2;
-	int radius = round((cx < cy ? cx : cy) * .9);
+	double dx = game.map.width;
+	double dy = game.map.height;
+	double d = sqrt(dx*dx + dy*dy);
+	double step = d / nportals;
+	double start = step * .5;
+	double nx = dx / d;
+	double ny = dy / d;
+	double stx = nx * step;
+	double sty = ny * step;
+	double sx = nx * start;
+	double sy = ny * start;
 	struct Portal *p = portals, *e = p + nportals;
 	for (; p < e; ++p) {
-		int x = round(cx + cos(angle) * radius);
-		int y = round(cy + sin(angle) * radius);
+		int x = round(sx);
+		int y = round(sy);
 		map_find(&game.map, &x, &y, PORTAL_SET_RADIUS, find_free_spot);
 		map_set(&game.map, x, y, TILE_PORTAL);
 		p->x = x;
 		p->y = y;
-		angle += between;
+		sx += stx;
+		sy += sty;
 	}
 }
 
@@ -358,7 +365,7 @@ static void end() {
 }
 
 void horde() {
-	config.placing = config.placing ?: PLACING_CIRCLE;
+	config.placing = config.placing ?: PLACING_DIAGONAL;
 	config.view_radius = config.view_radius ?: 8;
 	config.diagonal_interval = config.diagonal_interval ?: 1;
 

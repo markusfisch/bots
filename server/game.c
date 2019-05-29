@@ -544,6 +544,9 @@ static void game_place_players() {
 	case PLACING_GRID:
 		placing_grid(config.placing_fuzz);
 		break;
+	case PLACING_DIAGONAL:
+		placing_diagonal(config.placing_fuzz);
+		break;
 	case PLACING_MANUAL:
 		placing_manual(config.coords, config.placing_fuzz);
 		break;

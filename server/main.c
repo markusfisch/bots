@@ -22,6 +22,7 @@
 #define PLACING_ARG_CIRCLE "circle"
 #define PLACING_ARG_RANDOM "random"
 #define PLACING_ARG_GRID "grid"
+#define PLACING_ARG_DIAGONAL "diagonal"
 #define FORMAT_ARG_PLAIN "plain"
 #define FORMAT_ARG_JSON "json"
 #define PLACING_SEPARATOR ":"
@@ -133,9 +134,9 @@ static void usage() {
 			"default is 14\n"\
 		"  -p, --placing TYPE          player placing, either \""\
 			PLACING_ARG_CIRCLE"\", \""\
-			PLACING_ARG_RANDOM"\" or\n"\
-		"                              \""PLACING_ARG_GRID"\", "\
-			"default depends on mode\n"\
+			PLACING_ARG_RANDOM"\",\n"\
+		"                              \""PLACING_ARG_GRID"\" or "\
+			"\""PLACING_ARG_DIAGONAL"\", default depends on mode\n"\
 		"  -Z, --fuzzy N               maximum potential deviaton "\
 			"from calculated\n"\
 		"                              position, default is 0\n"\
@@ -334,6 +335,8 @@ static int parse_placing(const char *arg) {
 		return PLACING_RANDOM;
 	} else if (!strcmp(arg, PLACING_ARG_GRID)) {
 		return PLACING_GRID;
+	} else if (!strcmp(arg, PLACING_ARG_DIAGONAL)) {
+		return PLACING_DIAGONAL;
 	}
 	fprintf(stderr, "error: unknown placing \"%s\"\n", arg);
 	exit(1);

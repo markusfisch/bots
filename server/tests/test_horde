@@ -2,7 +2,7 @@
 cd "${0%/*}" && . tester
 tester_run_server horde
 tester_connect
-COMMANDS='>^^^^^^^^^^^^^^^^^^^^^^^[[vv)^^vv}'
+COMMANDS='^^^^^(((((^^^((((^^^)vv)^^'
 for ((I=0, L=${#COMMANDS}; I < L; ++I))
 do
 	tester_read_send ${COMMANDS:$I:1}

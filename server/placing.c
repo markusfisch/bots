@@ -80,6 +80,32 @@ void placing_grid(const unsigned int fuzz) {
 	}
 }
 
+void placing_diagonal(const unsigned int fuzz) {
+	double dx = game.map.width;
+	double dy = game.map.height;
+	double d = sqrt(dx*dx + dy*dy);
+	double step = d / game.nplayers;
+	double start = step * .5;
+	double nx = dx / d;
+	double ny = dy / d;
+	double stx = nx * step;
+	double sty = ny * step;
+	double sx = nx * start;
+	double sy = ny * start;
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		int x = map_wrap(round(sx) + fuzzy(fuzz), game.map.width);
+		int y = map_wrap(round(sy) + fuzzy(fuzz), game.map.height);
+		if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {
+			map_set(&game.map, x, y, *config.flatland);
+		}
+		p->x = x;
+		p->y = y;
+		sx += stx;
+		sy += sty;
+	}
+}
+
 void placing_manual(Coords *coords, const unsigned int fuzz) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++coords) {
