@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "../game.h"
 #include "../player.h"
 #include "rumble.h"
@@ -16,6 +13,5 @@ void rumble() {
 	config.shrink_after = config.shrink_after ?: 64;
 	config.can_shoot = config.can_shoot ?: 1;
 
-	config.move = player_move;
 	config.marker = player_marker_show_life;
 }
