@@ -159,13 +159,12 @@ Pick up power-ups `+` to increase the detonation radius of your bombs.
 
 ### horde
 
-Team up to survive an endless horde of enemies `e` for as long as you can.
+Team up to survive an endless horde of enemies `e`.
 
 Every second turn a new enemy appears at a portal `&` (use
 `--spawn-frequency` to change when a new enemy appears).
-There is one more portal than there are bots.
-The bots are placed in a circle in random orientation.
-The portals are placed in a circle around the bots.
+There is always one more portal than there are bots.
+The bots and portals are each placed evenly on a diagonal line.
 
 You can kill enemies that are next to you by bumping into them.
 A dead enemy will turn into an extra life `+`.
