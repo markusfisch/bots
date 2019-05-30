@@ -110,7 +110,7 @@ static void game_write_results(FILE *fp) {
 		game_compare_player_score);
 	game_write_results_in_format(fp, config.output_format, 0);
 	if (game.nspectators > 0) {
-		char buf[2048];
+		char buf[4096];
 		FILE *fp = fmemopen(buf, sizeof(buf), "w");
 		game_write_results_in_format(fp, FORMAT_JSON, 1);
 		fclose(fp);
@@ -285,7 +285,7 @@ static void game_write(FILE *fp) {
 	}
 	fflush(fp);
 	if (game.nspectators > 0) {
-		char buf[game.map.width * game.map.height + 1024];
+		char buf[4096 + game.map.width * game.map.height];
 		FILE *fp = fmemopen(buf, sizeof(buf), "w");
 		game_write_json(fp, map, 1);
 		fclose(fp);
