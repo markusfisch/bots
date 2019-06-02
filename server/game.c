@@ -101,6 +101,30 @@ static void game_write_results_in_format(FILE *fp, int format,
 	fflush(fp);
 }
 
+static void game_for_spectators(size_t size,
+		void (*callback)(FILE *fp, void *), void *args) {
+	if (game.nspectators < 1) {
+		return;
+	}
+	char buf[size];
+	FILE *fp = fmemopen(buf, sizeof(buf), "w");
+	long written;
+	callback(fp, args);
+	written = ftell(fp);
+	fclose(fp);
+	if ((size_t) written == sizeof(buf)) {
+		fprintf(stderr, "error: JSON buffer too small!\n");
+		game_terminate();
+		return;
+	}
+	game_send_spectators(buf);
+}
+
+static void game_write_spectator_results(FILE *fp,
+		__attribute__((unused)) void *arg) {
+	game_write_results_in_format(fp, FORMAT_JSON, 1);
+}
+
 static int game_compare_player_score(const void *a, const void *b) {
 	return ((Player *) b)->score - ((Player *) a)->score;
 }
@@ -109,13 +133,7 @@ static void game_write_results(FILE *fp) {
 	qsort(game.players, game.nplayers, sizeof(Player),
 		game_compare_player_score);
 	game_write_results_in_format(fp, config.output_format, 0);
-	if (game.nspectators > 0) {
-		char buf[4096];
-		FILE *fp = fmemopen(buf, sizeof(buf), "w");
-		game_write_results_in_format(fp, FORMAT_JSON, 1);
-		fclose(fp);
-		game_send_spectators(buf);
-	}
+	game_for_spectators(4096, game_write_spectator_results, NULL);
 }
 
 static void game_remove_spectators() {
@@ -264,6 +282,10 @@ static void game_write_plain(FILE *fp, const char *map) {
 	}
 }
 
+static void game_write_spectator(FILE *fp, void *arg) {
+	game_write_json(fp, (char *) arg, 1);
+}
+
 static void game_write(FILE *fp) {
 	size_t size = game.map.size;
 	char map[size];
@@ -284,13 +306,8 @@ static void game_write(FILE *fp) {
 		break;
 	}
 	fflush(fp);
-	if (game.nspectators > 0) {
-		char buf[4096 + game.map.width * game.map.height];
-		FILE *fp = fmemopen(buf, sizeof(buf), "w");
-		game_write_json(fp, map, 1);
-		fclose(fp);
-		game_send_spectators(buf);
-	}
+	game_for_spectators(4096 + game.map.width * game.map.height,
+		game_write_spectator, map);
 }
 
 static void game_remove_defunkt_players() {
