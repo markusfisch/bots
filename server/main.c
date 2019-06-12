@@ -385,7 +385,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "shoot", no_argument, &config.can_shoot, 1 },
-		{ "diagonal-move", required_argument, NULL, 'D' },
+		{ "diagonal-interval", required_argument, NULL, 'D' },
 		{ "gems", required_argument, NULL, 'g' },
 		{ "spawn-frequency", required_argument, NULL, 'Q' },
 		{ "word", required_argument, NULL, 'R' },
