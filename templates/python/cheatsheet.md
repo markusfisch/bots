@@ -1,5 +1,10 @@
 # Bots Python Cheatsheet
 
+## Install on windows
+1. Download [Python 3.7.3](https://www.python.org/downloads/) (Don't use the windows store version)
+2. Follow the instruction of the mighty installation wizard
+3. For an IDE we suggest [PyCharm](https://www.jetbrains.com/pycharm/download/#section=mac)
+
 ## Indentation
 Python groups statements through indentation.
 So this:
