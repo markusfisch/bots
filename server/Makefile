@@ -1,5 +1,5 @@
 BIN = bots
-OBJECTS = map.o maze.o placing.o player.o game.o \
+OBJECTS = map.o maze.o cubic.o terrain.o placing.o player.o game.o \
 	base64.o \
 	sha1.o \
 	websocket.o \
@@ -12,6 +12,7 @@ OBJECTS = map.o maze.o placing.o player.o game.o \
 	modes/word.o \
 	modes/boom.o \
 	modes/horde.o \
+	modes/dig.o \
 	main.o
 LIBS = -lm
 CFLAGS = -O2 -Wall -Wextra
@@ -31,6 +32,7 @@ test: $(BIN)
 	tests/test_word
 	tests/test_boom
 	tests/test_horde
+	tests/test_dig
 
 clean:
 	rm -f *.o modes/*.o websocket/*.o $(BIN)

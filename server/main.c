@@ -9,6 +9,7 @@
 #include "modes/avoid.h"
 #include "modes/boom.h"
 #include "modes/collect.h"
+#include "modes/dig.h"
 #include "modes/escape.h"
 #include "modes/horde.h"
 #include "modes/rumble.h"
@@ -19,6 +20,7 @@
 #define MAP_TYPE_ARG_PLAIN "plain"
 #define MAP_TYPE_ARG_RANDOM "random"
 #define MAP_TYPE_ARG_MAZE "maze"
+#define MAP_TYPE_ARG_TERRAIN "terrain"
 #define PLACING_ARG_CIRCLE "circle"
 #define PLACING_ARG_RANDOM "random"
 #define PLACING_ARG_GRID "grid"
@@ -46,6 +48,7 @@ static const struct Mode {
 	{ "word", "find a word somewhere on the map", word },
 	{ "boom", "last man standing, place bomb with '1' to '9'", boom },
 	{ "horde", "survive hordes of enemies", horde },
+	{ "dig", "dig for gold '@', dig with 'd', scan with 's'", dig },
 	{ NULL, NULL, NULL }
 };
 
@@ -123,10 +126,10 @@ static void usage() {
 		"  -s, --map-size N[xN]        map size, default is 32x32\n"\
 		"  -t, --map-type TYPE         map type, either \""\
 			MAP_TYPE_ARG_PLAIN"\", \""\
-			MAP_TYPE_ARG_RANDOM"\" or \""\
-			MAP_TYPE_ARG_MAZE"\",\n"\
-		"                              default is \""\
-			MAP_TYPE_ARG_PLAIN"\"\n"\
+			MAP_TYPE_ARG_RANDOM"\", \""\
+			MAP_TYPE_ARG_MAZE"\" or\n"\
+		"                              \""MAP_TYPE_ARG_TERRAIN\
+			"\", default is \""MAP_TYPE_ARG_PLAIN"\"\n"\
 		"  -c, --custom-map FILE       custom map\n"\
 		"  -o, --obstacles STRING      characters a player cannot enter\n"\
 		"  -f, --flatland STRING       characters a player can enter\n"\
@@ -349,6 +352,8 @@ static int parse_map_type(const char *arg) {
 		return MAP_TYPE_RANDOM;
 	} else if (!strcmp(arg, MAP_TYPE_ARG_MAZE)) {
 		return MAP_TYPE_MAZE;
+	} else if (!strcmp(arg, MAP_TYPE_ARG_TERRAIN)) {
+		return MAP_TYPE_TERRAIN;
 	}
 	fprintf(stderr, "error: unknown map type \"%s\"\n", arg);
 	exit(1);

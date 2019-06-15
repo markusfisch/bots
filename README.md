@@ -174,6 +174,25 @@ If an enemy touches you, you'll loose one life point per turn.
 `--diagonal-interval` is set by default for this mode to give you
 additional options to move.
 
+### dig
+
+Dig a hilly terrain for gold `@`.
+
+The map is composed from numbers that give the height of the
+corresponding cell. A bot can only overcome one level of height
+difference, so you need to dig a slope in order to get out of
+holes.
+
+Scan the terrain by sending `s`.
+The server will respond with a map of gold items, if available.
+All gold items are on height level 0.
+
+Navigate your bot to a gold item `@` and raise it by digging the
+environment as needed to be able to get back out of the hole.
+Dig a level down by sending `d`.
+
+The bot that collected the most gold wins the game.
+
 ## Available maps
 
 Use `--map-size` to set a custom map size and `--view-radius` to control
@@ -244,6 +263,7 @@ MODE must be one of:
   word - find a word somewhere on the map
   boom - last man standing, place bomb with '1' to '9'
   horde - survive hordes of enemies
+  dig - dig for gold '@', dig with 'd', scan with 's'
 
 OPTION can be any of:
   -P, --port N                port to listen for players, default is 63187
@@ -257,8 +277,8 @@ OPTION can be any of:
                               on mode
   -n, --name-file FILE        list of IP addresses with player names
   -s, --map-size N[xN]        map size, default is 32x32
-  -t, --map-type TYPE         map type, either "plain", "random" or "maze",
-                              default is "plain"
+  -t, --map-type TYPE         map type, either "plain", "random", "maze" or
+                              "terrain", default is "plain"
   -c, --custom-map FILE       custom map
   -o, --obstacles STRING      characters a player cannot enter
   -f, --flatland STRING       characters a player can enter

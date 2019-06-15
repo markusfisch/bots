@@ -10,6 +10,7 @@
 
 #include "game.h"
 #include "maze.h"
+#include "terrain.h"
 #include "placing.h"
 #include "player.h"
 
@@ -593,6 +594,10 @@ static void game_init_map() {
 	case MAP_TYPE_MAZE:
 		maze_generate(&game.map, game.map.width / 2, game.map.height / 2,
 			*config.flatland, TILE_GONE);
+		game.map.obstacles = config.obstacles;
+		break;
+	case MAP_TYPE_TERRAIN:
+		terrain_generate(&game.map, "0123456789");
 		game.map.obstacles = config.obstacles;
 		break;
 	}

@@ -84,7 +84,7 @@ char player_bearing(const int bearing) {
 }
 
 static char player_view_at(Player *p, const int x, const int y) {
-	char tile = map_get(&game.map, x, y);
+	char tile = map_get(p->map ?: &game.map, x, y);
 	Player *enemy = player_at(x, y, NULL);
 	if (enemy) {
 		tile = player_bearing(enemy->bearing + 4 - p->bearing);
@@ -176,6 +176,7 @@ int player_send_view(Player *player) {
 		left += yx;
 		top += yy;
 	}
+	player->map = NULL;
 	view[radius * len + radius] = config.marker ?
 		config.marker(player) : player->name;
 	return player->ws.fd > 0 ?

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+cd "${0%/*}" && . tester
+tester_run_server dig
+tester_connect
+tester_read_send 's'
+tester_read_send '^' 2
+tester_read_send 'd'
+tester_read_send 'v'
+tester_close
+tester_print_result

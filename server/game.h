@@ -15,6 +15,7 @@
 #define MAP_TYPE_PLAIN 1
 #define MAP_TYPE_RANDOM 2
 #define MAP_TYPE_MAZE 3
+#define MAP_TYPE_TERRAIN 4
 #define PLACING_CIRCLE 1
 #define PLACING_RANDOM 2
 #define PLACING_GRID 3
@@ -61,6 +62,7 @@ struct Game {
 		unsigned int counter;
 		unsigned int last_diagonal;
 		WebSocket ws;
+		Map *map;
 	} players[MAX_PLAYERS];
 	struct Spectator {
 		char addr[INET_ADDRSTRLEN];
