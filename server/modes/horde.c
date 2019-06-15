@@ -299,7 +299,7 @@ static void portals_place() {
 	struct Portal *p = portals, *e = p + nportals;
 	for (; p < e; ++p) {
 		int x = round(sx);
-		int y = round(sy);
+		int y = map_wrap(round(sy) - 4, game.map.height);
 		map_find(&game.map, &x, &y, PORTAL_SET_RADIUS, find_free_spot);
 		map_set(&game.map, x, y, TILE_PORTAL);
 		p->x = x;
