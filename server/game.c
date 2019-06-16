@@ -716,31 +716,7 @@ static void game_write_header() {
 	}
 }
 
-static void game_restrict_spectators() {
-	if (config.remote_spectators || game.nplayers < 2 ||
-			game.nspectators < 1) {
-		// no restrictions for single player games
-		return;
-	}
-	// remove all but exactly one spectator that must be on localhost
-	// if there are multiple players to prevent players from stealing
-	// the whole map by sniffing network traffic or providing a fake
-	// spectator
-	int count = 0;
-	Spectator *p = game.spectators, *e = p + game.nspectators;
-	for (; p < e; ++p) {
-		if (p->ws.fd > 0) {
-			if (count > 0 || strcmp(p->addr, "127.0.0.1")) {
-				game_remove_spectator(p);
-			} else {
-				++count;
-			}
-		}
-	}
-}
-
 static void game_start() {
-	game_restrict_spectators();
 	game_assign_player_names();
 	if (config.prepare) {
 		config.prepare();
