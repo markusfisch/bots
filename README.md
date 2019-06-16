@@ -356,8 +356,8 @@ It's even possible to use
 [JSFiddle](http://jsfiddle.net/16gqbLth/)
 or any other source code playground that runs JavaScript.
 
-Please note that since the server does not implement Secure Web Sockets,
-it is necessary to be on HTTP because HTTPS only allows Secure Web Sockets.
+Please note that since the server does not implement Secure WebSockets,
+it is necessary to be on HTTP because HTTPS only allows Secure WebSockets.
 An exception is the localhost 127.0.0.1 that can be accessed from HTTPS.
 
 ## Playing automatically
@@ -366,11 +366,11 @@ Of course, the challenge is to write a program that plays the game.
 
 ## Troubleshooting
 
-### The spectator won't connect
+### The spectator doesn't connect
 
-By default, the server won't allow any spectators to make sure your
-opponents can't sniff the whole world. To allow a number of spectators
-use the `-V`/`--max-spectators` flag like this:
+By default, the server doesn't allow any spectators to make sure your
+opponents can't sniff the whole world map while the game is on.
+To allow spectators use the `-V`/`--max-spectators` flag like this:
 
 	$ ./bots -V1 escape
 
@@ -381,11 +381,12 @@ you also set `-r`/`--remote-spectators`:
 
 ### The server is closing the connection immediately
 
-Make sure your bot connects to the correct port.
+A bot (or spectator) can only join a game before it started.
 
-The default port for streaming sockets is 63187.
+Make sure your bot connects to the correct port:
 
-The default port for WebSockets is 63188.
+* The default port for streaming sockets is 63187.
+* The default port for WebSockets is 63188.
 
 If you're connecting from a browser, your bot uses WebSockets.
 
