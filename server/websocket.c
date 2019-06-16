@@ -101,6 +101,7 @@ void websocket_close(WebSocket *ws) {
 	websocket_send_message(ws, 8, NULL, 0);
 	close(ws->fd);
 	ws->fd = 0;
+	ws->handshaked = 0;
 }
 
 static int websocket_read_message(WebSocket *ws, char **message) {
