@@ -90,7 +90,7 @@ static void game_write_results_in_format(FILE *fp, int format,
 			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
 		break;
 	}
-	int place = 0, last_score = 0xffffff;
+	int place = 0, last_score = 0xffffff, skip = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (format == FORMAT_JSON && p > game.players) {
@@ -99,6 +99,10 @@ static void game_write_results_in_format(FILE *fp, int format,
 		if (p->score < last_score) {
 			last_score = p->score;
 			++place;
+			place += skip;
+			skip = 0;
+		} else {
+			++skip;
 		}
 		fprintf(fp, pfmt, place, p->addr, p->name, p->score, p->moves,
 			p->killed_by ?: '-');
