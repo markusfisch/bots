@@ -480,6 +480,13 @@ static void game_watch_fd(int fd) {
 static int game_add_spectator(int fd, char *addr) {
 	if (game.nspectators >= config.max_spectators ||
 			game.nspectators >= MAX_SPECTATORS) {
+		printf("spectator from %s rejected because there are no seats left\n",
+			addr);
+		return 0;
+	}
+	if (!config.remote_spectators && strcmp(addr, "127.0.0.1")) {
+		printf("spectator from %s rejected because --remote-spectators is not set\n",
+			addr);
 		return 0;
 	}
 	Spectator *s = &game.spectators[game.nspectators];
@@ -492,6 +499,8 @@ static int game_add_spectator(int fd, char *addr) {
 
 static Player *game_add_player(int fd, char *addr) {
 	if (game.nplayers >= MAX_PLAYERS) {
+		printf("player from %s rejected because there are no seats left\n",
+			addr);
 		return NULL;
 	}
 	Player *p = &game.players[game.nplayers];
