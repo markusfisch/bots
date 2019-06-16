@@ -90,11 +90,15 @@ static void game_write_results_in_format(FILE *fp, int format,
 			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
 		break;
 	}
-	int place = 1;
+	int place = 0, last_score = 0xffffff;
 	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p, ++place) {
+	for (; p < e; ++p) {
 		if (format == FORMAT_JSON && p > game.players) {
 			fprintf(fp, ",\n");
+		}
+		if (p->score < last_score) {
+			last_score = p->score;
+			++place;
 		}
 		fprintf(fp, pfmt, place, p->addr, p->name, p->score, p->moves,
 			p->killed_by ?: '-');
