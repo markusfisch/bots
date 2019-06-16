@@ -42,6 +42,9 @@ void game_remove_player(Player *p) {
 			close(p->fd);
 		}
 		p->fd = 0;
+		if (!game.started) {
+			--game.nplayers;
+		}
 	}
 }
 
@@ -50,6 +53,9 @@ static void game_remove_spectator(Spectator *s) {
 		FD_CLR(s->ws.fd, &game.watch);
 		websocket_close(&s->ws);
 		s->ws.fd = 0;
+		if (!game.started) {
+			--game.nspectators;
+		}
 	}
 }
 
