@@ -10,8 +10,8 @@
 static float cubic_noise_random(uint32_t seed, int32_t x, int32_t y) {
 	return (float)
 		((((x ^ y) * CUBIC_NOISE_RAND_A) ^ (seed + x)) *
-		(((CUBIC_NOISE_RAND_B * x) << 16) ^ (CUBIC_NOISE_RAND_B * y) -
-			CUBIC_NOISE_RAND_A)) /
+		(((CUBIC_NOISE_RAND_B * x) << 16) ^ ((CUBIC_NOISE_RAND_B * y) -
+			CUBIC_NOISE_RAND_A))) /
 		UINT32_MAX;
 }
 
