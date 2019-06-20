@@ -101,6 +101,7 @@ void placing_diagonal(const unsigned int fuzz) {
 		}
 		p->x = x;
 		p->y = y;
+		p->bearing = config.rand() % 4;
 		sx += stx;
 		sy += sty;
 	}
