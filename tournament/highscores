@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+import json
+import operator
+import os
+import sys
+
+
+def main(games_dir=''):
+    if not os.path.isdir(games_dir):
+        print("usage: %s GAMES_DIR" % (sys.argv[0]))
+        sys.exit(1)
+    summary = {}
+    addresses = {}
+    for game_file in os.listdir(games_dir):
+        with open(games_dir + "/" + game_file, 'r') as f:
+            try:
+                for player in json.load(f)['results']:
+                    name = player['name']
+                    score = 16 - player['place']
+                    if name in summary.keys():
+                        summary[name] += score
+                    else:
+                        summary[name] = score
+                        addresses[name] = player['addr']
+            except ValueError:
+                pass
+    print("Place Name  Address                           Score")
+    print("---------------------------------------------------")
+    pos = 0
+    last_score = 0xffffff
+    skip = 0
+    for key, value in sorted(summary.items(), key=operator.itemgetter(1), reverse=True):
+        if key in addresses.keys():
+            address = addresses[key]
+        else:
+            address = '?'
+        if value < last_score:
+            pos += 1 + skip
+            last_score = value
+            skip = 0
+        else:
+            skip += 1
+        print('%5d %-5s %-15s %23d' % (
+            pos,
+            key[:5],
+            address[:15],
+            value
+        ))
+
+if __name__ == '__main__':
+    main( * sys.argv[1:])
