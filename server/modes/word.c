@@ -51,7 +51,7 @@ static void place_word() {
 		word_len = game.map.width;
 		*(config.word + word_len) = 0;
 	}
-	strncpy(game.map.data + (y * game.map.width + x), config.word,
+	memcpy(game.map.data + (y * game.map.width + x), config.word,
 		word_len);
 }
 
