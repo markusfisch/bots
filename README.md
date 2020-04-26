@@ -1,16 +1,22 @@
 # Bots
 
-Terrain parsing game for bots.
+A terrain parsing game where you write little programs that play the game
+automatically.
 
-The game world is a two-dimensional orthogonal grid.
-The game is turn-based. A turn ends as soon as all players have moved *or*
-after one second has passed and at least one player made a move.
-All actions happen in sequence.
+## About the game
 
-To play the game, a bot needs to connect a streaming socket to port 63187
-(or a WebSocket to port 63188) after the `bots` server has been started.
+* The game world is a two-dimensional orthogonal grid.
+* The game is turn-based.
+* A turn ends as soon as
+	* all players have moved *or*
+	* after one second has passed *and* at least one player made a move.
+* Everything happens in sequence.
 
-Find templates for such bots in the `templates` directory.
+To play the game, your program, a so-called bot, must connect a streaming
+socket to port 63187 (or a WebSocket to port 63188) after the `bots` server
+is started.
+
+Find templates for such bot programs in the `templates` directory.
 
 There is also a very useful
 [WebGL visualizer](https://github.com/ChristianNorbertBraun/bots_spectator)
@@ -18,7 +24,7 @@ to replay and inspect the games in a browser.
 
 ## What a bot receives from the server
 
-At the beginning of the game and in response to each command, a bot receives
+At the beginning of each game and in response to each command, a bot receives
 its environment as a top-down section of the whole map. This section is always
 made from the same amount of columns and lines. For example, a 5x5 section
 would look like this:
@@ -30,7 +36,7 @@ would look like this:
 	.#...
 
 `A` is you. You can be any letter from A to P.
-First line is in front of you, the last one is behind you.
+The first line is always in front of you, the last one is behind you.
 
 `.` is flatland, `~` is water, `#` is wood and `X` is a wall or a rock.
 You can't walk through water, wood, stone or other players.
