@@ -7,7 +7,7 @@ to squash when merging into master:
 
 	$ git merge cool_feature --squash
 
-Then write a [good commit messages][commit_messages] to keep the history
+Then write a [good commit message][commit_messages] to keep the history
 meaningful and useful. One feature, one commit.
 
 [commit_messages]: https://juffalow.com/other/write-good-git-commit-message
