@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import socket
@@ -18,7 +18,7 @@ def read_view(f):
 
 def main(host='localhost', port=63187):
     s = socket.socket()
-    s.connect((host, port))
+    s.connect((host, int(port)))
     f = s.makefile()
     while True:
         try:
