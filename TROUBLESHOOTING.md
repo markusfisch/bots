@@ -32,3 +32,7 @@ Most probably you didn't `clean` after pulling updates. Please run:
 
 If that isn't successful or the server is still crashing for you, it's a bug
 and you should file an issue.
+
+## Python: 'utf-8' codec can't decode byte 0x81 in position 0: invalid start byte
+
+You are connecting to the websocket instead of the socket. Choose the correct port.
