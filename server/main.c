@@ -85,7 +85,7 @@ static void complete_config() {
 	config.view_radius = config.view_radius ?: 2;
 	config.max_games = config.max_games ?: 1;
 	config.max_turns = config.max_turns ?: 1024;
-	config.max_lag = config.max_lag ?: 3;
+	config.max_lag = config.max_lag ?: config.max_turns;
 	config.shrink_after = config.shrink_after ?: config.max_turns;
 	config.shrink_step = config.shrink_step ?: 1;
 	config.player_life = config.player_life ?: 1;
@@ -160,8 +160,8 @@ static void usage() {
 		"  -M, --max-turns N           maximum number of turns, "\
 			"default is 1024\n"\
 		"  -L, --max-lag N             number of turns a player can "\
-			"miss,\n"\
-		"                              default is 3\n"\
+			"miss before getting\n"\
+		"                              disconnected, unlimited by default\n"\
 		"  -S, --shrink-after N        shrink map after that many "\
 			"turns, default is 1024\n"\
 		"  -T, --shrink-step N         amount of turns until next "\
