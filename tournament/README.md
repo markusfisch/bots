@@ -11,7 +11,7 @@ Just put this into a file named "Makefile" (or copy the accompanying
 	STARTERS ?= 7
 	FLAGS ?= --format json \
 		--min-starters $(STARTERS) \
-		--namefile namefile \
+		--name-file namefile \
 		--remote-spectators \
 		--max-spectators 1
 	REPLAY ?= $(shell date +%Y%m%d-%H%M%S).json
@@ -76,7 +76,7 @@ There can be multiple entries for a letter so you can use different machines
 for a team.
 
 Save this file as "namefile" and put it in the same directory where the
-Makefile is. This is what the `--namefile` option in `FLAGS` is for.
+Makefile is. This is what the `--name-file` option in `FLAGS` is for.
 
 ## Highscores
 

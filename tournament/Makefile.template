@@ -2,7 +2,7 @@ BOTS ?= ../server/bots
 STARTERS ?= 7
 FLAGS ?= --format json \
 	--min-starters $(STARTERS) \
-	--namefile namefile \
+	--name-file namefile \
 	--remote-spectators \
 	--max-spectators 1
 REPLAY ?= $(shell date +%Y%m%d-%H%M%S).json
