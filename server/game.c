@@ -559,8 +559,10 @@ static void game_join(const int lfd, int (*add)(int, char *),
 		return;
 	}
 	if (config.output_format == FORMAT_PLAIN) {
-		printf("%s joined as %s, %d player(s), %d spectator(s)\n",
-			ip_str, role, game.nplayers, game.nspectators);
+		printf("%s joined as %s, %d of %d player(s), %d of %d spectator(s)\n",
+			ip_str, role,
+			game.nplayers, config.min_starters,
+			game.nspectators, config.max_spectators);
 		fflush(stdout);
 	}
 }
