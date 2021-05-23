@@ -102,6 +102,7 @@ void websocket_close(WebSocket *ws) {
 	close(ws->fd);
 	ws->fd = 0;
 	ws->handshaked = 0;
+	ws->available = 0;
 }
 
 static int websocket_read_message(WebSocket *ws, char **message) {
