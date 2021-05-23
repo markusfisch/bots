@@ -325,7 +325,7 @@ static void game_write(FILE *fp) {
 		game_write_spectator, map);
 }
 
-static void game_remove_defunkt_players() {
+static void game_remove_defective_players() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && p->moves + config.max_lag < game.turn) {
@@ -816,7 +816,7 @@ static int game_run(const int fd_listen, const int fd_listen_websocket,
 		}
 
 		if (game.started) {
-			game_remove_defunkt_players();
+			game_remove_defective_players();
 			if (game.stopped || game_joined() < config.min_players) {
 				if (!game.stopped) {
 					game_terminate();
