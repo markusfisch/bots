@@ -423,10 +423,10 @@ static time_t game_next_turn() {
 static void game_read_spectators() {
 	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
-		if (p->ws.fd > 0 && FD_ISSET(p->ws.fd, &game.ready)) {
-			if (websocket_read(&p->ws, NULL) < 0) {
-				game_remove_spectator(p);
-			}
+		if (p->ws.fd > 0 && FD_ISSET(p->ws.fd, &game.ready) &&
+				websocket_read(&p->ws, NULL) < 0) {
+			game_remove_spectator(p);
+			game_print_disconnect(p->addr);
 		}
 	}
 }
