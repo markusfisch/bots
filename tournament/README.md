@@ -11,7 +11,7 @@ Just put this into a file named "Makefile" (or copy the accompanying
 	STARTERS ?= 7
 	FLAGS ?= --format json \
 		--min-starters $(STARTERS) \
-		--name-file namefile \
+		--name-file names \
 		--remote-spectators \
 		--max-spectators 1
 	REPLAY ?= $(shell date +%Y%m%d-%H%M%S).json
@@ -72,10 +72,11 @@ create a text file that maps all IP address of participants to a letter
 	192.168.1.5 F
 	...
 
-There can be multiple entries for a letter so you can use different machines
-for a team.
+There can be multiple entries for a letter so a team can use different
+machines for different games. Within a game, however, the player names
+are unique, of course.
 
-Save this file as "namefile" and put it in the same directory where the
+Save this file as "names" and put it in the same directory where the
 Makefile is. This is what the `--name-file` option in `FLAGS` is for.
 
 ## Highscores
