@@ -420,6 +420,16 @@ static time_t game_next_turn() {
 	return delta;
 }
 
+static void game_print_disconnect(const char *addr) {
+	if (!game.started && config.output_format == FORMAT_PLAIN) {
+		printf("%s disconnected, %d of %d player(s), %d of %d spectator(s)\n",
+			addr,
+			game.nplayers, config.min_starters,
+			game.nspectators, config.max_spectators);
+		fflush(stdout);
+	}
+}
+
 static void game_read_spectators() {
 	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
@@ -443,6 +453,7 @@ static void game_read_websocket_command(Player *p) {
 	int len = websocket_read(&p->ws, &message);
 	if (len < 0) {
 		game_remove_player(p);
+		game_print_disconnect(p->addr);
 	} else if (len > 0) {
 		game_do_command(p, *message);
 	}
@@ -453,6 +464,7 @@ static void game_read_command(Player *p) {
 	int b;
 	if ((b = recv(p->fd, &cmd, sizeof(cmd), 0)) < 1) {
 		game_remove_player(p);
+		game_print_disconnect(p->addr);
 		return;
 	}
 	game_do_command(p, cmd);
