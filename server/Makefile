@@ -15,7 +15,7 @@ OBJECTS = map.o maze.o cubic.o terrain.o placing.o player.o game.o \
 	modes/dig.o \
 	main.o
 LIBS = -lm
-CFLAGS = -O2 -Wall -Wextra
+CFLAGS = -O2 -Wall -Wextra -pedantic
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
