@@ -22,8 +22,8 @@ static int read_view(const int fd, size_t *bytes_per_line, char *view,
 			// view too big
 			return 0;
 		}
-		p[bytes] = 0;
 		p += bytes;
+		*p = 0;
 		available = p - view;
 		char *lf;
 		if (!lines && (lf = memchr(view, '\n', available))) {
