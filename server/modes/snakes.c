@@ -96,7 +96,7 @@ static void end() {
 }
 
 void snakes() {
-	config.placing = config.placing ?: PLACING_RANDOM;
+	SET_IF_NULL(config.placing, PLACING_RANDOM)
 
 	config.start = start;
 	config.move = move;

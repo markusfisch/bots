@@ -84,7 +84,11 @@ char player_bearing(const int bearing) {
 }
 
 static char player_view_at(Player *p, const int x, const int y) {
-	char tile = map_get(p->map ?: &game.map, x, y);
+	Map *map = p->map;
+	if (!map) {
+		map = &game.map;
+	}
+	char tile = map_get(map, x, y);
 	Player *enemy = player_at(x, y, NULL);
 	if (enemy) {
 		tile = player_bearing(enemy->bearing + 4 - p->bearing);

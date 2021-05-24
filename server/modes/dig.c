@@ -102,9 +102,9 @@ static void end() {
 }
 
 void dig() {
-	config.map_type = config.map_type ?: MAP_TYPE_TERRAIN;
-	config.view_radius = config.view_radius ?: 8;
-	config.placing = config.placing ?: PLACING_RANDOM;
+	SET_IF_NULL(config.map_type, MAP_TYPE_TERRAIN)
+	SET_IF_NULL(config.view_radius, 8)
+	SET_IF_NULL(config.placing, PLACING_RANDOM)
 
 	config.start = start;
 	config.move = move;

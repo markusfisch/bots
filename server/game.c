@@ -104,8 +104,12 @@ static void game_write_results_in_format(FILE *fp, int format,
 		} else {
 			++skip;
 		}
+		char killed_by = p->killed_by;
+		if (!killed_by) {
+			killed_by = '-';
+		}
 		fprintf(fp, pfmt, place, p->addr, p->name, p->score, p->moves,
-			p->killed_by ?: '-');
+			killed_by);
 	}
 	switch (format) {
 	case FORMAT_JSON:

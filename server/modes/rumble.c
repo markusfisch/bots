@@ -6,12 +6,12 @@ extern struct Config config;
 extern struct Game game;
 
 void rumble() {
-	config.min_players = config.min_players ?: 2;
-	config.view_radius = config.view_radius ?: 4;
-	config.placing = config.placing ?: PLACING_GRID;
-	config.max_turns = config.max_turns ?: game.map.size;
-	config.shrink_after = config.shrink_after ?: 64;
-	config.can_shoot = config.can_shoot ?: 1;
+	SET_IF_NULL(config.min_players, 2)
+	SET_IF_NULL(config.view_radius, 4)
+	SET_IF_NULL(config.placing, PLACING_GRID)
+	SET_IF_NULL(config.max_turns, game.map.size)
+	SET_IF_NULL(config.shrink_after, 64)
+	SET_IF_NULL(config.can_shoot, 1)
 
 	config.marker = player_marker_show_life;
 }

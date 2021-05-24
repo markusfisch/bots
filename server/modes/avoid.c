@@ -91,9 +91,9 @@ static void end() {
 }
 
 void avoid() {
-	config.placing = config.placing ?: PLACING_RANDOM;
-	config.view_radius = config.view_radius ?: 4;
-	config.diagonal_interval = config.diagonal_interval ?: 1;
+	SET_IF_NULL(config.placing, PLACING_RANDOM)
+	SET_IF_NULL(config.view_radius, 4)
+	SET_IF_NULL(config.diagonal_interval, 1)
 
 	config.start = start;
 	config.turn_start = asteroids_move;

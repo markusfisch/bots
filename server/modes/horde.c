@@ -365,9 +365,9 @@ static void end() {
 }
 
 void horde() {
-	config.placing = config.placing ?: PLACING_DIAGONAL;
-	config.view_radius = config.view_radius ?: 8;
-	config.diagonal_interval = config.diagonal_interval ?: 1;
+	SET_IF_NULL(config.placing, PLACING_DIAGONAL)
+	SET_IF_NULL(config.view_radius, 8)
+	SET_IF_NULL(config.diagonal_interval, 1)
 
 	config.start = start;
 	config.turn_start = enemies_move;

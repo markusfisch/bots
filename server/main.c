@@ -70,31 +70,31 @@ static void free_resources() {
 }
 
 static void complete_config() {
-	config.port = config.port ?: 63187;
-	config.port_websocket = config.port_websocket ?: 63188;
-	config.port_spectator = config.port_spectator ?: 63189;
-	config.min_players = config.min_players ?: 1;
-	config.min_starters = config.min_starters ?: config.min_players;
-	config.map_width = config.map_width ?: 32;
-	config.map_height = config.map_height ?: config.map_width;
-	config.map_type = config.map_type ?: MAP_TYPE_PLAIN;
-	config.obstacles = config.obstacles ?: obstacles;
-	config.flatland = config.flatland ?: flatland;
-	config.multiplier = config.multiplier ?: 14;
-	config.placing = config.placing ?: PLACING_CIRCLE;
-	config.view_radius = config.view_radius ?: 2;
-	config.max_games = config.max_games ?: 1;
-	config.max_turns = config.max_turns ?: 1024;
-	config.max_lag = config.max_lag ?: config.max_turns;
-	config.shrink_after = config.shrink_after ?: config.max_turns;
-	config.shrink_step = config.shrink_step ?: 1;
-	config.player_life = config.player_life ?: 1;
-	config.gems = config.gems ?: config.map_width;
-	config.spawn_frequency = config.spawn_frequency ?: 2;
-	config.wait_for_joins = config.wait_for_joins ?: 1;
-	config.usec_per_turn = config.usec_per_turn ?: USEC_PER_SEC;
-	config.move = config.move ?: player_move;
-	config.impassable = config.impassable ?: map_impassable;
+	SET_IF_NULL(config.port, 63187)
+	SET_IF_NULL(config.port_websocket, 63188)
+	SET_IF_NULL(config.port_spectator, 63189)
+	SET_IF_NULL(config.min_players, 1)
+	SET_IF_NULL(config.min_starters, config.min_players)
+	SET_IF_NULL(config.map_width, 32)
+	SET_IF_NULL(config.map_height, config.map_width)
+	SET_IF_NULL(config.map_type, MAP_TYPE_PLAIN)
+	SET_IF_NULL(config.obstacles, obstacles)
+	SET_IF_NULL(config.flatland, flatland)
+	SET_IF_NULL(config.multiplier, 14)
+	SET_IF_NULL(config.placing, PLACING_CIRCLE)
+	SET_IF_NULL(config.view_radius, 2)
+	SET_IF_NULL(config.max_games, 1)
+	SET_IF_NULL(config.max_turns, 1024)
+	SET_IF_NULL(config.max_lag, config.max_turns)
+	SET_IF_NULL(config.shrink_after, config.max_turns)
+	SET_IF_NULL(config.shrink_step, 1)
+	SET_IF_NULL(config.player_life, 1)
+	SET_IF_NULL(config.gems, config.map_width)
+	SET_IF_NULL(config.spawn_frequency, 2)
+	SET_IF_NULL(config.wait_for_joins, 1)
+	SET_IF_NULL(config.usec_per_turn, USEC_PER_SEC)
+	SET_IF_NULL(config.move, player_move)
+	SET_IF_NULL(config.impassable, map_impassable)
 }
 
 static void usage() {

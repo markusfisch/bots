@@ -23,6 +23,7 @@
 #define PLACING_MANUAL 5
 #define FORMAT_PLAIN 0
 #define FORMAT_JSON 1
+#define SET_IF_NULL(target, preset) if (!target) { target = preset; }
 
 typedef struct Game Game;
 typedef struct Player Player;
