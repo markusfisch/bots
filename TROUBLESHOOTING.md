@@ -4,7 +4,7 @@
 
 By default, the server doesn't allow any spectators to make sure your
 opponents can't sniff the whole world map while the game is on.
-To allow spectators use the `-V`/`--max-spectators` flag like this:
+To allow spectators, use the `-V`/`--max-spectators` flag like this:
 
 	$ ./bots -V1 escape
 
@@ -17,12 +17,17 @@ you also set `-r`/`--remote-spectators`:
 
 A bot (or spectator) can only join a game before it started.
 
-Make sure your bot connects to the correct port:
+Also make sure your bot connects to the *correct* port:
 
 * The default port for streaming sockets is 63187.
 * The default port for WebSockets is 63188.
 
 If you're connecting from a browser, your bot uses WebSockets.
+
+## Python: 'utf-8' codec can't decode byte 0x81 in position 0: invalid start byte
+
+You are connecting to the WebSocket instead of the streaming socket.
+Choose the correct port.
 
 ## The server is crashing
 
@@ -32,7 +37,3 @@ Most probably you didn't `clean` after pulling updates. Please run:
 
 If that isn't successful or the server is still crashing for you, it's a bug
 and you should file an issue.
-
-## Python: 'utf-8' codec can't decode byte 0x81 in position 0: invalid start byte
-
-You are connecting to the websocket instead of the socket. Choose the correct port.
