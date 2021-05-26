@@ -80,7 +80,7 @@ static void complete_config() {
 	SET_IF_NULL(config.placing, PLACING_CIRCLE)
 	SET_IF_NULL(config.view_radius, 2)
 	SET_IF_NULL(config.max_games, 1)
-	SET_IF_NULL(config.max_turns, 1024)
+	SET_IF_NULL(config.max_turns, 512)
 	SET_IF_NULL(config.max_lag, config.max_turns)
 	SET_IF_NULL(config.shrink_after, config.max_turns)
 	SET_IF_NULL(config.shrink_step, 1)
@@ -155,12 +155,12 @@ static void usage() {
 			"default is 1,\n"\
 		"                              use -1 for unlimited games\n"\
 		"  -M, --max-turns N           maximum number of turns, "\
-			"default is 1024\n"\
+			"default is 512\n"\
 		"  -L, --max-lag N             number of turns a player can "\
 			"miss before getting\n"\
 		"                              disconnected, unlimited by default\n"\
 		"  -S, --shrink-after N        shrink map after that many "\
-			"turns, default is 1024\n"\
+			"turns, default is 512\n"\
 		"  -T, --shrink-step N         amount of turns until next "\
 			"shrink, default is 1\n"\
 		"  -l, --player-life N         life value of players, "\

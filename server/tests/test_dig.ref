@@ -32,7 +32,7 @@ waiting for players (at least 1) to join ...
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 1 of 1024. 1 of 1 players alive.
+Turn 1 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       2       6 >    1     1     0
 33444566777654334567887764433333
@@ -67,7 +67,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 2 of 1024. 1 of 1 players alive.
+Turn 2 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       2       6 >    1     2     0
 33444566777654334567887764433333
@@ -102,7 +102,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 3 of 1024. 1 of 1 players alive.
+Turn 3 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       2       6 >    1     3     0
 33444566777654334567887764433333
@@ -137,7 +137,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 4 of 1024. 1 of 1 players alive.
+Turn 4 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       2       6 >    1     4     0
 33444566777654334567887764433333
@@ -172,7 +172,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 5 of 1024. 1 of 1 players alive.
+Turn 5 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       2       6 >    1     5     0
 33444566777654334567887764433333
@@ -207,7 +207,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 6 of 1024. 1 of 1 players alive.
+Turn 6 of 512. 1 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       1       6 >    1     6     0
 33444566777654334567887764433333
@@ -242,7 +242,7 @@ Address          Name    X       Y ° Life Moves Score Attacks
 34444567787754334568999876544433
 33444566777654334567887764433333
 23445566666554444567766543322223
-Turn 7 of 1024. 0 of 1 players alive.
+Turn 7 of 512. 0 of 1 players alive.
 Address          Name    X       Y ° Life Moves Score Attacks
 127.0.0.1        A       1       6 >    0     6     0
 ================== RESULTS ==================
