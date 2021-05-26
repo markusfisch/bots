@@ -1,7 +1,7 @@
 BIN = bot
 OBJECTS = main.o
 LIBS = -lm
-CFLAGS = -O2 -std=c99 -pedantic -Wall -Wextra
+CFLAGS = -O2 -Wall -Wextra -pedantic -std=c99
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
