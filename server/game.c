@@ -680,10 +680,7 @@ static void game_assign_mapped_names(char *taken) {
 	int i;
 	for (i = 0; i < MAX_NAMES; ++i) {
 		Names *n = &config.names[i];
-		if (!n->address) {
-			break;
-		}
-		Player *p = game_find_unnamed_player_for_address(n->address);
+		Player *p = game_find_unnamed_player_for_address(n->addr);
 		if (!p || p->name) {
 			continue;
 		}

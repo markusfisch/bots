@@ -90,7 +90,7 @@ struct Config {
 	unsigned int placing;
 	unsigned int placing_fuzz;
 	struct Names {
-		char *address;
+		char addr[INET_ADDRSTRLEN];
 		char name;
 	} names[MAX_NAMES];
 	struct Coords {

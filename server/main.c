@@ -63,10 +63,6 @@ static int repeatable_rand() {
 
 static void free_resources() {
 	free(config.custom_map);
-	int i;
-	for (i = 0; i < MAX_PLAYERS; ++i) {
-		free(config.names[i].address);
-	}
 }
 
 static void complete_config() {
@@ -216,7 +212,7 @@ static void load_name_file(Names *names, const char *file) {
 			fprintf(stderr, "error: invalid name for %s\n", address);
 			continue;
 		}
-		names->address = strdup(address);
+		strncpy(names->addr, address, sizeof(names->addr) - 1);
 		names->name = *name;
 		if (++names >= e) {
 			fprintf(stderr, "warning: too many entries in name file\n");
