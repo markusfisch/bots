@@ -118,7 +118,8 @@ static void usage() {
 			"default depends\n"\
 		"                              on mode\n"\
 		"  -n, --name-file FILE        list of IP addresses with player "
-			"names\n"\
+			"names in\n"\
+		"                              \"192.168.1.5 B [Bob]\" format\n"\
 		"  -s, --map-size N[xN]        map size, default is 32x32\n"\
 		"  -t, --map-type TYPE         map type, either \""\
 			MAP_TYPE_ARG_PLAIN"\", \""\
@@ -199,12 +200,13 @@ static void load_name_file(Names *names, const char *file) {
 		perror("fopen");
 		exit(1);
 	}
-	#define SEPERATOR " "
+	#define SEPERATOR " \r\n"
 	char line[MAX_LINE];
 	Names *e = names + MAX_NAMES;
 	while (fgets(line, MAX_LINE, fp)) {
 		char *address = strtok(line, SEPERATOR);
 		char *name = strtok(NULL, SEPERATOR);
+		char *long_name = strtok(NULL, SEPERATOR);
 		if (!address || !name) {
 			continue;
 		}
@@ -214,6 +216,7 @@ static void load_name_file(Names *names, const char *file) {
 		}
 		strncpy(names->addr, address, sizeof(names->addr) - 1);
 		names->name = *name;
+		strncpy(names->long_name, long_name, sizeof(names->long_name) - 1);
 		if (++names >= e) {
 			fprintf(stderr, "warning: too many entries in name file\n");
 			break;

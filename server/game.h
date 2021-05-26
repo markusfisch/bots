@@ -47,6 +47,7 @@ struct Game {
 	Map map;
 	struct Player {
 		char addr[INET_ADDRSTRLEN];
+		char *long_name;
 		char name;
 		int fd;
 		int can_move;
@@ -91,6 +92,7 @@ struct Config {
 	unsigned int placing_fuzz;
 	struct Names {
 		char addr[INET_ADDRSTRLEN];
+		char long_name[INET_ADDRSTRLEN];
 		char name;
 	} names[MAX_NAMES];
 	struct Coords {

@@ -108,8 +108,8 @@ static void game_write_results_in_format(FILE *fp, int format,
 		if (!killed_by) {
 			killed_by = '-';
 		}
-		fprintf(fp, pfmt, place, p->addr, p->name, p->score, p->moves,
-			killed_by);
+		fprintf(fp, pfmt, place, player_long_name(p), p->name, p->score,
+			p->moves, killed_by);
 	}
 	switch (format) {
 	case FORMAT_JSON:
@@ -283,7 +283,7 @@ static void game_write_plain(FILE *fp, const char *map) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		fprintf(fp, "%-16s %c % 7d % 7d %c ",
-			p->addr,
+			player_long_name(p),
 			p->name,
 			p->x,
 			p->y,
@@ -690,6 +690,7 @@ static void game_assign_mapped_names(char *taken) {
 			continue;
 		}
 		p->name = name;
+		p->long_name = n->long_name;
 		taken[i] = 1;
 	}
 }

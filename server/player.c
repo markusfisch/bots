@@ -14,6 +14,10 @@
 extern struct Config config;
 extern struct Game game;
 
+const char *player_long_name(struct Player *p) {
+	return p->long_name && *p->long_name ? p->long_name : p->addr;
+}
+
 void players_set_remaining_scores(int score) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {

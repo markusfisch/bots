@@ -66,8 +66,8 @@ To permanently assign the same letter to the same IP address, you should
 create a text file that maps all IP address of participants to a letter
 (from "A" to "P"):
 
-	192.168.1.3 A
-	192.168.1.7 A
+	192.168.1.3 A Bob
+	192.168.1.7 A Alice
 	192.168.1.9 N
 	192.168.1.5 F
 	...
@@ -75,6 +75,9 @@ create a text file that maps all IP address of participants to a letter
 There can be multiple entries for a letter so a team can use different
 machines for different games. Within a game, however, the player names
 are unique, of course.
+
+The third column is optional and can contain a longer name. Then this long
+name is displayed instead of the IP address.
 
 Save this file as "names" and put it in the same directory where the
 Makefile is. This is what the `--name-file` option in `FLAGS` is for.
