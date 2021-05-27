@@ -243,7 +243,7 @@ static void game_write_json(FILE *fp, const char *map, int standalone) {
 		}
 		fprintf(fp, "{\"addr\":\"%s\",\"name\":\"%c\",\"x\":%d,\"y\":%d,"\
 			"\"bearing\":\"%c\",\"life\":%d,\"moves\":%d,\"score\":%d",
-			p->addr,
+			player_long_name(p),
 			p->name,
 			p->x,
 			p->y,
