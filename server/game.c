@@ -507,7 +507,7 @@ static void game_watch_fd(int fd) {
 	}
 }
 
-static int game_add_spectator(int fd, char *addr) {
+static int game_add_spectator(int fd, const char *addr) {
 	if (game.nspectators >= config.max_spectators ||
 			game.nspectators >= MAX_SPECTATORS) {
 		printf("spectator from %s rejected because there are no seats left\n",
@@ -527,7 +527,7 @@ static int game_add_spectator(int fd, char *addr) {
 	return 1;
 }
 
-static Player *game_add_player(int fd, char *addr) {
+static Player *game_add_player(int fd, const char *addr) {
 	if (game.nplayers >= MAX_PLAYERS) {
 		printf("player from %s rejected because there are no seats left\n",
 			addr);
@@ -544,11 +544,11 @@ static Player *game_add_player(int fd, char *addr) {
 	return p;
 }
 
-static int game_add_player_socket(int fd, char *addr) {
+static int game_add_player_socket(int fd, const char *addr) {
 	return game_add_player(fd, addr) != NULL;
 }
 
-static int game_add_player_websocket(int fd, char *addr) {
+static int game_add_player_websocket(int fd, const char *addr) {
 	Player *p = game_add_player(fd, addr);
 	if (!p) {
 		return 0;
@@ -557,7 +557,17 @@ static int game_add_player_websocket(int fd, char *addr) {
 	return 1;
 }
 
-static void game_join(const int lfd, int (*add)(int, char *),
+static const char *game_addr_or_long_name(const char *addr) {
+	Names *n = config.names, *e = n + MAX_PLAYERS;
+	for (; n < e; ++n) {
+		if (*n->long_name && !strcmp(n->addr, addr)) {
+			return n->long_name;
+		}
+	}
+	return addr;
+}
+
+static void game_join(const int lfd, int (*add)(int, const char *),
 		const char *role) {
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
@@ -576,7 +586,7 @@ static void game_join(const int lfd, int (*add)(int, char *),
 	}
 	if (config.output_format == FORMAT_PLAIN) {
 		printf("%s joined as %s, %d of %d player(s), %d of %d spectator(s)\n",
-			ip_str, role,
+			game_addr_or_long_name(ip_str), role,
 			game.nplayers, config.min_starters,
 			game.nspectators, config.max_spectators);
 		fflush(stdout);
