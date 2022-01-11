@@ -559,8 +559,8 @@ static int game_add_player_websocket(int fd, const char *addr) {
 }
 
 static const char *game_addr_or_long_name(const char *addr) {
-	Names *n = config.names, *e = n + MAX_PLAYERS;
-	for (; n < e; ++n) {
+	Names *n = config.names, *e = n + MAX_NAMES;
+	for (; n < e && n->name; ++n) {
 		if (*n->long_name && !strcmp(n->addr, addr)) {
 			return n->long_name;
 		}
