@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+#define _GNU_SOURCE // for fmemopen()
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <signal.h>
