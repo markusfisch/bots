@@ -47,7 +47,7 @@ static void move(Player *player, char cmd) {
 		if (dig_at(&game.map, player->x, player->y)) {
 			++player->score;
 			if (--ntreasure < 1) {
-				game_terminate();
+				game_stop();
 			}
 		}
 		break;

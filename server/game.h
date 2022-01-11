@@ -131,7 +131,7 @@ struct Config {
 
 unsigned int game_joined();
 void game_remove_player(Player *);
-void game_terminate();
+void game_stop();
 int game_serve();
 
 #endif
