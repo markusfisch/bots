@@ -528,6 +528,37 @@ static int game_add_spectator(int fd, const char *addr) {
 	return 1;
 }
 
+static char game_find_free_name() {
+	char taken[MAX_PLAYERS];
+	memset(taken, 0, sizeof(taken));
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		if (p->fd && p->name) {
+			int i = p->name - 'A';
+			if (i > -1 && i < MAX_PLAYERS) {
+				taken[i] = 1;
+			}
+		}
+	}
+	int i = 0;
+	for (; i < MAX_PLAYERS; ++i) {
+		if (!taken[i]) {
+			return 'A' + i;
+		}
+	}
+	return 0;
+}
+
+static Names *game_resolve_name(const char *addr) {
+	Names *n = config.names, *e = n + MAX_NAMES;
+	for (; n < e && n->name; ++n) {
+		if (!strcmp(addr, n->addr)) {
+			return n;
+		}
+	}
+	return NULL;
+}
+
 static Player *game_add_player(int fd, const char *addr) {
 	if (game.nplayers >= MAX_PLAYERS) {
 		printf("player from %s rejected because there are no seats left\n",
@@ -537,9 +568,20 @@ static Player *game_add_player(int fd, const char *addr) {
 	Player *p = &game.players[game.nplayers];
 	strcpy(p->addr, addr);
 	p->fd = fd;
-	p->life = 1;
+	if (config.player_life > 0) {
+		p->life = config.player_life < 10 ? config.player_life : 9;
+	} else {
+		p->life = 1;
+	}
 	p->x = p->y = -1;
 	p->attack_x = p->attack_y = -1;
+	Names *n = game_resolve_name(addr);
+	if (n) {
+		p->name = n->name;
+		p->long_name = n->long_name;
+	} else {
+		p->name = game_find_free_name();
+	}
 	++game.nplayers;
 	game_watch_fd(fd);
 	return p;
@@ -556,16 +598,6 @@ static int game_add_player_websocket(int fd, const char *addr) {
 	}
 	p->ws.fd = fd;
 	return 1;
-}
-
-static const char *game_addr_or_long_name(const char *addr) {
-	Names *n = config.names, *e = n + MAX_NAMES;
-	for (; n < e && n->name; ++n) {
-		if (*n->long_name && !strcmp(n->addr, addr)) {
-			return n->long_name;
-		}
-	}
-	return addr;
 }
 
 static void game_join(const int lfd, int (*add)(int, const char *),
@@ -586,20 +618,12 @@ static void game_join(const int lfd, int (*add)(int, const char *),
 		return;
 	}
 	if (config.output_format == FORMAT_PLAIN) {
+		Names *n = game_resolve_name(ip_str);
 		printf("%s joined as %s, %d of %d player(s), %d of %d spectator(s)\n",
-			game_addr_or_long_name(ip_str), role,
+			n && *n->long_name ? n->long_name : ip_str, role,
 			game.nplayers, config.min_starters,
 			game.nspectators, config.max_spectators);
 		fflush(stdout);
-	}
-}
-
-static void game_set_players_life(int life) {
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (p->fd) {
-			p->life = life;
-		}
 	}
 }
 
@@ -656,69 +680,6 @@ static void game_init_map() {
 	}
 }
 
-static char game_find_free_name(char *taken, int *last) {
-	int i;
-	for (i = *last; i < MAX_PLAYERS; ++i) {
-		if (!taken[i]) {
-			*last = i + 1;
-			return 'A' + i;
-		}
-	}
-	return 0;
-}
-
-static void game_assign_unnamed_players(char *taken) {
-	int last = 0;
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (!p->name) {
-			p->name = game_find_free_name(taken, &last);
-		}
-	}
-}
-
-static Player *game_find_unnamed_player_for_address(const char *addr) {
-	Player *p = game.players, *e = p + game.nplayers;
-	for (; p < e; ++p) {
-		if (!p->name && !strcmp(p->addr, addr)) {
-			return p;
-		}
-	}
-	return NULL;
-}
-
-static void game_assign_mapped_names(char *taken) {
-	int i;
-	for (i = 0; i < MAX_NAMES; ++i) {
-		Names *n = &config.names[i];
-		Player *p = game_find_unnamed_player_for_address(n->addr);
-		if (!p || p->name) {
-			continue;
-		}
-		char name = n->name;
-		int i = name - 'A';
-		if (i < 0 || i >= MAX_PLAYERS || taken[i]) {
-			continue;
-		}
-		p->name = name;
-		p->long_name = n->long_name;
-		taken[i] = 1;
-	}
-}
-
-static int game_compare_player_address(const void *a, const void *b) {
-	return strcmp(((Player *) b)->addr, ((Player *) a)->addr);
-}
-
-static void game_assign_player_names() {
-	qsort(game.players, game.nplayers, sizeof(Player),
-		game_compare_player_address);
-	char taken[MAX_PLAYERS];
-	memset(taken, 0, sizeof(taken));
-	game_assign_mapped_names(taken);
-	game_assign_unnamed_players(taken);
-}
-
 static void game_write_header() {
 	if (config.output_format == FORMAT_JSON) {
 		printf("{\"mode\":\"%s\",\n"\
@@ -759,16 +720,11 @@ static void game_write_header() {
 }
 
 static void game_start() {
-	game_assign_player_names();
 	if (config.prepare) {
 		config.prepare();
 	}
 	game_init_map();
 	game_place_players();
-	if (config.player_life > 0) {
-		game_set_players_life(config.player_life < 10 ?
-			config.player_life : 9);
-	}
 	game.started = time(NULL);
 	gettimeofday(&game.tick, NULL);
 	if (config.start) {
