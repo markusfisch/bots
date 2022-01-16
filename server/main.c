@@ -364,7 +364,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "websocket-port", required_argument, NULL, 'W' },
 		{ "spectator-port", required_argument, NULL, 'O' },
 		{ "max-spectators", required_argument, NULL, 'V' },
-		{ "remote-spectators", no_argument, &config.remote_spectators, 1 },
+		{ "remote-spectators", no_argument, NULL, 'r' },
 		{ "min-starters", required_argument, NULL, 'b' },
 		{ "min-players", required_argument, NULL, 'm' },
 		{ "name-file", required_argument, NULL, 'n' },
@@ -377,8 +377,8 @@ static void parse_arguments(int argc, char **argv) {
 		{ "placing", required_argument, NULL, 'p' },
 		{ "fuzzy", required_argument, NULL, 'Z' },
 		{ "place-at", required_argument, NULL, 'A' },
-		{ "non-exclusive", no_argument, &config.non_exclusive, 1 },
-		{ "translate-walls", no_argument, &config.translate_walls, 1 },
+		{ "non-exclusive", no_argument, NULL, 'N' },
+		{ "translate-walls", no_argument, NULL, 'Y' },
 		{ "view-radius", required_argument, NULL, 'v' },
 		{ "max-games", required_argument, NULL, 'G' },
 		{ "max-turns", required_argument, NULL, 'M' },
@@ -386,7 +386,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-after", required_argument, NULL, 'S' },
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
-		{ "shoot", no_argument, &config.can_shoot, 1 },
+		{ "shoot", no_argument, NULL, 'X' },
 		{ "diagonal-interval", required_argument, NULL, 'D' },
 		{ "gems", required_argument, NULL, 'g' },
 		{ "spawn-frequency", required_argument, NULL, 'Q' },
@@ -394,7 +394,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "format", required_argument, NULL, 'F' },
 		{ "wait-for-joins", required_argument, NULL, 'w' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
-		{ "deterministic", no_argument, &deterministic, 1 },
+		{ "deterministic", no_argument, NULL, 'd' },
 		{ NULL, 0, NULL, 0 }
 	};
 
