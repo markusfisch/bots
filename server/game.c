@@ -83,8 +83,8 @@ static void game_write_results_in_format(FILE *fp, int format,
 		} else {
 			fprintf(fp, "{\"results\":[\n");
 		}
-		pfmt = "{\"place\":%d,\"addr\":\"%s\",\"name\":\"%c\","\
-			"\"score\":%d,\"moves\":%d,\"killer\":\"%c\"}";
+		pfmt = "{\"place\":%u,\"addr\":\"%s\",\"name\":\"%c\","\
+			"\"score\":%d,\"moves\":%u,\"killer\":\"%c\"}";
 		break;
 	}
 	int place = 0, last_score = 0xffffff, skip = 0;
@@ -232,14 +232,14 @@ static void game_write_json(FILE *fp, const char *map, int standalone) {
 	if (!standalone && game.turn > 1) {
 		fprintf(fp, ",\n");
 	}
-	fprintf(fp, "{\"turn\":%d,\"players\":[\n", game.turn);
+	fprintf(fp, "{\"turn\":%u,\"players\":[\n", game.turn);
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p > game.players) {
 			fprintf(fp, ",");
 		}
 		fprintf(fp, "{\"addr\":\"%s\",\"name\":\"%c\",\"x\":%d,\"y\":%d,"\
-			"\"bearing\":\"%c\",\"life\":%d,\"moves\":%d,\"score\":%d",
+			"\"bearing\":\"%c\",\"life\":%d,\"moves\":%u,\"score\":%d",
 			player_long_name(p),
 			p->name,
 			p->x,
@@ -273,7 +273,7 @@ static void game_write_plain(FILE *fp, const char *map) {
 		fwrite("\n", sizeof(char),  1, fp);
 		map += game.map.width;
 	}
-	fprintf(fp, "Turn %d of %d. %d of %d players alive.\n", game.turn,
+	fprintf(fp, "Turn %u of %u. %u of %u players alive.\n", game.turn,
 		config.max_turns, game_joined(), game.nplayers);
 	fprintf(fp, "Address          Name    X       Y ° "\
 		"Life Moves Score Attacks\n");
@@ -424,7 +424,7 @@ static time_t game_next_turn() {
 
 static void game_print_disconnect(const char *addr) {
 	if (!game.started && config.output_format == FORMAT_PLAIN) {
-		printf("%s disconnected, %d of %d player(s), %d of %d spectator(s)\n",
+		printf("%s disconnected, %u of %u player(s), %u of %u spectator(s)\n",
 			addr,
 			game.nplayers, config.min_starters,
 			game.nspectators, config.max_spectators);
@@ -616,7 +616,7 @@ static void game_join(const int lfd, int (*add)(int, const char *),
 	}
 	if (config.output_format == FORMAT_PLAIN) {
 		Names *n = game_resolve_name(ip_str);
-		printf("%s joined as %s, %d of %d player(s), %d of %d spectator(s)\n",
+		printf("%s joined as %s, %u of %u player(s), %u of %u spectator(s)\n",
 			n && *n->long_name ? n->long_name : ip_str, role,
 			game.nplayers, config.min_starters,
 			game.nspectators, config.max_spectators);
@@ -680,10 +680,10 @@ static void game_init_map() {
 static void game_write_header() {
 	if (config.output_format == FORMAT_JSON) {
 		printf("{\"mode\":\"%s\",\n"\
-				"\"max_turns\":%d,\n"\
-				"\"map_width\":%d,\n"\
-				"\"map_height\":%d,\n"\
-				"\"view_radius\":%d,\n"\
+				"\"max_turns\":%u,\n"\
+				"\"map_width\":%u,\n"\
+				"\"map_height\":%u,\n"\
+				"\"view_radius\":%u,\n"\
 				"\"obstacles\":\"%s\",\n"\
 				"\"flatland\":\"%s\",\n"\
 				"\"turns\":[\n",
@@ -699,10 +699,10 @@ static void game_write_header() {
 		char buf[1024];
 		snprintf(buf, sizeof(buf),
 				"{\"mode\":\"%s\",\n"\
-				"\"max_turns\":%d,\n"\
-				"\"map_width\":%d,\n"\
-				"\"map_height\":%d,\n"\
-				"\"view_radius\":%d,\n"\
+				"\"max_turns\":%u,\n"\
+				"\"map_width\":%u,\n"\
+				"\"map_height\":%u,\n"\
+				"\"view_radius\":%u,\n"\
 				"\"obstacles\":\"%s\",\n"\
 				"\"flatland\":\"%s\"}",
 			config.mode_name,
@@ -745,7 +745,7 @@ static void game_reset(const int fd_listen, const int fd_listen_websocket,
 		game_watch_fd(fd_listen_spectator);
 	}
 	if (config.output_format == FORMAT_PLAIN) {
-		printf("waiting for players (at least %d) to join ...\n",
+		printf("waiting for players (at least %u) to join ...\n",
 			config.min_starters);
 	}
 }
