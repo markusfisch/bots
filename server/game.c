@@ -329,7 +329,7 @@ static void game_write(FILE *fp) {
 static void game_remove_defective_players() {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		if (p->fd > 0 && p->moves + config.max_lag < game.turn) {
+		if (p->fd > 0 && game.turn - p->moves > config.max_lag) {
 			game_remove_player(p);
 		}
 	}
