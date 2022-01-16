@@ -183,8 +183,8 @@ static void usage() {
 		"                              default is \""\
 			FORMAT_ARG_PLAIN"\"\n"\
 		"  -w, --wait-for-joins N      number of seconds to wait "\
-			"for joins,\n"\
-		"                              default is 1\n"\
+			"for additional joins\n"\
+		"                              when complete, default is 1\n"\
 		"  -u, --usec-per-turn N       maximum number of milliseconds "\
 			"per turn,\n"\
 		"                              default is 1000000 (one second)\n"\
