@@ -9,9 +9,6 @@
 #define TILE_TAIL '*'
 #define MAX_TAIL 64
 
-extern struct Config config;
-extern struct Game game;
-
 static unsigned int collected;
 
 typedef struct Tail Tail;

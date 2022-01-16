@@ -9,9 +9,6 @@
 
 #define ASTEROID TILE_GONE
 
-extern struct Config config;
-extern struct Game game;
-
 static struct Asteroid {
 	int x;
 	int y;

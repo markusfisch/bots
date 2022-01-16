@@ -17,9 +17,6 @@
 #define ROLE_PLAYER "player"
 #define ROLE_SPECTATOR "spectator"
 
-struct Config config;
-struct Game game;
-
 static int stop = 0;
 
 unsigned int game_joined() {

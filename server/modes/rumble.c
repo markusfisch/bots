@@ -2,9 +2,6 @@
 #include "../player.h"
 #include "rumble.h"
 
-extern struct Config config;
-extern struct Game game;
-
 void rumble() {
 	SET_IF_NULL(config.min_players, 2)
 	SET_IF_NULL(config.view_radius, 4)

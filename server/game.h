@@ -70,7 +70,7 @@ struct Game {
 		char addr[INET_ADDRSTRLEN];
 		WebSocket ws;
 	} spectators[MAX_SPECTATORS];
-};
+} game;
 
 struct Config {
 	const char *mode_name;
@@ -127,7 +127,7 @@ struct Config {
 	int (*attacking)(Player *);
 	void (*end)();
 	int (*rand)();
-};
+} config;
 
 unsigned int game_joined();
 void game_remove_player(Player *);

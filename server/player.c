@@ -11,9 +11,6 @@
 #define SOUTH 2
 #define WEST 3
 
-extern struct Config config;
-extern struct Game game;
-
 const char *player_long_name(struct Player *p) {
 	return p->long_name && *p->long_name ? p->long_name : p->addr;
 }

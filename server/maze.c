@@ -6,8 +6,6 @@
 #include "map.h"
 #include "maze.h"
 
-extern struct Config config;
-
 // depth-first search maze generator from
 // https://en.wikipedia.org/wiki/Maze_generation_algorithm
 

@@ -4,9 +4,6 @@
 #include "../game.h"
 #include "training.h"
 
-extern struct Game game;
-extern struct Config config;
-
 static void prepare() {
 	if (config.custom_map) {
 		return;

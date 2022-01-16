@@ -7,8 +7,6 @@
 #include "map.h"
 #include "nosignal.h"
 
-extern struct Config config;
-
 int map_write(const int fd, char *data, const unsigned int width,
 		const unsigned int height) {
 	char *d = data;

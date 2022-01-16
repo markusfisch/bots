@@ -8,9 +8,6 @@
 
 #define CHARS "abcdefghijklmnopqrstuwxyz"
 
-extern struct Config config;
-extern struct Game game;
-
 static char random_word[9] = { 0 };
 static size_t word_len;
 static int points;

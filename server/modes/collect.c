@@ -4,9 +4,6 @@
 #include "../player.h"
 #include "collect.h"
 
-extern struct Config config;
-extern struct Game game;
-
 static unsigned int collected;
 
 unsigned int scatter(char tile, unsigned int amount) {

@@ -7,8 +7,6 @@
 #include "cubic.h"
 #include "terrain.h"
 
-extern struct Config config;
-
 void terrain_generate(Map *map, const char *tiles) {
 	unsigned int width = map->width;
 	unsigned int height = map->height;

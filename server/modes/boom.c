@@ -12,9 +12,6 @@
 #define TILE_POWER_UP '+'
 #define MAX_BOMBS MAX_PLAYERS * 4
 
-extern struct Config config;
-extern struct Game game;
-
 static struct Bomb {
 	int x;
 	int y;

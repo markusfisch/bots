@@ -7,9 +7,6 @@
 
 #define FIND_RADIUS 3
 
-extern struct Config config;
-extern struct Game game;
-
 static int fuzzy(const unsigned int max) {
 	return max < 1 ? 0 : (config.rand() % (max + 1)) - (max >> 1);
 }

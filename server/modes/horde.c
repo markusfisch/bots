@@ -12,9 +12,6 @@
 #define ENEMY 'e'
 #define LIFE '+'
 
-extern struct Config config;
-extern struct Game game;
-
 static struct Portal {
 	int x;
 	int y;

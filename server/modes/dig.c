@@ -8,9 +8,6 @@
 #define TILE_TREASURE '@'
 #define TILE_NOTHING '.'
 
-extern struct Config config;
-extern struct Game game;
-
 static Map treasure_map = {NULL, NULL, 0, 0, 0};
 static unsigned int ntreasure = 0;
 

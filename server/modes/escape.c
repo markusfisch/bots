@@ -7,9 +7,6 @@
 
 #define TILE_EXIT 'o'
 
-extern struct Config config;
-extern struct Game game;
-
 static int points;
 
 static int find_free_spot(int x, int y) {

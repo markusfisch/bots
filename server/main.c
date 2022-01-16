@@ -30,8 +30,6 @@
 #define PLACING_SEPARATOR ":"
 #define MAX_LINE 4096
 
-extern struct Config config;
-
 static const char flatland[] = { TILE_FLATLAND, 0 };
 static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
 static const struct Mode {
