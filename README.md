@@ -318,8 +318,6 @@ OPTION can be any of:
   -R, --word STRING           custom word for "word" mode, random by default
   -F, --format TYPE           server output format, either "plain" or "json",
                               default is "plain"
-  -w, --wait-for-joins N      number of seconds to wait for additional joins
-                              when complete, default is 1
   -u, --usec-per-turn N       maximum number of milliseconds per turn,
                               default is 1000000 (one second)
   -d, --deterministic         don't seed the random number generator

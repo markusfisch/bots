@@ -85,7 +85,6 @@ static void complete_config() {
 	SET_IF_NULL(config.player_life, 1)
 	SET_IF_NULL(config.gems, config.map_width)
 	SET_IF_NULL(config.spawn_frequency, 2)
-	SET_IF_NULL(config.wait_for_joins, 1)
 	SET_IF_NULL(config.usec_per_turn, USEC_PER_SEC)
 	SET_IF_NULL(config.move, player_move)
 	SET_IF_NULL(config.impassable, map_impassable)
@@ -182,9 +181,6 @@ static void usage() {
 			FORMAT_ARG_JSON"\",\n"\
 		"                              default is \""\
 			FORMAT_ARG_PLAIN"\"\n"\
-		"  -w, --wait-for-joins N      number of seconds to wait "\
-			"for additional joins\n"\
-		"                              when complete, default is 1\n"\
 		"  -u, --usec-per-turn N       maximum number of milliseconds "\
 			"per turn,\n"\
 		"                              default is 1000000 (one second)\n"\
@@ -392,7 +388,6 @@ static void parse_arguments(int argc, char **argv) {
 		{ "spawn-frequency", required_argument, NULL, 'Q' },
 		{ "word", required_argument, NULL, 'R' },
 		{ "format", required_argument, NULL, 'F' },
-		{ "wait-for-joins", required_argument, NULL, 'w' },
 		{ "usec-per-turn", required_argument, NULL, 'u' },
 		{ "deterministic", no_argument, NULL, 'd' },
 		{ NULL, 0, NULL, 0 }
@@ -400,7 +395,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:Q:R:F:w:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:Q:R:F:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -512,9 +507,6 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'F':
 			config.output_format = parse_format(optarg);
-			break;
-		case 'w':
-			config.wait_for_joins = atoi(optarg);
 			break;
 		case 'u':
 			config.usec_per_turn = atoi(optarg);

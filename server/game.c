@@ -762,8 +762,7 @@ static int game_run(const int fd_listen, const int fd_listen_websocket,
 			tv.tv_sec = usec / USEC_PER_SEC;
 			tv.tv_usec = usec - (tv.tv_sec * USEC_PER_SEC);
 		} else {
-			tv.tv_sec = game.nplayers < MAX_PLAYERS ?
-				config.wait_for_joins : 0;
+			tv.tv_sec = 1;
 			tv.tv_usec = 0;
 		}
 

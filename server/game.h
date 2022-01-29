@@ -114,7 +114,6 @@ struct Config {
 	unsigned int gems;
 	unsigned int spawn_frequency;
 	unsigned int output_format;
-	time_t wait_for_joins;
 	time_t usec_per_turn;
 	char *word;
 	void (*prepare)();
