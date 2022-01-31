@@ -186,7 +186,7 @@ static void start() {
 }
 
 void boom() {
-	SET_IF_NULL(config.min_players, 2)
+	SET_MIN_PLAYERS(2)
 	SET_IF_NULL(config.view_radius, 4)
 	static const char obstacles[] = { TILE_HIDDEN_POWER_UP };
 	SET_IF_NULL(config.obstacles, obstacles)

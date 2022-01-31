@@ -24,6 +24,7 @@
 #define FORMAT_PLAIN 0
 #define FORMAT_JSON 1
 #define SET_IF_NULL(target, preset) if (!target) { target = preset; }
+#define SET_MIN_PLAYERS(num) if (config.min_players > MAX_PLAYERS) { config.min_players = num; }
 
 typedef struct Game Game;
 typedef struct Player Player;
@@ -110,6 +111,7 @@ struct Config {
 	unsigned int shrink_step;
 	unsigned int player_life;
 	int can_shoot;
+	int join_anytime;
 	unsigned int diagonal_interval;
 	unsigned int gems;
 	unsigned int spawn_frequency;

@@ -67,8 +67,9 @@ static void complete_config() {
 	SET_IF_NULL(config.port, 63187)
 	SET_IF_NULL(config.port_websocket, 63188)
 	SET_IF_NULL(config.port_spectator, 63189)
-	SET_IF_NULL(config.min_players, 1)
-	SET_IF_NULL(config.min_starters, config.min_players)
+	SET_MIN_PLAYERS(1)
+	SET_IF_NULL(config.min_starters,
+		config.min_players > 1 ? config.min_players : 1)
 	SET_IF_NULL(config.map_width, 32)
 	SET_IF_NULL(config.map_height, config.map_width)
 	SET_IF_NULL(config.map_type, MAP_TYPE_PLAIN)
@@ -113,7 +114,8 @@ static void usage() {
 		"                              default is 1\n"\
 		"  -m, --min-players N         minimum number of alive players, "\
 			"default depends\n"\
-		"                              on mode\n"\
+		"                              on mode, 0 to keep game running "\
+			"without players\n"\
 		"  -n, --name-file FILE        list of IP addresses with player "
 			"names in\n"\
 		"                              \"192.168.1.5 B [Bob]\" format\n"\
@@ -164,6 +166,7 @@ static void usage() {
 			"default is 1\n"\
 		"  -X, --shoot                 players can shoot, "\
 			"default depends on mode\n"\
+		"  -j, --join-anytime          accept connections after game start\n"\
 		"  -D, --diagonal-interval N   players can move diagonally every "\
 			"N turns,\n"\
 		"                              default is 0 for no diagonal "\
@@ -383,6 +386,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "shrink-step", required_argument, NULL, 'T' },
 		{ "player-life", required_argument, NULL, 'l' },
 		{ "shoot", no_argument, NULL, 'X' },
+		{ "join-anytime", no_argument, NULL, 'j' },
 		{ "diagonal-interval", required_argument, NULL, 'D' },
 		{ "gems", required_argument, NULL, 'g' },
 		{ "spawn-frequency", required_argument, NULL, 'Q' },
@@ -393,9 +397,12 @@ static void parse_arguments(int argc, char **argv) {
 		{ NULL, 0, NULL, 0 }
 	};
 
+	// set min_players to an impossible value to mark it as unset
+	config.min_players = MAX_PLAYERS + 1;
+
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XD:g:Q:R:F:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XjD:g:Q:R:F:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -492,6 +499,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'X':
 			config.can_shoot = 1;
+			break;
+		case 'j':
+			config.join_anytime = 1;
 			break;
 		case 'D':
 			config.diagonal_interval = atoi(optarg);

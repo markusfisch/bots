@@ -3,7 +3,7 @@
 #include "rumble.h"
 
 void rumble() {
-	SET_IF_NULL(config.min_players, 2)
+	SET_MIN_PLAYERS(2)
 	SET_IF_NULL(config.view_radius, 4)
 	SET_IF_NULL(config.placing, PLACING_GRID)
 	SET_IF_NULL(config.max_turns, game.map.size)

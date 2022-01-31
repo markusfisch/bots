@@ -280,7 +280,7 @@ OPTION can be any of:
   -b, --min-starters N        minimum number of players to start a game,
                               default is 1
   -m, --min-players N         minimum number of alive players, default depends
-                              on mode
+                              on mode, 0 to keep game running without players
   -n, --name-file FILE        list of IP addresses with player names in
                               "192.168.1.5 B [Bob]" format
   -s, --map-size N[xN]        map size, default is 32x32
@@ -309,6 +309,7 @@ OPTION can be any of:
   -T, --shrink-step N         amount of turns until next shrink, default is 1
   -l, --player-life N         life value of players, default is 1
   -X, --shoot                 players can shoot, default depends on mode
+  -j, --join-anytime          accept connections after game start
   -D, --diagonal-interval N   players can move diagonally every N turns,
                               default is 0 for no diagonal movement
   -g, --gems N                number of gems if there are gems, default equals

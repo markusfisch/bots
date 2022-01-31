@@ -35,21 +35,23 @@ void placing_circle(const unsigned int fuzz) {
 	}
 }
 
+void placing_random_player(Player *p, const unsigned int fuzz) {
+	int px;
+	int py;
+	do {
+		px = (config.rand() % game.map.width) + fuzzy(fuzz);
+		py = (config.rand() % game.map.height) + fuzzy(fuzz);
+	} while (config.impassable(&game.map, px, py) ||
+		player_at(px, py, NULL));
+	p->bearing = config.rand() % 4;
+	p->x = px;
+	p->y = py;
+}
+
 void placing_random(const unsigned int fuzz) {
-	int width = game.map.width;
-	int height = game.map.height;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
-		int px;
-		int py;
-		do {
-			px = (config.rand() % width) + fuzzy(fuzz);
-			py = (config.rand() % height) + fuzzy(fuzz);
-		} while (config.impassable(&game.map, px, py) ||
-			player_at(px, py, NULL));
-		p->bearing = config.rand() % 4;
-		p->x = px;
-		p->y = py;
+		placing_random_player(p, fuzz);
 	}
 }
 

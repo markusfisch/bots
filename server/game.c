@@ -557,12 +557,18 @@ static Names *game_resolve_name(const char *addr) {
 }
 
 static Player *game_add_player(int fd, const char *addr) {
-	if (game.nplayers >= MAX_PLAYERS) {
+	Player *p = game.players, *e = p + MAX_PLAYERS;
+	for (; p < e; ++p) {
+		if (!p->fd) {
+			break;
+		}
+	}
+	if (p == e) {
 		printf("player from %s rejected because there are no seats left\n",
 			addr);
 		return NULL;
 	}
-	Player *p = &game.players[game.nplayers];
+	memset(p, 0, sizeof(Player));
 	strcpy(p->addr, addr);
 	p->fd = fd;
 	if (config.player_life > 0) {
@@ -570,7 +576,11 @@ static Player *game_add_player(int fd, const char *addr) {
 	} else {
 		p->life = 1;
 	}
-	p->x = p->y = -1;
+	if (game.started) {
+		placing_random_player(p, config.placing_fuzz);
+	} else {
+		p->x = p->y = -1;
+	}
 	p->attack_x = p->attack_y = -1;
 	Names *n = game_resolve_name(addr);
 	if (n) {
@@ -579,7 +589,10 @@ static Player *game_add_player(int fd, const char *addr) {
 	} else {
 		p->name = game_find_free_name();
 	}
-	++game.nplayers;
+	size_t nplayers = 1 + (p - game.players);
+	if (nplayers > game.nplayers) {
+		game.nplayers = nplayers;
+	}
 	game_watch_fd(fd);
 	return p;
 }
@@ -602,7 +615,7 @@ static void game_join(const int lfd, int (*add)(int, const char *),
 	struct sockaddr addr;
 	socklen_t len = sizeof(addr);
 	int fd = accept(lfd, &addr, &len);
-	if (game.started) {
+	if (game.started && !config.join_anytime) {
 		close(fd);
 		return;
 	}
