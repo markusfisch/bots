@@ -180,15 +180,13 @@ ask(function(cmd) {
 
 const CODE = 'code',
 	HOST = 'host',
-	W = window,
-	D = document,
-	storage = W.localStorage,
-	startButton = D.getElementById('Start'),
-	stopButton = D.getElementById('Stop'),
-	hostInput = D.getElementById('Host'),
-	monitorView = D.getElementById('Monitor'),
-	codeEditor = D.getElementById('Code'),
-	commandInput = D.getElementById('Command')
+	storage = window.localStorage,
+	startButton = document.getElementById('Start'),
+	stopButton = document.getElementById('Stop'),
+	hostInput = document.getElementById('Host'),
+	monitorView = document.getElementById('Monitor'),
+	codeEditor = document.getElementById('Code'),
+	commandInput = document.getElementById('Command')
 
 let ws
 
@@ -234,7 +232,7 @@ function reset() {
 
 function start() {
 	clear()
-	if (!'WebSocket' in W) {
+	if (!'WebSocket' in window) {
 		alert('Sorry, this browser cannot open a WebSocket.')
 		return false
 	}
@@ -277,7 +275,7 @@ function save() {
 	}
 }
 
-W.onload = function() {
+window.onload = function() {
 	if (!storage) {
 		return
 	}
