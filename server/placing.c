@@ -106,18 +106,23 @@ void placing_diagonal(const unsigned int fuzz) {
 	}
 }
 
+void placing_manual_player(Player *p, Coords *coords,
+		const unsigned int fuzz) {
+	int x = map_wrap(coords->x + fuzzy(fuzz), game.map.width);
+	int y = map_wrap(coords->y + fuzzy(fuzz), game.map.height);
+	if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {
+		map_set(&game.map, x, y, *config.flatland);
+	}
+	p->x = x;
+	p->y = y;
+	p->bearing = coords->bearing < 4 ? coords->bearing :
+		config.rand() % 4;
+	map_set(&game.map, p->x, p->y, TILE_FLATLAND);
+}
+
 void placing_manual(Coords *coords, const unsigned int fuzz) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p, ++coords) {
-		int x = map_wrap(coords->x + fuzzy(fuzz), game.map.width);
-		int y = map_wrap(coords->y + fuzzy(fuzz), game.map.height);
-		if (!map_find(&game.map, &x, &y, FIND_RADIUS, find_free_spot)) {
-			map_set(&game.map, x, y, *config.flatland);
-		}
-		p->x = x;
-		p->y = y;
-		p->bearing = coords->bearing < 4 ? coords->bearing :
-			config.rand() % 4;
-		map_set(&game.map, p->x, p->y, TILE_FLATLAND);
+		placing_manual_player(p, coords, fuzz);
 	}
 }

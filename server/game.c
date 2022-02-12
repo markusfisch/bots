@@ -577,7 +577,13 @@ static Player *game_add_player(int fd, const char *addr) {
 		p->life = 1;
 	}
 	if (game.started) {
-		placing_random_player(p, config.placing_fuzz);
+		if (config.placing == PLACING_MANUAL) {
+			// re-use first coordinate for players that join when the
+			// game already has started
+			placing_manual_player(p, config.coords, config.placing_fuzz);
+		} else {
+			placing_random_player(p, config.placing_fuzz);
+		}
 	} else {
 		p->x = p->y = -1;
 	}

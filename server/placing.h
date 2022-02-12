@@ -9,6 +9,7 @@ void placing_random_player(Player *, const unsigned int);
 void placing_random(unsigned int);
 void placing_grid(unsigned int);
 void placing_diagonal(unsigned int);
+void placing_manual_player(Player *, Coords *, const unsigned int);
 void placing_manual(Coords *, unsigned int);
 
 #endif
