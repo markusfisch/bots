@@ -59,6 +59,9 @@ static int websocket_handshake(WebSocket *ws) {
 
 static int websocket_send_message(WebSocket *ws, const unsigned char opcode,
 		const void *data, uint64_t len) {
+	if (!ws->handshaked && websocket_read(ws, NULL) < 0) {
+		return -1;
+	}
 	unsigned char header[10];
 	unsigned int hlen;
 	memset(header, 0, sizeof(header));
