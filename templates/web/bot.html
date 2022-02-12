@@ -162,7 +162,7 @@ print(view)
 // parses "view" and "send()" an appropriate
 // command.
 ask(function(cmd) {
-	print('Sending [' + cmd + ']')
+	print("Sending [" + cmd + "]")
 	send(cmd)
 })
 
@@ -176,43 +176,43 @@ ask(function(cmd) {
 <input id="Command" type="text" placeholder="Your command? (&lt;&gt;^v)"/>
 </form>
 <script>
-'use strict'
+"use strict"
 
-const CODE = 'code',
-	HOST = 'host',
+const CODE = "code",
+	HOST = "host",
 	storage = window.localStorage,
-	startButton = document.getElementById('Start'),
-	stopButton = document.getElementById('Stop'),
-	hostInput = document.getElementById('Host'),
-	monitorView = document.getElementById('Monitor'),
-	codeEditor = document.getElementById('Code'),
-	commandInput = document.getElementById('Command')
+	startButton = document.getElementById("Start"),
+	stopButton = document.getElementById("Stop"),
+	hostInput = document.getElementById("Host"),
+	monitorView = document.getElementById("Monitor"),
+	codeEditor = document.getElementById("Code"),
+	commandInput = document.getElementById("Command")
 
 let ws
 
 function disableElements() {
 	for (let i = arguments.length; i--;) {
-		arguments[i].setAttribute('disabled', 'disabled')
+		arguments[i].setAttribute("disabled", "disabled")
 	}
 }
 
 function enableElements() {
 	for (let i = arguments.length; i--;) {
-		arguments[i].removeAttribute('disabled')
+		arguments[i].removeAttribute("disabled")
 	}
 }
 
 function print(text) {
-	monitorView.value += text + '\n'
+	monitorView.value += text + "\n"
 	monitorView.scrollTop = monitorView.scrollHeight
 }
 
 function ask(oninput) {
 	commandInput.oninput = function(event) {
 		oninput(commandInput.value)
-		commandInput.value = ''
+		commandInput.value = ""
 	}
-	commandInput.style.display = 'block'
+	commandInput.style.display = "block"
 	commandInput.focus()
 }
 
@@ -221,24 +221,24 @@ function send(cmd) {
 }
 
 function clear() {
-	monitorView.value = ''
+	monitorView.value = ""
 }
 
 function reset() {
-	commandInput.style.display = 'none'
+	commandInput.style.display = "none"
 	enableElements(hostInput, startButton)
 	disableElements(stopButton)
 }
 
 function start() {
 	clear()
-	if (!'WebSocket' in window) {
-		alert('Sorry, this browser cannot open a WebSocket.')
+	if (!"WebSocket" in window) {
+		alert("Sorry, this browser cannot open a WebSocket.")
 		return false
 	}
 	let process
 	try {
-		process = new Function('view', codeEditor.value)
+		process = new Function("view", codeEditor.value)
 	} catch (error) {
 		print(error)
 		return false
@@ -246,18 +246,18 @@ function start() {
 	disableElements(hostInput, startButton)
 	enableElements(stopButton)
 	let host = hostInput.value
-	if (host.indexOf(':') < 0) {
-		host += ':63188'
+	if (host.indexOf(":") < 0) {
+		host += ":63188"
 	}
-	ws = new WebSocket('ws://' + host)
+	ws = new WebSocket("ws://" + host)
 	ws.onopen = function() {
-		print('Connected.')
+		print("Connected.")
 	}
 	ws.onmessage = function (event) {
 		process(event.data)
 	}
 	ws.onclose = function (event) {
-		print('Connection closed.')
+		print("Connection closed.")
 		reset()
 	}
 	return true
