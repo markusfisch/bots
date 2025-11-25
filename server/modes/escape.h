@@ -1,6 +1,6 @@
 #ifndef _escape_h_
 #define _escape_h_
 
-void escape();
+void escape(void);
 
 #endif

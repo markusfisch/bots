@@ -88,7 +88,7 @@ static void update_bomb(struct Bomb *b) {
 	map_set(&game.map, b->x, b->y, 48 + b->timer);
 }
 
-static void update_bombs() {
+static void update_bombs(void) {
 	struct Bomb *b = bombs, *e = b + MAX_BOMBS;
 	for (; b < e; ++b) {
 		if (b->timer < 1) {
@@ -101,7 +101,7 @@ static void update_bombs() {
 	}
 }
 
-static void remove_fires() {
+static void remove_fires(void) {
 	struct Bomb *b = bombs, *e = b + MAX_BOMBS;
 	for (; b < e; ++b) {
 		if (b->timer == 0) {
@@ -111,7 +111,7 @@ static void remove_fires() {
 	}
 }
 
-static void turn_start() {
+static void turn_start(void) {
 	remove_fires();
 	update_bombs();
 }
@@ -154,24 +154,24 @@ static void move(Player *player, char cmd) {
 	}
 }
 
-static void free_bombs() {
+static void free_bombs(void) {
 	free(bombs);
 	bombs = NULL;
 }
 
-static void end() {
+static void end(void) {
 	free_bombs();
 	players_set_remaining_scores(score);
 }
 
-static void init_bombs() {
+static void init_bombs(void) {
 	struct Bomb *b = bombs, *e = b + MAX_BOMBS;
 	for (; b < e; ++b) {
 		b->timer = -1;
 	}
 }
 
-static void start() {
+static void start(void) {
 	score = MAX_PLAYERS - (game.nplayers - 1);
 
 	config.gems = scatter(TILE_HIDDEN_POWER_UP, config.gems);
@@ -185,7 +185,7 @@ static void start() {
 	init_bombs();
 }
 
-void boom() {
+void boom(void) {
 	SET_MIN_PLAYERS(2)
 	SET_IF_NULL(config.view_radius, 4)
 	static const char obstacles[] = { TILE_HIDDEN_POWER_UP };

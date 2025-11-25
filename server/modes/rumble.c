@@ -2,7 +2,7 @@
 #include "../player.h"
 #include "rumble.h"
 
-void rumble() {
+void rumble(void) {
 	SET_MIN_PLAYERS(2)
 	SET_IF_NULL(config.view_radius, 4)
 	SET_IF_NULL(config.placing, PLACING_GRID)

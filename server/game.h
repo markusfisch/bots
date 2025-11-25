@@ -118,21 +118,21 @@ struct Config {
 	unsigned int output_format;
 	time_t usec_per_turn;
 	char *word;
-	void (*prepare)();
-	void (*start)();
-	void (*turn_start)();
+	void (*prepare)(void);
+	void (*start)(void);
+	void (*turn_start)(void);
 	char (*marker)(Player *);
 	int (*impassable)(Map *, int, int);
 	void (*move_blocked_at)(Player *, int, int);
 	void (*move)(Player *, char);
 	int (*attacking)(Player *);
-	void (*end)();
-	int (*rand)();
+	void (*end)(void);
+	int (*rand)(void);
 } config;
 
-unsigned int game_joined();
+unsigned int game_joined(void);
 void game_remove_player(Player *);
-void game_stop();
-int game_serve();
+void game_stop(void);
+int game_serve(void);
 
 #endif

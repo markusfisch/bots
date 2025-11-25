@@ -86,7 +86,7 @@ static void place_treasures(const unsigned int treasures, const int min_dist) {
 	}
 }
 
-static void start() {
+static void start(void) {
 	map_create(&treasure_map, game.map.width, game.map.height);
 	memset(treasure_map.data, TILE_NOTHING, treasure_map.size);
 	ntreasure = config.gems;
@@ -94,11 +94,11 @@ static void start() {
 		round((float) game.map.size / ntreasure * .125));
 }
 
-static void end() {
+static void end(void) {
 	map_free(&treasure_map);
 }
 
-void dig() {
+void dig(void) {
 	SET_IF_NULL(config.map_type, MAP_TYPE_TERRAIN)
 	SET_IF_NULL(config.view_radius, 8)
 	SET_IF_NULL(config.placing, PLACING_RANDOM)

@@ -184,7 +184,7 @@ static void enemy_spawn_at(const int x, const int y) {
 	}
 }
 
-static int enemy_spawn() {
+static int enemy_spawn(void) {
 	size_t offset = config.rand();
 	size_t i;
 	for (i = 0; i < nportals; ++i, ++offset) {
@@ -232,7 +232,7 @@ static struct Enemy *enemy_at(const int x, const int y) {
 	return NULL;
 }
 
-static void enemies_move() {
+static void enemies_move(void) {
 	struct Enemy *p = enemies, *e = p + nenemies;
 	if (game.turn % config.spawn_frequency == 0) {
 		enemy_spawn();
@@ -281,7 +281,7 @@ static int find_free_spot(int x, int y) {
 	return !config.impassable(&game.map, x, y);
 }
 
-static void portals_place() {
+static void portals_place(void) {
 	double dx = game.map.width;
 	double dy = game.map.height;
 	double d = sqrt(dx*dx + dy*dy);
@@ -306,7 +306,7 @@ static void portals_place() {
 	}
 }
 
-static void portals_find() {
+static void portals_find(void) {
 	struct Portal *p = portals, *e = p + nportals;
 	size_t size = game.map.size;
 	char *s;
@@ -326,7 +326,7 @@ static size_t portals_create(int amount) {
 	return amount;
 }
 
-static void start() {
+static void start(void) {
 	nenemies = enemies_create(round(game.map.size * .5));
 	if ((nportals = map_count(&game.map, TILE_PORTAL)) > 0) {
 		nportals = portals_create(nportals);
@@ -349,7 +349,7 @@ static void add_scores_for_survival(int score) {
 	}
 }
 
-static void end() {
+static void end(void) {
 	add_scores_for_survival(score);
 	free(enemies);
 	enemies = NULL;
@@ -361,7 +361,7 @@ static void end() {
 	backup_map_data = NULL;
 }
 
-void horde() {
+void horde(void) {
 	SET_IF_NULL(config.placing, PLACING_DIAGONAL)
 	SET_IF_NULL(config.view_radius, 8)
 	SET_IF_NULL(config.diagonal_interval, 1)

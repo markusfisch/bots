@@ -40,7 +40,7 @@ static void move(Player *p, char cmd) {
 	player_move(p, cmd);
 }
 
-static void place_word() {
+static void place_word(void) {
 	int x = (game.map.width - word_len) / 2;
 	int y = game.map.height / 2;
 	if (x < 0) {
@@ -52,7 +52,7 @@ static void place_word() {
 		word_len);
 }
 
-static void free_buffers() {
+static void free_buffers(void) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->trunk) {
@@ -62,7 +62,7 @@ static void free_buffers() {
 	}
 }
 
-static void alloc_buffers() {
+static void alloc_buffers(void) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		p->trunk = calloc(word_len, sizeof(char));
@@ -73,14 +73,14 @@ static void alloc_buffers() {
 	}
 }
 
-static void start() {
+static void start(void) {
 	points = MAX_PLAYERS;
 	word_len = strlen(config.word);
 	place_word();
 	alloc_buffers();
 }
 
-static char *generate_random_word() {
+static char *generate_random_word(void) {
 	size_t len = config.rand() % (sizeof(random_word) - 1);
 	if (len < 6) {
 		len = 6;
@@ -100,7 +100,7 @@ int impassable(Map *map, const int x, const int y) {
 	return map_impassable(map, x, y) || strchr(CHARS, tile);
 }
 
-void word() {
+void word(void) {
 	config.move = move;
 	config.start = start;
 	config.end = free_buffers;

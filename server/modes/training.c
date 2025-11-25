@@ -4,7 +4,7 @@
 #include "../game.h"
 #include "training.h"
 
-static void prepare() {
+static void prepare(void) {
 	if (config.custom_map) {
 		return;
 	}
@@ -49,6 +49,6 @@ static void prepare() {
 	}
 }
 
-void training() {
+void training(void) {
 	config.prepare = prepare;
 }

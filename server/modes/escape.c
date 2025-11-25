@@ -13,7 +13,7 @@ static int find_free_spot(int x, int y) {
 	return !config.impassable(&game.map, x, y);
 }
 
-static void start() {
+static void start(void) {
 	points = MAX_PLAYERS;
 	if (!map_count(&game.map, TILE_EXIT)) {
 		int x = game.map.width / 2;
@@ -31,7 +31,7 @@ static void move(Player *p, char cmd) {
 	}
 }
 
-void escape() {
+void escape(void) {
 	config.start = start;
 	config.move = move;
 }

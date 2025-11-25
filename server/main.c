@@ -35,7 +35,7 @@ static const char obstacles[] = { TILE_WATER, TILE_WOOD, 0 };
 static const struct Mode {
 	char *name;
 	char *description;
-	void (*init)();
+	void (*init)(void);
 } modes[] = {
 	{ "training", "just learn to see and move", training },
 	{ "escape", "find the exit field 'o'", escape },
@@ -53,17 +53,17 @@ static const struct Mode {
 // Park-Miller RNG
 // https://en.wikipedia.org/wiki/Lehmer_random_number_generator
 static uint32_t lcg_state = 1;
-static int repeatable_rand() {
+static int repeatable_rand(void) {
 	lcg_state = ((uint64_t) lcg_state * 48271u) % 0x7fffffff;
 	// cast to int because it's a stand-in for rand()
 	return (int) lcg_state;
 }
 
-static void free_resources() {
+static void free_resources(void) {
 	free(config.custom_map);
 }
 
-static void complete_config() {
+static void complete_config(void) {
 	SET_IF_NULL(config.port, 63187)
 	SET_IF_NULL(config.port_websocket, 63188)
 	SET_IF_NULL(config.port_spectator, 63189)
@@ -91,7 +91,7 @@ static void complete_config() {
 	SET_IF_NULL(config.impassable, map_impassable)
 }
 
-static void usage() {
+static void usage(void) {
 	printf("usage: bots [OPTION...] MODE\n");
 	printf("\nMODE must be one of:\n");
 	const struct Mode *m;
@@ -222,7 +222,7 @@ static void load_name_file(Names *names, const char *file) {
 	fclose(fp);
 }
 
-static void (*pick_mode(const char *name))() {
+static void (*pick_mode(const char *name))(void) {
 	const struct Mode *m;
 	for (m = modes; m->name; ++m) {
 		if (!strcmp(m->name, name)) {
@@ -531,7 +531,7 @@ static void parse_arguments(int argc, char **argv) {
 	argc -= optind;
 	argv += optind;
 
-	void (*init_mode)() = NULL;
+	void (*init_mode)(void) = NULL;
 	if (argc < 1 || !(init_mode = pick_mode(*argv))) {
 		usage();
 		exit(0);

@@ -24,7 +24,7 @@ unsigned int scatter(char tile, unsigned int amount) {
 	return amount;
 }
 
-static void start() {
+static void start(void) {
 	collected = 0;
 	config.gems = scatter(TILE_GEM, config.gems);
 }
@@ -40,7 +40,7 @@ static void move(Player *p, char cmd) {
 	}
 }
 
-void collect() {
+void collect(void) {
 	SET_IF_NULL(config.placing, PLACING_RANDOM)
 
 	config.start = start;

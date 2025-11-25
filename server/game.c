@@ -19,7 +19,7 @@
 
 static int stop = 0;
 
-unsigned int game_joined() {
+unsigned int game_joined(void) {
 	size_t n = 0;
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
@@ -152,7 +152,7 @@ static void game_write_results(FILE *fp) {
 	game_for_spectators(4096, game_write_spectator_results, NULL);
 }
 
-static void game_remove_spectators() {
+static void game_remove_spectators(void) {
 	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
 		if (p->ws.fd > 0) {
@@ -161,7 +161,7 @@ static void game_remove_spectators() {
 	}
 }
 
-static void game_remove_players() {
+static void game_remove_players(void) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0) {
@@ -199,7 +199,7 @@ static void game_inset_player(Player *p,
 	}
 }
 
-static void game_shrink() {
+static void game_shrink(void) {
 	size_t level = game.shrink_level;
 	size_t mw = game.map.width;
 	size_t mh = game.map.height;
@@ -326,7 +326,7 @@ static void game_write(FILE *fp) {
 		game_write_spectator, map);
 }
 
-static void game_remove_defective_players() {
+static void game_remove_defective_players(void) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && game.turn - p->moves > config.max_lag) {
@@ -335,11 +335,11 @@ static void game_remove_defective_players() {
 	}
 }
 
-void game_stop() {
+void game_stop(void) {
 	game.stopped = time(NULL);
 }
 
-static void game_finish() {
+static void game_finish(void) {
 	if (config.turn_start) {
 		config.turn_start();
 	}
@@ -351,7 +351,7 @@ static void game_finish() {
 	game_write_results(stdout);
 }
 
-static void game_send_players() {
+static void game_send_players(void) {
 	int turn_started = 0;
 	int update = 0;
 	Player *p = game.players, *e = p + game.nplayers;
@@ -396,7 +396,7 @@ static void game_send_players() {
 	}
 }
 
-static int game_turn_complete() {
+static int game_turn_complete(void) {
 	Player *p = game.players, *e = p + game.nplayers;
 	for (; p < e; ++p) {
 		if (p->fd > 0 && p->can_move) {
@@ -406,7 +406,7 @@ static int game_turn_complete() {
 	return 1;
 }
 
-static time_t game_next_turn() {
+static time_t game_next_turn(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	time_t delta = (tv.tv_sec - game.tick.tv_sec) * USEC_PER_SEC -
@@ -432,7 +432,7 @@ static void game_print_disconnect(const char *addr) {
 	}
 }
 
-static void game_read_spectators() {
+static void game_read_spectators(void) {
 	Spectator *p = game.spectators, *e = p + game.nspectators;
 	for (; p < e; ++p) {
 		if (p->ws.fd > 0 && FD_ISSET(p->ws.fd, &game.ready) &&
@@ -472,7 +472,7 @@ static void game_read_command(Player *p) {
 	game_do_command(p, cmd);
 }
 
-static void game_read_commands() {
+static void game_read_commands(void) {
 	// use a Fisher-Yates shuffle to process commands in random order
 	Player *queue[MAX_PLAYERS];
 	Player **q = queue, **e = queue + game.nplayers;
@@ -525,7 +525,7 @@ static int game_add_spectator(int fd, const char *addr) {
 	return 1;
 }
 
-static char game_find_free_name() {
+static char game_find_free_name(void) {
 	char taken[MAX_PLAYERS];
 	memset(taken, 0, sizeof(taken));
 	Player *p = game.players, *e = p + game.nplayers;
@@ -643,7 +643,7 @@ static void game_join(const int lfd, int (*add)(int, const char *),
 	}
 }
 
-static void game_place_players() {
+static void game_place_players(void) {
 	switch (config.placing) {
 	default:
 	case PLACING_CIRCLE:
@@ -664,7 +664,7 @@ static void game_place_players() {
 	}
 }
 
-static void game_init_map() {
+static void game_init_map(void) {
 	if (game.map.width != config.map_width ||
 			game.map.height != config.map_height) {
 		map_create(&game.map, config.map_width, config.map_height);
@@ -696,7 +696,7 @@ static void game_init_map() {
 	}
 }
 
-static void game_write_header() {
+static void game_write_header(void) {
 	if (config.output_format == FORMAT_JSON) {
 		printf("{\"mode\":\"%s\",\n"\
 				"\"max_turns\":%u,\n"\
@@ -735,7 +735,7 @@ static void game_write_header() {
 	}
 }
 
-static void game_start() {
+static void game_start(void) {
 	if (config.prepare) {
 		config.prepare();
 	}
@@ -749,7 +749,7 @@ static void game_start() {
 	game_write_header();
 }
 
-static void game_shutdown() {
+static void game_shutdown(void) {
 	game_remove_players();
 	game_remove_spectators();
 	map_free(&game.map);
@@ -898,7 +898,7 @@ int game_listen(const int port) {
 	return fd;
 }
 
-int game_serve() {
+int game_serve(void) {
 	int fd_listen = game_listen(config.port);
 	if (fd_listen < 0) {
 		return -1;

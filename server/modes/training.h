@@ -1,6 +1,6 @@
 #ifndef _training_h_
 #define _training_h_
 
-void training();
+void training(void);
 
 #endif

@@ -4,6 +4,6 @@
 #define TILE_GEM '@'
 
 unsigned int scatter(char, unsigned int);
-void collect();
+void collect(void);
 
 #endif
