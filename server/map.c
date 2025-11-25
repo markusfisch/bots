@@ -78,7 +78,7 @@ void map_set(Map *map, const int x, const int y, const char tile) {
 int map_impassable(Map *map, const int x, const int y) {
 	char tile = map_get(map, x, y);
 	return tile == TILE_GONE ||
-		(map->obstacles && strchr(map->obstacles, tile)) ? 1 : 0;
+		(map->obstacles && strchr(map->obstacles, tile));
 }
 
 unsigned int map_count(Map *map, const char tile) {
