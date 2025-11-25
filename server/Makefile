@@ -35,4 +35,4 @@ test: $(BIN)
 	tests/test_dig
 
 clean:
-	rm -f *.o modes/*.o websocket/*.o $(BIN)
+	rm -f *.o modes/*.o $(BIN)
