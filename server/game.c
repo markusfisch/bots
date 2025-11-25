@@ -692,7 +692,7 @@ static void game_init_map(void) {
 		break;
 	case MAP_TYPE_MAZE:
 		maze_generate(&game.map, game.map.width / 2, game.map.height / 2,
-			*config.flatland, TILE_GONE);
+			*config.flatland, *config.obstacles);
 		game.map.obstacles = config.obstacles;
 		break;
 	case MAP_TYPE_TERRAIN:
