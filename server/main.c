@@ -143,6 +143,7 @@ static void usage(void) {
 			"place players at given coordinates and\n"\
 		"                              in given direction, either "\
 			"'^', '>', 'v' or '<'\n"
+		"  -U, --upright               place all players facing up\n"\
 		"  -N, --non-exclusive         multiple players can occupy "\
 			"the same cell\n"\
 		"  -Y, --translate-walls       translate '-' and '|' according "\
@@ -376,6 +377,7 @@ static void parse_arguments(int argc, char **argv) {
 		{ "placing", required_argument, NULL, 'p' },
 		{ "fuzzy", required_argument, NULL, 'Z' },
 		{ "place-at", required_argument, NULL, 'A' },
+		{ "upright", no_argument, NULL, 'U' },
 		{ "non-exclusive", no_argument, NULL, 'N' },
 		{ "translate-walls", no_argument, NULL, 'Y' },
 		{ "view-radius", required_argument, NULL, 'v' },
@@ -402,7 +404,7 @@ static void parse_arguments(int argc, char **argv) {
 
 	int ch;
 	while ((ch = getopt_long(argc, argv,
-			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:NYv:G:M:L:S:T:l:XjD:g:Q:R:F:u:d",
+			"P:W:O:V:rb:m:n:s:t:c:o:f:x:p:Z:A:UNYv:G:M:L:S:T:l:XjD:g:Q:R:F:u:d",
 			longopts, NULL)) != -1) {
 		switch (ch) {
 		case 'P':
@@ -469,6 +471,9 @@ static void parse_arguments(int argc, char **argv) {
 			break;
 		case 'A':
 			config.placing = parse_placing_at(config.coords, optarg);
+			break;
+		case 'U':
+			config.placing_upright = 1;
 			break;
 		case 'N':
 			config.non_exclusive = 1;

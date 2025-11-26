@@ -296,6 +296,7 @@ OPTION can be any of:
                               position, default is 0
   -A, --place-at X,Y[,D]:...  manually place players at given coordinates and
                               in given direction, either '^', '>', 'v' or '<'
+  -U, --upright               place all players facing up
   -N, --non-exclusive         multiple players can occupy the same cell
   -Y, --translate-walls       translate '-' and '|' according to orientation
   -v, --view-radius N         how many fields a player can see in every

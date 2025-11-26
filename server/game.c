@@ -584,6 +584,9 @@ static Player *game_add_player(int fd, const char *addr) {
 		} else {
 			placing_random_player(p, config.placing_fuzz);
 		}
+		if (config.placing_upright) {
+			p->bearing = 0;
+		}
 	} else {
 		p->x = p->y = -1;
 	}
@@ -661,6 +664,9 @@ static void game_place_players(void) {
 	case PLACING_MANUAL:
 		placing_manual(config.coords, config.placing_fuzz);
 		break;
+	}
+	if (config.placing_upright) {
+		placing_face_up();
 	}
 }
 

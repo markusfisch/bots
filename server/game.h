@@ -91,6 +91,7 @@ struct Config {
 	unsigned int multiplier;
 	unsigned int placing;
 	unsigned int placing_fuzz;
+	unsigned int placing_upright;
 	struct Names {
 		char addr[INET_ADDRSTRLEN];
 		char long_name[INET_ADDRSTRLEN];

@@ -11,5 +11,6 @@ void placing_grid(unsigned int);
 void placing_diagonal(unsigned int);
 void placing_manual_player(Player *, Coords *, const unsigned int);
 void placing_manual(Coords *, unsigned int);
+void placing_face_up(void);
 
 #endif

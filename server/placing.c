@@ -126,3 +126,10 @@ void placing_manual(Coords *coords, const unsigned int fuzz) {
 		placing_manual_player(p, coords, fuzz);
 	}
 }
+
+void placing_face_up(void) {
+	Player *p = game.players, *e = p + game.nplayers;
+	for (; p < e; ++p) {
+		p->bearing = 0;
+	}
+}
