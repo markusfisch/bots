@@ -71,7 +71,9 @@ struct Game {
 		char addr[INET_ADDRSTRLEN];
 		WebSocket ws;
 	} spectators[MAX_SPECTATORS];
-} game;
+};
+
+extern Game game;
 
 struct Config {
 	const char *mode_name;
@@ -129,7 +131,9 @@ struct Config {
 	int (*attacking)(Player *);
 	void (*end)(void);
 	int (*rand)(void);
-} config;
+};
+
+extern Config config;
 
 unsigned int game_joined(void);
 void game_remove_player(Player *);

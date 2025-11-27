@@ -17,6 +17,9 @@
 #define ROLE_PLAYER "player"
 #define ROLE_SPECTATOR "spectator"
 
+Game game;
+Config config;
+
 static int stop = 0;
 
 unsigned int game_joined(void) {
